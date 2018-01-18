@@ -163,9 +163,10 @@ class Ui_MainWindow(object):
         self.list = QtWidgets.QListWidget()
 
         ### Insert some apps
-        self.createNewAppItem("Test 1");
-        self.createNewAppItem("Test 2");
-        self.createNewAppItem("Test 3");
+        # self.createNewAppItem("Test 1");
+        # self.createNewAppItem("Test 2");
+        # self.createNewAppItem("Test 3");
+        self.fillAppList()
 
         ### Arrange the app list layout
         self.appListLayoutWidget = QtWidgets.QWidget(self.tab)
@@ -241,15 +242,17 @@ class Ui_MainWindow(object):
 
     @QtCore.pyqtSlot()
     def addAppClick(self):
-        self.createNewAppItem("Test " + str(self.i))
+        self.createNewAppItem("Test " + str(self.i), {1,2,3})
         self.i+=1
 
     ### Add a new app item to the application list
-    def createNewAppItem(self, labelText):
+    def createNewAppItem(self, processName, PID_list):
         wapp = QtWidgets.QListWidgetItem(self.list)
         wapp.setText(" ")
         wapp_widget = WappWidget()
-        wapp_widget.setLabelText(labelText)
+        wapp_widget.setLabelText(processName)
+        wapp_widget.setProcessName(processName)
+        wapp_widget.setPIDlist(PID_list)
         wapp.setSizeHint(wapp_widget.sizeHint())
         self.list.addItem(wapp)
         self.list.setItemWidget(wapp, wapp_widget)
@@ -290,6 +293,19 @@ class Ui_MainWindow(object):
     def openVPNsubmit(self):
         ### TODO : handle openVPN
         print("ok")
+
+    def getAppList(self):
+        pidList1 = { 11, 8, 23 }
+        pidList2 = { 3 }
+        pidList3 = { 98, 278267, 72 }
+        pidList4 = { 8337763 }
+        listApp = [ { "appname" : "app1", "PID_list" : pidList1 }, { "appname" : "app2", "PID_list" : pidList2 }, { "appname" : "app3", "PID_list" : pidList3 }, { "appname" : "app4", "PID_list" : pidList4 } ]
+        return listApp
+
+    def fillAppList(self):
+        listApp = self.getAppList()
+        for app in listApp:
+            self.createNewAppItem(app["appname"], app["PID_list"])
 
 
 from wapp import WappWidget

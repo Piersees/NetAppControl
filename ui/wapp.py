@@ -18,6 +18,9 @@ class WappWidget(QWidget):
 
         super(WappWidget, self).__init__(parent)
 
+        self.processName = ""
+        self.PID_list = {};
+
         ### Create the sub widgets
         self.setStyleSheet("QPushButton{width:60px; height:60px;}")
         self.label = QLabel("Test")
@@ -126,6 +129,22 @@ class WappWidget(QWidget):
         fh = open(filename, "w")
         fh.writelines(data_list)
         fh.close()
+
+    @pyqtSlot(str)
+    def setProcessName(self, value):
+        self.processName = value
+
+    @pyqtSlot()
+    def getProcessName(self):
+        return self.processName
+
+    @pyqtSlot(list)
+    def setPIDlist(self, value):
+        self.PID_list = value
+
+    @pyqtSlot()
+    def getPIDlist(self):
+        return self.PID_list
 
 
     labelText = pyqtProperty(str, getLabelText, setLabelText)
