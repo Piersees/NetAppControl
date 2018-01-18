@@ -148,6 +148,13 @@ class Ui_MainWindow(object):
         self.labelLogo.setBaseSize(QtCore.QSize(250, 250))
         self.labelLogo.setObjectName("labelLogo")
 
+        ### Ip label
+        self.Iplabel = QtWidgets.QLabel(self.home_tab)
+        self.Iplabel.setGeometry(QtCore.QRect(600, 10, 185, 20))
+        self.Iplabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.Iplabel.setObjectName("Iplabel")
+        self.Iplabel.setText("Public IP adress: " + External_IP.Get_IP())
+
         ### Insert items into the application list
 
         ### Create the application list
@@ -260,6 +267,7 @@ from wapp import WappWidget
 import sys
 sys.path.append("../Network")
 import SpeedTest
+import External_IP
 
 if __name__ == "__main__":
     import sys
