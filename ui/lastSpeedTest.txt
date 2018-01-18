@@ -1,5 +1,5 @@
-Download rate: 4.062210627915196Mb/s
-Upload rate: 5.847679701462111Mb/s
-Ping: 30.686
-Server: Paris | France | Orange
-2018-01-18T13:26:40.382751Z
+Download rate: 9.17Mb/s
+Upload rate: 14.17Mb/s
+Ping: 9
+Server: Courbevoie | France | Stella Telecom
+2018-01-18T15:03:09.396406Z
