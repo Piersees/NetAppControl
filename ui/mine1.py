@@ -28,7 +28,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setGeometry(QtCore.QRect(-10, -10, 1000, 571))
         self.tabWidget.setAutoFillBackground(False)
         self.tabWidget.setStyleSheet("QTabBar::tab {\n"
-            "    background-color: black;\n"
+            "    background-color: red;\n"
             "    border-bottom: 2px solid white;\n"
             "    padding-bottom: 20px;\n"
             "    padding-top: 20px;\n"
@@ -52,20 +52,22 @@ class Ui_MainWindow(object):
         self.home_tab = QtWidgets.QWidget()
         self.tab = QtWidgets.QWidget()
         self.tabSettings = QtWidgets.QWidget()
-        self.tab_3 = QtWidgets.QWidget()
-        self.tab_4 = QtWidgets.QWidget()
-
+        self.tabMonitoring = QtWidgets.QWidget()
         self.home_tab.setObjectName("home_tab")
         self.tab.setObjectName("tab")
         self.tabSettings.setObjectName("tabSettings")
-        self.tab_3.setObjectName("tab_3")
-        self.tab_4.setObjectName("tab_4")
+        self.tabMonitoring.setObjectName("tabMonitoring")
 
         self.tabWidget.addTab(self.home_tab, "")
         self.tabWidget.addTab(self.tab, "")
-        self.tabWidget.addTab(self.tab_3, "")
-        self.tabWidget.addTab(self.tab_4, "")
+        self.tabWidget.addTab(self.tabMonitoring, "")
         self.tabWidget.addTab(self.tabSettings, "")
+
+        self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
+        self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoring.png'))
+        self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabApps.png'))
+        self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettings.png'))
+        # self.tabWidget.iconSize(QtCore.QSize(40,40))
 
         ### Button
         self.pushButton_3 = QtWidgets.QPushButton(self.tab)
@@ -219,7 +221,6 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.home_tab), _translate("MainWindow", "Tab 2"))
         self.groupBoxHome.setTitle(_translate("MainWindow", ""))
         self.groupBoxHomeButtons.setTitle(_translate("MainWindow", ""))
         self.pushButtonScan.setText(_translate("MainWindow", "Scan"))
@@ -231,16 +232,12 @@ class Ui_MainWindow(object):
         self.myScaledPixmap = self.pixmap.scaled(self.labelLogo.size(), Qt.KeepAspectRatio)
         self.labelLogo.setPixmap(self.myScaledPixmap)
 
-        self.textBrowserHomeInfo.append("\n\tVitesse: "+"1000000000 km/h");
+        self.textBrowserHomeInfo.append("\n\tVitesse: " + "1000000000 km/h");
         self.textBrowserHomeInfo.append("\n\tNombre d'applications actives sur le réseau: "+"1000000000");
 
         self.appSearchBar.setPlaceholderText(_translate("MainWindow", "Search"))
 
         self.pushButton_3.setText(_translate("MainWindow", "PushButton"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Tab 1"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Page"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Page"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabSettings), _translate("MainWindow", "Page5"))
 
     @QtCore.pyqtSlot()
     def addAppClick(self):

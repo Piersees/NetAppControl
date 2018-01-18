@@ -38,9 +38,9 @@ class WappWidget(QWidget):
         layout.addWidget(self.buttonSecurity)
 
         ### Add an image to the buttons
-        self.buttonNetwork.setIcon(QIcon('./wifi.png'))
+        self.buttonNetwork.setIcon(QIcon('./images/wifi.png'))
         self.buttonNetwork.setIconSize(QSize(40,40))
-        self.buttonSecurity.setIcon(QIcon('./lock.png'))
+        self.buttonSecurity.setIcon(QIcon('./images/lock.png'))
         self.buttonSecurity.setIconSize(QSize(40,40))
 
         self.setLabelText("abc")
