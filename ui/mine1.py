@@ -51,13 +51,13 @@ class Ui_MainWindow(object):
         ### Implement each individual tab
         self.home_tab = QtWidgets.QWidget()
         self.tab = QtWidgets.QWidget()
-        self.tab_2 = QtWidgets.QWidget()
+        self.tabSettings = QtWidgets.QWidget()
         self.tab_3 = QtWidgets.QWidget()
         self.tab_4 = QtWidgets.QWidget()
 
         self.home_tab.setObjectName("home_tab")
         self.tab.setObjectName("tab")
-        self.tab_2.setObjectName("tab_2")
+        self.tabSettings.setObjectName("tabSettings")
         self.tab_3.setObjectName("tab_3")
         self.tab_4.setObjectName("tab_4")
 
@@ -65,7 +65,7 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.tab, "")
         self.tabWidget.addTab(self.tab_3, "")
         self.tabWidget.addTab(self.tab_4, "")
-        self.tabWidget.addTab(self.tab_2, "")
+        self.tabWidget.addTab(self.tabSettings, "")
 
         ### Button
         self.pushButton_3 = QtWidgets.QPushButton(self.tab)
@@ -185,6 +185,27 @@ class Ui_MainWindow(object):
         #self.window_layout.setGeometry(QtCore.QRect(20, 100, 411, 441))
         #self.tab.setLayout(self.window_layout)
 
+        ## Settings tab
+        self.openVPNfileDialogButton = QtWidgets.QPushButton()
+        self.openVPNfilenameLabel = QtWidgets.QLabel()
+        self.openVPNsubmitButton = QtWidgets.QPushButton()
+
+        self.openVPNfileDialogButton.setText("Browse...")
+        self.openVPNfilenameLabel.setText("Select VPN certificate: ")
+        self.openVPNsubmitButton.setText("Submit")
+
+        ### OpenVPN layout
+        self.openVPNlayout = QtWidgets.QVBoxLayout(self.tabSettings)
+        self.openVPNlayout.addWidget(self.openVPNfilenameLabel)
+        self.openVPNlayout.addWidget(self.openVPNfileDialogButton)
+        self.openVPNlayout.addWidget(self.openVPNsubmitButton)
+
+        self.openVPNsubmitButton.setEnabled(False)
+
+        self.openVPNfileDialogButton.clicked.connect(self.selectVPNcertificate)
+        self.openVPNsubmitButton.clicked.connect(self.openVPNsubmit)
+
+
         ### GUI arrangements
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(1)
@@ -219,7 +240,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Tab 1"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Page"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Page"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Page"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabSettings), _translate("MainWindow", "Page5"))
 
     @QtCore.pyqtSlot()
     def addAppClick(self):
@@ -261,6 +282,17 @@ class Ui_MainWindow(object):
         fr.close()
         return strST
 
+    def selectVPNcertificate(self):
+        options = QtWidgets.QFileDialog.Options()
+        options |= QtWidgets.QFileDialog.DontUseNativeDialog
+        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"QFileDialog.getOpenFileName()", "","OpenVPN files (*.ovpn)", options=options)
+        self.openVPNfilenameLabel.setText(fileName)
+        if(fileName != None):
+            self.openVPNsubmitButton.setEnabled(True)
+
+    def openVPNsubmit(self):
+        ### TODO : handle openVPN
+        print("ok")
 
 
 from wapp import WappWidget
