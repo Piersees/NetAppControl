@@ -117,6 +117,16 @@ class Ui_MainWindow(object):
         self.verticalLayoutHome = QtWidgets.QVBoxLayout(self.groupBoxHomeButtons)
         self.verticalLayoutHome.setObjectName("verticalLayoutHome")
 
+        self.textBrowserSpeedtest = QtWidgets.QTextBrowser(self.groupBoxHome)
+        self.textBrowserSpeedtest.setObjectName("textBrowserSpeedtest")
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.textBrowserSpeedtest.sizePolicy().hasHeightForWidth())
+        self.textBrowserSpeedtest.setSizePolicy(sizePolicy)
+        self.textBrowserSpeedtest.setText(self.readLastSpeedTest())
+        self.verticalLayoutHome.addWidget(self.textBrowserSpeedtest)
+
         self.pushButtonScan = QtWidgets.QPushButton(self.groupBoxHomeButtons)
         self.pushButtonScan.setObjectName("pushButtonScan")
         self.verticalLayoutHome.addWidget(self.pushButtonScan)
@@ -124,6 +134,8 @@ class Ui_MainWindow(object):
         self.pushButtonSpeed.setObjectName("pushButtonSpeed")
         self.verticalLayoutHome.addWidget(self.pushButtonSpeed)
         self.horizontalLayoutHome.addWidget(self.groupBoxHomeButtons)
+
+        self.pushButtonSpeed.clicked.connect(self.displaySpeedTest)
 
         ### Logo for the home page
         self.labelLogo = QtWidgets.QLabel(self.home_tab)
@@ -221,9 +233,34 @@ class Ui_MainWindow(object):
     def appSearchBarTextChanged(self):
         print(self.appSearchBar.text())
 
+    def displaySpeedTest(self):
+        speedTest = SpeedTest()
+        speedTestResult = speedTest.returnResult()
+
+        strST = "Download rate: " + str(speedTestResult["download"] / 1000000) + "Mb/s\n"
+        strST += "Upload rate: " + str(speedTestResult["upload"] / 1000000) + "Mb/s\n"
+        strST += "Ping: " + str(speedTestResult["ping"]) + "\n"
+        strST += "Server: " + str(speedTestResult["server"]["name"]) + " | " + str(speedTestResult["server"]["country"]) + " | " + str(speedTestResult["server"]["sponsor"]) + "\n"
+        strST += str(speedTestResult["timestamp"])
+
+        fh = open("./lastSpeedTest.txt", "w")
+        fh.write(strST)
+        fh.close()
+
+        self.textBrowserSpeedtest.setText(strST)
+
+    def readLastSpeedTest(self):
+        fr = open("./lastSpeedTest.txt", "r")
+        strST = fr.read()
+        fr.close()
+        return strST
+
 
 
 from wapp import WappWidget
+import sys
+sys.path.append("../Network")
+from SpeedTest import SpeedTest
 
 if __name__ == "__main__":
     import sys
