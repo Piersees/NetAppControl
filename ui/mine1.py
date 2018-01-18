@@ -234,8 +234,7 @@ class Ui_MainWindow(object):
         print(self.appSearchBar.text())
 
     def displaySpeedTest(self):
-        speedTest = SpeedTest()
-        speedTestResult = speedTest.returnResult()
+        speedTestResult = SpeedTest.returnSpeedTestResult()
 
         strST = "Download rate: " + str(speedTestResult["download"] / 1000000) + "Mb/s\n"
         strST += "Upload rate: " + str(speedTestResult["upload"] / 1000000) + "Mb/s\n"
@@ -260,7 +259,7 @@ class Ui_MainWindow(object):
 from wapp import WappWidget
 import sys
 sys.path.append("../Network")
-from SpeedTest import SpeedTest
+import SpeedTest
 
 if __name__ == "__main__":
     import sys
