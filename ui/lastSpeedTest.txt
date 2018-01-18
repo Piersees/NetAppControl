@@ -1,5 +1,5 @@
-Download rate: 11.566058207723309Mb/s
-Upload rate: 19.019059011517573Mb/s
-Ping: 11.339
-Server: Courbevoie | France | Ozone
-2018-01-18T10:42:45.644913Z
+Download rate: 7.550542681866541Mb/s
+Upload rate: 0.26056746391443053Mb/s
+Ping: 50.805
+Server: Paris | France | Orange
+2018-01-18T10:51:13.974387Z
