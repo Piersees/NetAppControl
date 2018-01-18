@@ -211,10 +211,10 @@ class Ui_MainWindow(object):
 
         ### GUI arrangements
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-        self.pushButton_3.clicked.connect(self.addAppClick)
+        #self.pushButton_3.clicked.connect(self.addAppClick)
 
         self.i = 4;
 
