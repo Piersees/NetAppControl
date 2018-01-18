@@ -28,13 +28,21 @@ class Ui_MainWindow(object):
         self.tabWidget.setGeometry(QtCore.QRect(-10, -10, 1000, 571))
         self.tabWidget.setAutoFillBackground(False)
         self.tabWidget.setStyleSheet("QTabBar::tab {\n"
-            "    background-color: red;\n"
+            "    background-color: white;\n"
             "    border-bottom: 2px solid white;\n"
             "    padding-bottom: 20px;\n"
             "    padding-top: 20px;\n"
             "    color: white;\n"
             "    width : 200px;\n"
             "    height: 50px;\n"
+            "}\n"
+            "\n"
+            "QTabBar::tab:selected {\n"
+            "    background-color: red;"
+            "}\n"
+            "\n"
+            "QTabBar::tab:selected:hover {\n"
+            "    background-color: red;"
             "}\n"
             "\n"
             "QTabBar::tab:hover {\n"
@@ -67,6 +75,12 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoring.png'))
         self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabApps.png'))
         self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettings.png'))
+
+        self.tabWidget.tabBar().setTabToolTip(0, "Home")
+        self.tabWidget.tabBar().setTabToolTip(1, "Apps")
+        self.tabWidget.tabBar().setTabToolTip(2, "Monitoring")
+        self.tabWidget.tabBar().setTabToolTip(3, "Settings")
+
         # self.tabWidget.iconSize(QtCore.QSize(40,40))
 
         ### Button
