@@ -1,22 +1,24 @@
 import speedtest
 
-servers = []
-# If you want to test against a specific server
-# servers = [1234]
 
+def returnSpeedTestResult():
 
-s = speedtest.Speedtest() #objet speedtest
+    servers = []
+    # If you want to test against a specific server
+    # servers = [1234]
 
-s.get_servers(servers) #obtien tous les serveurs disponible
+    s = speedtest.Speedtest() # Speedtest object
 
-s.get_best_server() #prend en fonction de l'emplacement le serveur le plus proche
+    s.get_servers(servers) # Retrieve all the servers
 
-s.download() #Test le download, résultat en bit par second (a diviser par 10^6 pour avoir en Mb/s)
+    s.get_best_server() # Gets the closest server
 
-s.upload() #Test le download, résultat en bit par second (a diviser par 10^6 pour avoir en Mb/s)
+    s.download() # Test the download and gives the result in bits/second
 
-s.results.share() #Créé un format png placer sur le serveur speedtest.net
+    s.upload() # Test the upload and gives the result in bits/second
 
-results_dict = s.results.dict() #met les différentes données dans un dictionnaire
+    s.results.share() # Create a png file placed of the speedtest.net server
 
-print(results_dict)
+    results_dict = s.results.dict() # Puts the result into a dictionary
+
+    return results_dict

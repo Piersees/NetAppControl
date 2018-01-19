@@ -1,4 +1,13 @@
 Test 3,security,0,0
 Test 2,security,0,0
+<<<<<<< HEAD
+Test 1,network,1,1516362666.50114,36,True
+Test 1,security,0,1516272671.2265646
+=======
 Test 1,network,1,1516233928.0579288,8,True
-Test 1,security,1,1596204276.8608277
+Test 1,security,0,1516283122.7372024
+app1,network,0,1516285501.535899,,False
+app1,security,0,1516285510.2738054
+app3,security,0,1516285831.3089983
+Test 8,security,0,1516285902.9808612
+>>>>>>> a51db4f3328a325f20af83f7d6fc90d4344604e1
