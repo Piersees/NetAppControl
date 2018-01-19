@@ -198,34 +198,95 @@ class Ui_MainWindow(object):
         self.appSearchBar.setObjectName("appSearchBar")
         self.appSearchBar.textChanged.connect(self.appSearchBarTextChanged)
 
-        #self.window_layout = QtWidgets.QVBoxLayout(self.tab)
-        #self.window_layout.addWidget(self.list)
-        #self.window_layout.setGeometry(QtCore.QRect(20, 100, 411, 441))
-        #self.tab.setLayout(self.window_layout)
 
-        ## Settings tab
+
+        ##### Settings tab
+        ### Main layout
+        self.tabSettingsMainLayout = QtWidgets.QHBoxLayout(self.tabSettings)
+        self.tabSettingsMainLayout.setObjectName("tabSettingsMainLayout")
+
+        ##### Sublayouts
+        ### ID layout
+        self.openVPNidFormVerticalLayout = QtWidgets.QVBoxLayout()
+        self.openVPNidFormVerticalLayout.setObjectName("openVPNidFormVerticalLayout")
+        self.tabSettingsMainLayout.addLayout(self.openVPNidFormVerticalLayout)
+
+        ## Title layout label
+        self.OpenVPNidFormlabel = QtWidgets.QLabel()
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        font.setBold(True)
+        font.setWeight(75)
+        self.OpenVPNidFormlabel.setFont(font)
+        self.OpenVPNidFormlabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.OpenVPNidFormlabel.setObjectName("OpenVPNidFormlabel")
+        self.OpenVPNidFormlabel.setText("Open VPN logins")
+        self.openVPNidFormVerticalLayout.addWidget(self.OpenVPNidFormlabel)
+
+
+        ## Form layout
+        self.OpenVPNidFormLayout = QtWidgets.QFormLayout()
+        self.OpenVPNidFormLayout.setObjectName("OpenVPNidFormLayout")
+        self.openVPNidFormVerticalLayout.addLayout(self.OpenVPNidFormLayout)
+
+        # Widgets declaration
+        self.OpenVPNidLoginLabel = QtWidgets.QLabel()
+        self.OpenVPNidLoginInput = QtWidgets.QLineEdit()
+        self.OpenVPNidPasswordLabel = QtWidgets.QLabel()
+        self.OpenVPNidPasswordInput = QtWidgets.QLineEdit()
+        self.OpenVPNidSubmitButton = QtWidgets.QPushButton()
+
+        # Widgets placement
+        self.OpenVPNidFormLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.OpenVPNidLoginLabel)
+        self.OpenVPNidFormLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.OpenVPNidLoginInput)
+        self.OpenVPNidFormLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.OpenVPNidPasswordLabel)
+        self.OpenVPNidFormLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.OpenVPNidPasswordInput)
+        self.OpenVPNidFormLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.OpenVPNidSubmitButton)
+
+        # Wigets naming
+        self.OpenVPNidLoginLabel.setText("Login:")
+        self.OpenVPNidPasswordLabel.setText("Password:")
+        self.OpenVPNidSubmitButton.setText("Submit")
+
+        # Button connecting
+        self.OpenVPNidSubmitButton.setEnabled(False)
+        self.OpenVPNidSubmitButton.clicked.connect(self.submitOpenVPNid)
+        self.OpenVPNidLoginInput.textChanged.connect(self.enableOpenVPNidSubmit)
+        self.OpenVPNidPasswordInput.textChanged.connect(self.enableOpenVPNidSubmit)
+
+
+
+        ### Certificate layout
+        self.openVPNfileLayout = QtWidgets.QVBoxLayout()
+        self.openVPNfileLayout.setObjectName("openVPNfileLayout")
+        self.tabSettingsMainLayout.addLayout(self.openVPNfileLayout)
+
+        ## Widgets declaration
         self.openVPNfileDialogButton = QtWidgets.QPushButton()
         self.openVPNfilenameLabel = QtWidgets.QLabel()
         self.openVPNfilenameLabel2 = QtWidgets.QLabel()
         self.openVPNfileDialogButton2 = QtWidgets.QPushButton()
         self.openVPNsubmitButton = QtWidgets.QPushButton()
 
+        ## Widget naming
         self.openVPNfileDialogButton.setText("Browse...")
         self.openVPNfilenameLabel.setText("Select VPN certificate: ")
         self.openVPNfileDialogButton2.setText("Browse...")
         self.openVPNfilenameLabel2.setText("Select second VPN certificate (optional): ")
         self.openVPNsubmitButton.setText("Submit")
 
-        ### OpenVPN layout
-        self.openVPNlayout = QtWidgets.QVBoxLayout(self.tabSettings)
-        self.openVPNlayout.addWidget(self.openVPNfilenameLabel)
-        self.openVPNlayout.addWidget(self.openVPNfileDialogButton)
-        self.openVPNlayout.addWidget(self.openVPNfilenameLabel2)
-        self.openVPNlayout.addWidget(self.openVPNfileDialogButton2)
-        self.openVPNlayout.addWidget(self.openVPNsubmitButton)
+        ## Widget placement
+        self.openVPNfileLayout = QtWidgets.QVBoxLayout()
+        self.openVPNidFormVerticalLayout.addLayout(self.openVPNfileLayout)
+        self.openVPNfileLayout.addWidget(self.openVPNfilenameLabel)
+        self.openVPNfileLayout.addWidget(self.openVPNfileDialogButton)
+        self.openVPNfileLayout.addWidget(self.openVPNfilenameLabel2)
+        self.openVPNfileLayout.addWidget(self.openVPNfileDialogButton2)
+        self.openVPNfileLayout.addWidget(self.openVPNsubmitButton)
 
         self.openVPNsubmitButton.setEnabled(False)
 
+        ## Button connections
         self.openVPNfileDialogButton.clicked.connect(self.selectVPNcertificate)
         self.openVPNfileDialogButton2.clicked.connect(self.selectVPNoptionalCertificate)
         self.openVPNsubmitButton.clicked.connect(self.openVPNsubmit)
@@ -334,6 +395,26 @@ class Ui_MainWindow(object):
         listApp = self.getAppList()
         for app in listApp:
             self.createNewAppItem(app["appname"], app["PID_list"])
+
+    def submitOpenVPNid(self):
+        fh = open("./openVPNid.txt", "w")
+        fh.write(self.OpenVPNidLoginInput.text() + "\n" + self.OpenVPNidPasswordInput.text())
+        fh.close()
+        msg = QtWidgets.QMessageBox()
+        msg.setText("Logins saved")
+        msg.exec_()
+
+    def checkIfValidOpenVPNLogins(self):
+        if(self.OpenVPNidLoginInput.text() != "" and self.OpenVPNidPasswordInput.text() != ""):
+            return True
+        else:
+            return False
+
+    def enableOpenVPNidSubmit(self):
+        if(self.checkIfValidOpenVPNLogins() == True):
+            self.OpenVPNidSubmitButton.setEnabled(True)
+        else:
+            self.OpenVPNidSubmitButton.setEnabled(False)
 
 
 from wapp import WappWidget
