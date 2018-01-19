@@ -205,21 +205,28 @@ class Ui_MainWindow(object):
         ## Settings tab
         self.openVPNfileDialogButton = QtWidgets.QPushButton()
         self.openVPNfilenameLabel = QtWidgets.QLabel()
+        self.openVPNfilenameLabel2 = QtWidgets.QLabel()
+        self.openVPNfileDialogButton2 = QtWidgets.QPushButton()
         self.openVPNsubmitButton = QtWidgets.QPushButton()
 
         self.openVPNfileDialogButton.setText("Browse...")
         self.openVPNfilenameLabel.setText("Select VPN certificate: ")
+        self.openVPNfileDialogButton2.setText("Browse...")
+        self.openVPNfilenameLabel2.setText("Select second VPN certificate (optional): ")
         self.openVPNsubmitButton.setText("Submit")
 
         ### OpenVPN layout
         self.openVPNlayout = QtWidgets.QVBoxLayout(self.tabSettings)
         self.openVPNlayout.addWidget(self.openVPNfilenameLabel)
         self.openVPNlayout.addWidget(self.openVPNfileDialogButton)
+        self.openVPNlayout.addWidget(self.openVPNfilenameLabel2)
+        self.openVPNlayout.addWidget(self.openVPNfileDialogButton2)
         self.openVPNlayout.addWidget(self.openVPNsubmitButton)
 
         self.openVPNsubmitButton.setEnabled(False)
 
         self.openVPNfileDialogButton.clicked.connect(self.selectVPNcertificate)
+        self.openVPNfileDialogButton2.clicked.connect(self.selectVPNoptionalCertificate)
         self.openVPNsubmitButton.clicked.connect(self.openVPNsubmit)
 
 
@@ -303,6 +310,12 @@ class Ui_MainWindow(object):
         self.openVPNfilenameLabel.setText(fileName)
         if(fileName != None):
             self.openVPNsubmitButton.setEnabled(True)
+
+    def selectVPNoptionalCertificate(self):
+        options = QtWidgets.QFileDialog.Options()
+        options |= QtWidgets.QFileDialog.DontUseNativeDialog
+        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"QFileDialog.getOpenFileName()", "","OpenVPN files (*.ovpn)", options=options)
+        self.openVPNfilenameLabel2.setText(fileName)
 
     def openVPNsubmit(self):
         ### TODO : handle openVPN
