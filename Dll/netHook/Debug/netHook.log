@@ -1,0 +1,4 @@
+﻿  dllmain.cpp
+  LINK : C:\Users\quent\source\repos\netHook\Debug\netHook.dll introuvable ou non généré par la dernière édition de liens incrémentielle ; édition de liens complète en cours
+dllmain.obj : error LNK2001: symbole externe non résolu "struct HINSTANCE__ * hAppInstance" (?hAppInstance@@3PAUHINSTANCE__@@A)
+C:\Users\quent\source\repos\netHook\Debug\netHook.dll : fatal error LNK1120: 1 externes non résolus

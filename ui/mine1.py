@@ -279,9 +279,9 @@ class Ui_MainWindow(object):
     def displaySpeedTest(self):
         speedTestResult = SpeedTest.returnSpeedTestResult()
 
-        strST = "Download rate: " + str(speedTestResult["download"] / 1000000) + "Mb/s\n"
-        strST += "Upload rate: " + str(speedTestResult["upload"] / 1000000) + "Mb/s\n"
-        strST += "Ping: " + str(speedTestResult["ping"]) + "\n"
+        strST = "Download rate: " + str(float("{0:.2f}".format(speedTestResult["download"] / 1000000))) + "Mb/s\n"
+        strST += "Upload rate: " + str(float("{0:.2f}".format(speedTestResult["upload"] / 1000000))) + "Mb/s\n"
+        strST += "Ping: " + str(int(speedTestResult["ping"])) + "\n"
         strST += "Server: " + str(speedTestResult["server"]["name"]) + " | " + str(speedTestResult["server"]["country"]) + " | " + str(speedTestResult["server"]["sponsor"]) + "\n"
         strST += str(speedTestResult["timestamp"])
 
