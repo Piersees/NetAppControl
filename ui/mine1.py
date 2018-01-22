@@ -6,7 +6,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import Qt, QtCore, QtGui, QtWidgets
+from PyQt5 import Qt, QtCore, QtGui, QtWidgets, QtQuick
 from PyQt5.Qt import Qt
 import os
 import threading
