@@ -7,8 +7,10 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import Qt, QtCore, QtGui, QtWidgets, QtQuick
+from PyQt5.QtChart import QChart, QChartView, QLineSeries
 from PyQt5.Qt import Qt
 import os
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -312,6 +314,10 @@ class Ui_MainWindow(object):
 
         self.labelLogo.setText(_translate("MainWindow", "Logo"))
 
+        self.arrr = getBandWidth(self)
+        print(self.arrr[0])
+        print(self.arrr[1])
+
         self.pixmap = QtGui.QPixmap(os.getcwd() + 'logo.jpg')
         self.myScaledPixmap = self.pixmap.scaled(self.labelLogo.size(), Qt.KeepAspectRatio)
         self.labelLogo.setPixmap(self.myScaledPixmap)
@@ -422,7 +428,7 @@ import sys
 sys.path.append("../Network")
 import SpeedTest
 import External_IP
-
+from BandWidth import getBandWidth
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
