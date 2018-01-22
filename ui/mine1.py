@@ -9,8 +9,11 @@
 from PyQt5 import Qt, QtCore, QtGui, QtWidgets
 from PyQt5.Qt import Qt
 import os
+import threading
 
-class Ui_MainWindow(object):
+class Ui_MainWindow(QtWidgets.QMainWindow):
+    speedTestSig = QtCore.pyqtSignal(str)
+
     def setupUi(self, MainWindow):
 
         ### Create the app window
@@ -143,6 +146,7 @@ class Ui_MainWindow(object):
         self.textBrowserSpeedtest.setSizePolicy(sizePolicy)
         self.textBrowserSpeedtest.setText(self.readLastSpeedTest())
         self.verticalLayoutHome.addWidget(self.textBrowserSpeedtest)
+        self.speedTestSig.connect(self.textBrowserSpeedtest.setText)
 
         self.pushButtonScan = QtWidgets.QPushButton(self.groupBoxHomeButtons)
         self.pushButtonScan.setObjectName("pushButtonScan")
@@ -345,6 +349,12 @@ class Ui_MainWindow(object):
         print(self.appSearchBar.text())
 
     def displaySpeedTest(self):
+        self.pushButtonSpeed.setEnabled(False)
+        self.textBrowserSpeedtest.setText("Loading...")
+        thread = threading.Thread(target=self.runSpeedTest)
+        thread.start()
+
+    def runSpeedTest(self):
         speedTestResult = SpeedTest.returnSpeedTestResult()
 
         strST = "Download rate: " + str(float("{0:.2f}".format(speedTestResult["download"] / 1000000))) + "Mb/s\n"
@@ -357,7 +367,9 @@ class Ui_MainWindow(object):
         fh.write(strST)
         fh.close()
 
-        self.textBrowserSpeedtest.setText(strST)
+        self.pushButtonSpeed.setEnabled(True)
+
+        self.speedTestSig.emit(strST)
 
     def readLastSpeedTest(self):
         fr = open("./lastSpeedTest.txt", "r")
