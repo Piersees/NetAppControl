@@ -6,26 +6,35 @@ import subprocess
 from pathlib import Path
 import shutil
 from threading import Thread
+import credential
 
 def VPNConnect(OpenVpnPath,componentId,TcpConf):
-    cmd = [OpenVpnPath,"--dev-node", componentId, "--config", TcpConf,"--route-noexec"]
+    cmd = [OpenVpnPath,"--dev-node", componentId, "--config", TcpConf,"--route-nopull"]
     prog = subprocess.Popen(cmd,stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
 
     time.sleep(0.1)
-    prog.stdin.write(b"quentin.alazay@yahoo.fr")
+    prog.stdin.write(credential.login['mail'])
     prog.stdin.flush()
     time.sleep(0.1)
-    prog.stdin.write(b"Pfe2018.")
+    prog.stdin.write(credential.login['password'])
     prog.stdin.close()
 
     while True:
         line = prog.stdout.readline()
         print(line)
+        if b'Initialization' in line:
+            print("Makeroute called")
+            makeRoute()
         if line == '' and prog.poll() is not None:
             break
 
+def getGateway():
+    return 1
+
+
 def makeRoute():
-    cmd = ["route", "-p", "add", "0.0.0.0", "mask", "128.0.0.0", "192.168.1.1", "metric", "1", "if", "18"]
+    gateway = getGateway()
+    cmd = ["route", "add", "0.0.0.0", "mask", "0.0.0.0", "10.7.7.1", "if", "19"]
     prog = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
 
 ADAPTER_KEY = r'SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002BE10318}'
@@ -45,19 +54,8 @@ with reg.OpenKey(reg.HKEY_LOCAL_MACHINE, ADAPTER_KEY) as adapters:
             with reg.OpenKey(adapters, key_name) as adapter:
                 try:
                     component_id = reg.QueryValueEx(adapter, 'ComponentId')[0]
-                    #print(component_id +"       "+reg.QueryValueEx(adapter, 'NetCfgInstanceId')[0])
                     if component_id == 'tap0901':
                         key = reg.QueryValueEx(adapter, 'NetCfgInstanceId')[0]
-#                        try:
-#                            reg.QueryValueEx(adapter, "*NdisDeviceType")
-#                            print("Exists")
-#                        except:
-#
-#                            newKey = reg.CreateKey(reg.HKEY_LOCAL_MACHINE,ADAPTER_KEY+"\\"+key_name+"\\")
-#                            print(reg.HKEY_LOCAL_MACHINE,ADAPTER_KEY+"\\"+key_name)
-#                            reg.SetValueEx(newKey,"*NdisDeviceType", 0,  reg.REG_DWORD, 0x00000001)
-#                            reg.CloseKey(newKey)
-#                            print("key created")
                 except :
                     pass
     except:
@@ -65,7 +63,7 @@ with reg.OpenKey(reg.HKEY_LOCAL_MACHINE, ADAPTER_KEY) as adapters:
 
 regConnection = reg.OpenKey(reg.HKEY_LOCAL_MACHINE, ConnectionKey+"\\"+key+"\\Connection")
 componentId = reg.QueryValueEx(regConnection, "name")[0]
-print("RESULT: "+componentId)
+print("RESULT: "+component_id)
 
 if Path(ConfTcp).is_file() and Path(ConfUdp).is_file():
     TcpConf = ConfigPath + os.path.basename(ConfTcp)
