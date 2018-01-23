@@ -12,6 +12,9 @@ from PyQt5.Qt import Qt
 import os
 import threading
 import time
+from wapp import WappWidget
+import psutil
+
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     speedTestSig = QtCore.pyqtSignal(str)
@@ -411,21 +414,39 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.openVPNfilenameLabel2.setText(fileName)
 
     def openVPNsubmit(self):
-        ### TODO : handle openVPN
+        ### 
+        certificate = self.openVPNfilenameLabel.text().replace("/",r'\\')
+        print(certificate)
+        openvpn.mainVPN(certificate)
         print("ok")
 
     def getAppList(self):
-        pidList1 = { 11, 8, 23 }
-        pidList2 = { 3 }
-        pidList3 = { 98, 278267, 72 }
-        pidList4 = { 8337763 }
-        listApp = [ { "appname" : "app1", "PID_list" : pidList1 }, { "appname" : "app2", "PID_list" : pidList2 }, { "appname" : "app3", "PID_list" : pidList3 }, { "appname" : "app4", "PID_list" : pidList4 } ]
-        return listApp
+        dic = {}
+        for proc in psutil.process_iter():
+            process = psutil.Process(proc.pid)
+            pname = process.name()
+            if pname not in dic:
+                dic[pname] = [proc.pid]
+            else:
+                dic[pname].append(proc.pid)
+        return dic
+
+    def getAppListWithInternet(self):
+        dic = {}
+        for proc in psutil.process_iter():
+            process = psutil.Process(proc.pid)
+            pname = process.name()
+            if proc.connections():
+                if pname not in dic:
+                    dic[pname] = [proc.pid]
+                else:
+                    dic[pname].append(proc.pid)
+        return dic
 
     def fillAppList(self):
-        listApp = self.getAppList()
+        listApp = self.getAppListWithInternet()
         for app in listApp:
-            self.createNewAppItem(app["appname"], app["PID_list"])
+            self.createNewAppItem(app, listApp[app])
 
     def submitOpenVPNid(self):
         fh = open("./openVPNid.txt", "w")
@@ -444,11 +465,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def enableOpenVPNidSubmit(self):
         if(self.checkIfValidOpenVPNLogins() == True):
             self.OpenVPNidSubmitButton.setEnabled(True)
+
         else:
             self.OpenVPNidSubmitButton.setEnabled(False)
 
+
     def pingUpdate(self):
-        i = 0;
+        i = 0
         while(True):
             self.pingSig.emit(str(i))
             i += 1
@@ -464,13 +487,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         else:
             event.ignore()
 
-
-from wapp import WappWidget
 import sys
 sys.path.append("../Network")
 import SpeedTest
 import External_IP
 from BandWidth import getBandWidth
+import openvpn
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
