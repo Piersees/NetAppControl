@@ -198,11 +198,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### Create the application list
         self.list = QtWidgets.QListWidget()
+        self.displayedList = QtWidgets.QListWidget()
 
         ### Insert some apps
         # self.createNewAppItem("Test 1");
         # self.createNewAppItem("Test 2");
         # self.createNewAppItem("Test 3");
+        self.listApp = {}
         self.fillAppList()
 
         ### Arrange the app list layout
@@ -319,7 +321,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-        #self.pushButton_3.clicked.connect(self.addAppClick)
+        ##self.pushButton_3.clicked.connect(self.addAppClick)
 
         self.i = 4;
 
@@ -351,13 +353,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def addAppClick(self):
-        self.createNewAppItem("Test " + str(self.i), {1,2,3})
-        self.i+=1
+        for i in range(self.list.count()):
+            app_name = self.list.item(i).data(QtCore.Qt.UserRole)
 
     ### Add a new app item to the application list
     def createNewAppItem(self, processName, PID_list):
         wapp = QtWidgets.QListWidgetItem(self.list)
-        wapp.setText(" ")
+        wapp.setData(QtCore.Qt.UserRole, processName)
         wapp_widget = WappWidget()
         wapp_widget.setLabelText(processName)
         wapp_widget.setProcessName(processName)
@@ -368,7 +370,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     ### Triggers when the app search bar text is changed
     def appSearchBarTextChanged(self):
-        print(self.appSearchBar.text())
+        self.list.clear()
+        if(self.appSearchBar.text() == ""):
+            for app in self.listApp:
+                self.createNewAppItem(app, self.listApp[app])
+        else:
+            for app in self.listApp:
+                if self.appSearchBar.text().lower() in app.lower():
+                    self.createNewAppItem(app, self.listApp[app])
 
     def displaySpeedTest(self):
         self.pushButtonSpeed.setEnabled(False)
@@ -444,9 +453,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         return dic
 
     def fillAppList(self):
-        listApp = self.getAppListWithInternet()
-        for app in listApp:
-            self.createNewAppItem(app, listApp[app])
+        self.listApp = self.getAppListWithInternet()
+        for app in self.listApp:
+            self.createNewAppItem(app, self.listApp[app])
 
     def submitOpenVPNid(self):
         fh = open("./openVPNid.txt", "w")
