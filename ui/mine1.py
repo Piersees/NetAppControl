@@ -10,9 +10,11 @@ from PyQt5 import Qt, QtCore, QtGui, QtWidgets, QtQuick
 from PyQt5.Qt import Qt
 import os
 import threading
+import time
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     speedTestSig = QtCore.pyqtSignal(str)
+    pingSig = QtCore.pyqtSignal(str)
 
     def setupUi(self, MainWindow):
 
@@ -146,6 +148,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.textBrowserSpeedtest.setSizePolicy(sizePolicy)
         self.textBrowserSpeedtest.setText(self.readLastSpeedTest())
         self.verticalLayoutHome.addWidget(self.textBrowserSpeedtest)
+
         self.speedTestSig.connect(self.textBrowserSpeedtest.setText)
 
         self.pushButtonScan = QtWidgets.QPushButton(self.groupBoxHomeButtons)
@@ -175,6 +178,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.Iplabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.Iplabel.setObjectName("Iplabel")
         self.Iplabel.setText("Public IP adress: " + External_IP.Get_IP())
+
+        ### Ping label
+        self.Pinglabel = QtWidgets.QLabel(self.home_tab)
+        self.Pinglabel.setGeometry(QtCore.QRect(600, 10, 185, 60))
+        self.Pinglabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.Pinglabel.setObjectName("PingLabel")
+        self.Pinglabel.setText("temporary label")
+
+        self.pingSig.connect(self.Pinglabel.setText)
+        #self.threadPing = threading.Thread(target=self.pingUpdate)
+        #self.threadPing.start()
 
         ### Insert items into the application list
 
@@ -427,6 +441,23 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.OpenVPNidSubmitButton.setEnabled(True)
         else:
             self.OpenVPNidSubmitButton.setEnabled(False)
+
+    def pingUpdate(self):
+        i = 0;
+        while(True):
+            self.pingSig.emit(str(i))
+            i += 1
+            time.sleep(1)
+
+    def closeEvent(self, event):
+        reply = QtGui.QMessageBox.question(self, 'Message',
+            "Are you sure to quit?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+
+        if (reply == QtGui.QMessageBox.Yes):
+            self.threadPing.close()
+            event.accept()
+        else:
+            event.ignore()
 
 
 from wapp import WappWidget
