@@ -23,7 +23,7 @@ class WappWidget(QWidget):
 
         ### Create the sub widgets
         self.setStyleSheet("QPushButton{width:60px; height:60px;}")
-        self.label = QLabel("Test")
+        self.label = QLabel("")
         self.buttonNetwork = QPushButton()
         self.buttonSecurity = QPushButton()
 
@@ -45,8 +45,6 @@ class WappWidget(QWidget):
         self.buttonNetwork.setIconSize(QSize(40,40))
         self.buttonSecurity.setIcon(QIcon('./images/lock.png'))
         self.buttonSecurity.setIconSize(QSize(40,40))
-
-        self.setLabelText("abc")
 
         ### Set the layout to the widget
         self.setLayout(layout)
