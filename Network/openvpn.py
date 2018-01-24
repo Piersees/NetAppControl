@@ -15,36 +15,51 @@ ConfigPath = os.environ['USERPROFILE'] + "\\OpenVPN\\config"
 
 ConnectionKey = "SYSTEM\\CurrentControlSet\\Control\\Network\\{4D36E972-E325-11CE-BFC1-08002BE10318}"
 
+gateway = "10.9.9.1"
+ip = "10.9.9.42"
+mask = "255.255.255.0"
+
 def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
+
+
+
     if UdpConf is None:
         cmd = [OpenVpnPath,"--dev-node", componentId, "--config", TcpConf,"--route-nopull"]
     else:
         cmd = [OpenVpnPath,"--dev-node", componentId, "--config", TcpConf,"--config",UdpConf,"--route-nopull"]
     prog = subprocess.Popen(cmd,stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
 
+    try:
+        # Get the credentials
+        fh = open("./openVPNid.txt", "r").read().splitlines()
+        login = fh[0]
+        password = fh[1]
+    except:
+        return
     time.sleep(0.1)
-    prog.stdin.write(credential.login['mail'])
+    prog.stdin.write(login.encode("utf-8"))
     prog.stdin.flush()
     time.sleep(0.1)
-    prog.stdin.write(credential.login['password'])
+    prog.stdin.write(password.encode("utf-8"))
     prog.stdin.close()
 
     while True:
         line = prog.stdout.readline()
         print(line)
         if b'Initialization' in line:
+            #setAddress(componentId)
             print("Makeroute called")
             makeRoute()
         if line == '' and prog.poll() is not None:
             break
 
-def getGateway():
-    return 1
+def setAddress(componentId):
+    cmd = ["netsh.exe","interface","ip","set","address","name="+componentId,"static",ip, mask, gateway]
+    prog = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
 
 
 def makeRoute():
-    gateway = getGateway()
-    cmd = ["route", "add", "0.0.0.0", "mask", "0.0.0.0", "10.7.7.1", "if", "19"]
+    cmd = ["route", "add", "0.0.0.0", "mask", "0.0.0.0", gateway, "if", "19"]
     prog = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
 
 def mainVPN(ConfTcp,ConfUdp = None):
@@ -65,7 +80,7 @@ def mainVPN(ConfTcp,ConfUdp = None):
 
     regConnection = reg.OpenKey(reg.HKEY_LOCAL_MACHINE, ConnectionKey+"\\"+key+"\\Connection")
     componentId = reg.QueryValueEx(regConnection, "name")[0]
-    print("RESULT: "+component_id)
+    print("RESULT: "+componentId)
 
     if Path(ConfTcp).is_file():
         TcpConf = ConfigPath + os.path.basename(ConfTcp)

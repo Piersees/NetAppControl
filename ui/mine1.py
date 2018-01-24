@@ -439,7 +439,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def openVPNsubmit(self):
         ### 
         certificate = self.openVPNfilenameLabel.text().replace("/",r'\\')
-        print(certificate)
         openvpn.mainVPN(certificate)
         print("ok")
 
