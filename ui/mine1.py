@@ -506,6 +506,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             packetLossRatio = 100 - (100*(packetsSent / packetsReceived))
             self.pingSig.emit("Ping: " + str(pingStr))
             self.pingLossSig.emit("Loss ratio: " + str(packetLossRatio) + "%")
+            time.sleep(1)
 
     def closeEvent(self, event):
         if(True):
