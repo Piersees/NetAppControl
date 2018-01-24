@@ -19,17 +19,20 @@ import psutil
 class Ui_MainWindow(QtWidgets.QMainWindow):
     speedTestSig = QtCore.pyqtSignal(str)
     pingSig = QtCore.pyqtSignal(str)
+    pingLossSig = QtCore.pyqtSignal(str)
+    appExit = False
 
-    def setupUi(self, MainWindow):
+    def __init__(self):
+        QtWidgets.QMainWindow.__init__(self)
 
         ### Create the app window
-        MainWindow.setObjectName("MainWindow")
+        self.setObjectName("self")
 
         ### Change the window's size
-        MainWindow.resize(1000, 600)
+        self.resize(1000, 600)
 
         ### Handle the central widget
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
 
         ### Implement the tabs layout
@@ -98,18 +101,18 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.pushButton_3.setGeometry(QtCore.QRect(520, 540, 80, 23))
 
         ### Menu bar
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar = QtWidgets.QMenuBar(self)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 813, 20))
         self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
+        self.setMenuBar(self.menubar)
 
         ### Status bar
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar = QtWidgets.QStatusBar(self)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        self.setStatusBar(self.statusbar)
 
         ### Central widget
-        MainWindow.setCentralWidget(self.centralwidget)
+        self.setCentralWidget(self.centralwidget)
 
         ### Layout for the home page
         self.groupBoxHome = QtWidgets.QGroupBox(self.home_tab)
@@ -176,23 +179,37 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.labelLogo.setBaseSize(QtCore.QSize(250, 250))
         self.labelLogo.setObjectName("labelLogo")
 
+        ### Network groupbox
+        self.NetworkLayoutWidget = QtWidgets.QWidget(self.home_tab)
+        self.NetworkLayoutWidget.setGeometry(QtCore.QRect(600, 10, 200, 100))
+        self.NetworkLayout = QtWidgets.QVBoxLayout(self.NetworkLayoutWidget)
+
         ### Ip label
-        self.Iplabel = QtWidgets.QLabel(self.home_tab)
-        self.Iplabel.setGeometry(QtCore.QRect(600, 10, 185, 20))
+        self.Iplabel = QtWidgets.QLabel()
         self.Iplabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.Iplabel.setObjectName("Iplabel")
         self.Iplabel.setText("Public IP adress: " + External_IP.Get_IP())
+        self.NetworkLayout.addWidget(self.Iplabel)
 
         ### Ping label
-        self.Pinglabel = QtWidgets.QLabel(self.home_tab)
-        self.Pinglabel.setGeometry(QtCore.QRect(600, 10, 185, 60))
+        self.Pinglabel = QtWidgets.QLabel()
         self.Pinglabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.Pinglabel.setObjectName("PingLabel")
-        self.Pinglabel.setText("temporary label")
+        self.Pinglabel.setText("Pinging...")
+        self.NetworkLayout.addWidget(self.Pinglabel)
 
+        ### Ping label
+        self.PingLosslabel = QtWidgets.QLabel()
+        self.PingLosslabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.PingLosslabel.setObjectName("PingLabel")
+        self.PingLosslabel.setText("")
+        self.NetworkLayout.addWidget(self.PingLosslabel)
+
+        self.pingLossSig.connect(self.PingLosslabel.setText)
         self.pingSig.connect(self.Pinglabel.setText)
-        #self.threadPing = threading.Thread(target=self.pingUpdate)
-        #self.threadPing.start()
+        self.threadPing = threading.Thread(target=self.pingUpdate)
+        self.threadPing.daemon
+        self.threadPing.start()
 
         ### Insert items into the application list
 
@@ -317,18 +334,15 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 
         ### GUI arrangements
-        self.retranslateUi(MainWindow)
+        self.retranslateUi(self)
         self.tabWidget.setCurrentIndex(0)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
+        QtCore.QMetaObject.connectSlotsByName(self)
         ##self.pushButton_3.clicked.connect(self.addAppClick)
-
-        self.i = 4;
 
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.groupBoxHome.setTitle(_translate("MainWindow", ""))
         self.groupBoxHomeButtons.setTitle(_translate("MainWindow", ""))
         self.pushButtonScan.setText(_translate("MainWindow", "Scan"))
@@ -480,18 +494,22 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 
     def pingUpdate(self):
-        i = 0
-        while(True):
-            self.pingSig.emit(str(i))
-            i += 1
-            time.sleep(1)
+        packetsSent = 0
+        packetsReceived = 0
+        while(self.appExit is not True):
+            pingResult = ping.getPing()
+            pingStr = pingResult['averageRoundTripTime']
+            packetsSentSTR = pingResult['Sent'][:-1]
+            packetsReceivedSTR = pingResult['Received'][:-1]
+            packetsSent += int(packetsSentSTR)
+            packetsReceived += int(packetsReceivedSTR)
+            packetLossRatio = 100 - (100*(packetsSent / packetsReceived))
+            self.pingSig.emit("Ping: " + str(pingStr))
+            self.pingLossSig.emit("Loss ratio: " + str(packetLossRatio) + "%")
 
     def closeEvent(self, event):
-        reply = QtGui.QMessageBox.question(self, 'Message',
-            "Are you sure to quit?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-
-        if (reply == QtGui.QMessageBox.Yes):
-            self.threadPing.close()
+        if(True):
+            self.appExit = True
             event.accept()
         else:
             event.ignore()
@@ -500,14 +518,13 @@ import sys
 sys.path.append("../Network")
 import SpeedTest
 import External_IP
+import ping
 from BandWidth import getBandWidth
 import openvpn
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    ui.show()
     sys.exit(app.exec_())
