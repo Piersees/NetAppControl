@@ -53,6 +53,9 @@ class WappWidget(QWidget):
         self.buttonNetwork.clicked.connect(self.buttonNetworkClick)
         self.buttonSecurity.clicked.connect(self.buttonSecurityClick)
 
+        ### Enables de security button if an OpenVPN certificate is present
+        self.buttonSecurity.setEnabled(self.hasRegisteredOpenVPNCertificate())
+
     ### Returns the label's text
     @pyqtSlot()
     def getLabelText(self):
@@ -143,6 +146,14 @@ class WappWidget(QWidget):
     @pyqtSlot()
     def getPIDlist(self):
         return self.PID_list
+
+    @pyqtSlot()
+    def hasRegisteredOpenVPNCertificate(self):
+        fr = open('./openVPNcertificates.txt', "r")
+        if ( fr.read() is not "" ):
+            return True
+        else:
+            return False
 
 
     labelText = pyqtProperty(str, getLabelText, setLabelText)

@@ -20,6 +20,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     speedTestSig = QtCore.pyqtSignal(str)
     pingSig = QtCore.pyqtSignal(str)
     pingLossSig = QtCore.pyqtSignal(str)
+    openVPNcertificateEnteredSig = QtCore.pyqtSignal()
+
     appExit = False
 
     def __init__(self):
@@ -208,7 +210,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.pingLossSig.connect(self.PingLosslabel.setText)
         self.pingSig.connect(self.Pinglabel.setText)
         self.threadPing = threading.Thread(target=self.pingUpdate)
-        self.threadPing.daemon
         self.threadPing.start()
 
         ### Insert items into the application list
@@ -326,11 +327,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.openVPNfileLayout.addWidget(self.openVPNsubmitButton)
 
         self.openVPNsubmitButton.setEnabled(False)
+        self.openVPNcertificate2Changed = False
 
         ## Button connections
         self.openVPNfileDialogButton.clicked.connect(self.selectVPNcertificate)
         self.openVPNfileDialogButton2.clicked.connect(self.selectVPNoptionalCertificate)
         self.openVPNsubmitButton.clicked.connect(self.openVPNsubmit)
+
+
+
+        ### Signal connecting
+        self.openVPNcertificateEnteredSig.connect(self.resetAppList)
 
 
         ### GUI arrangements
@@ -350,9 +357,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.labelLogo.setText(_translate("MainWindow", "Logo"))
 
-        self.arrr = getBandWidth(self)
-        print(self.arrr[0])
-        print(self.arrr[1])
+        #self.arrr = getBandWidth(self)
+        #print(self.arrr[0])
+        #print(self.arrr[1])
 
         self.pixmap = QtGui.QPixmap(os.getcwd() + 'logo.jpg')
         self.myScaledPixmap = self.pixmap.scaled(self.labelLogo.size(), Qt.KeepAspectRatio)
@@ -426,32 +433,45 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         options = QtWidgets.QFileDialog.Options()
         options |= QtWidgets.QFileDialog.DontUseNativeDialog
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"QFileDialog.getOpenFileName()", "","OpenVPN files (*.ovpn)", options=options)
-        self.openVPNfilenameLabel.setText(fileName)
+
         if(fileName != None):
+            self.openVPNfilenameLabel.setText(fileName)
             self.openVPNsubmitButton.setEnabled(True)
 
     def selectVPNoptionalCertificate(self):
         options = QtWidgets.QFileDialog.Options()
         options |= QtWidgets.QFileDialog.DontUseNativeDialog
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"QFileDialog.getOpenFileName()", "","OpenVPN files (*.ovpn)", options=options)
-        self.openVPNfilenameLabel2.setText(fileName)
+
+        if(fileName != None):
+            self.openVPNfilenameLabel2.setText(fileName)
+            self.openVPNcertificate2Changed = True
 
     def openVPNsubmit(self):
-        ### 
         certificate = self.openVPNfilenameLabel.text().replace("/",r'\\')
-        openvpn.mainVPN(certificate)
-        print("ok")
 
-    def getAppList(self):
-        dic = {}
-        for proc in psutil.process_iter():
-            process = psutil.Process(proc.pid)
-            pname = process.name()
-            if pname not in dic:
-                dic[pname] = [proc.pid]
-            else:
-                dic[pname].append(proc.pid)
-        return dic
+        try:
+            openvpn.mainVPN(certificate)
+
+            fw = open("./openVPNcertificates.txt", "w")
+            fw.write(certificate + "\n")
+            if( self.openVPNcertificate2Changed is not False ):
+                certificate2 = self.openVPNfilenameLabel2.text().replace("/",r'\\')
+                fw.write(certificate2 + "\n")
+            fw.close()
+
+            msg = QtWidgets.QMessageBox()
+            msg.setText("openVPN certificate registered")
+            msg.exec_()
+
+            self.openVPNcertificateEnteredSig.emit()
+
+        except(UnboundLocalError):
+            msg = QtWidgets.QMessageBox()
+            msg.setText("Invalid openVPN certificate")
+            msg.exec_()
+
+
 
     def getAppListWithInternet(self):
         dic = {}
@@ -469,6 +489,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.listApp = self.getAppListWithInternet()
         for app in self.listApp:
             self.createNewAppItem(app, self.listApp[app])
+
+    def resetAppList(self):
+        self.list.clear()
+        self.fillAppList()
 
     def submitOpenVPNid(self):
         fh = open("./openVPNid.txt", "w")
