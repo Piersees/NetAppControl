@@ -216,7 +216,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### Create the application list
         self.list = QtWidgets.QListWidget()
-        self.displayedList = QtWidgets.QListWidget()
 
         ### Insert some apps
         # self.createNewAppItem("Test 1");
@@ -519,17 +518,22 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def pingUpdate(self):
         packetsSent = 0
         packetsReceived = 0
+
         while(self.appExit is not True):
             pingResult = ping.getPing()
             pingStr = pingResult['averageRoundTripTime']
-            packetsSentSTR = pingResult['Sent'][:-1]
-            packetsReceivedSTR = pingResult['Received'][:-1]
-            packetsSent += int(packetsSentSTR)
-            packetsReceived += int(packetsReceivedSTR)
-            packetLossRatio = 100 - (100*(packetsSent / packetsReceived))
-            self.pingSig.emit("Ping: " + str(pingStr))
-            self.pingLossSig.emit("Loss ratio: " + str(packetLossRatio) + "%")
-            time.sleep(1)
+
+            try:
+                packetsSentSTR = pingResult['Sent'][:-1]
+                packetsReceivedSTR = pingResult['Received'][:-1]
+                packetsSent += int(packetsSentSTR)
+                packetsReceived += int(packetsReceivedSTR)
+                packetLossRatio = 100 - (100*(packetsSent / packetsReceived))
+                self.pingSig.emit("Ping: " + str(pingStr))
+                self.pingLossSig.emit("Loss ratio: " + str(packetLossRatio) + "%")
+                time.sleep(1)
+            except(TypeError, ValueError):
+                print("ping error")
 
     def closeEvent(self, event):
         if(True):
