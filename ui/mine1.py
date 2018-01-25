@@ -98,8 +98,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 
         self.BWplot = self.tabMonitoring.addPlot(title="Bandwidth /s")
-        self.BWplot.plot(np.random.normal(size=100), pen=(255,0,0), name="Upload")
-        self.BWplot.plot(np.random.normal(size=110)+5, pen=(0,255,0), name="Download")
+        self.BWplot.plot(np.random.normal(size=100), fillLevel=-0.3, brush=(200,50,50,100), pen=(255,0,0), name="Upload")
+        self.BWplot.plot(np.random.normal(size=110)+5, fillLevel=-0.3, brush=(50,200,50,100), pen=(0,255,0), name="Download")
         self.BWplot.setLabel('left', "Bandwidth", units='MB')
         self.BWplot.setLabel('bottom', "Seconds", units='s')
 
