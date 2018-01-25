@@ -10,7 +10,7 @@ def getBandWidth(self):
 
     iostat = psutil.net_io_counters(pernic=False, nowrap=True)
 
-    print(iostat)
+    #print(iostat)
 
     while(mesure):
 
@@ -24,6 +24,6 @@ def getBandWidth(self):
 
         #print("Download: ",download_rate,"KB/s","   ","Upload: ",upload_rate,"KB/s")
         return [download_rate, upload_rate]
-        time.sleep(1)
+        #time.sleep(1)
 
     #mesure = False     #Put mesure to False to stop the

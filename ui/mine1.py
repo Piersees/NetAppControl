@@ -8,6 +8,7 @@
 
 from PyQt5 import Qt, QtCore, QtGui, QtWidgets, QtQuick
 from PyQt5.QtChart import QChart, QChartView, QLineSeries
+from PyQt5.QtGui import QPolygonF, QPainter
 from PyQt5.Qt import Qt
 import os
 import threading
@@ -18,6 +19,7 @@ import psutil
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     speedTestSig = QtCore.pyqtSignal(str)
+    bandWidthSig = QtCore.pyqtSignal(int,int)
     pingSig = QtCore.pyqtSignal(str)
     pingLossSig = QtCore.pyqtSignal(str)
     openVPNcertificateEnteredSig = QtCore.pyqtSignal()
@@ -36,7 +38,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### Handle the central widget
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
-
+        self.thi = 1;
         ### Implement the tabs layout
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setGeometry(QtCore.QRect(-10, -10, 1000, 571))
@@ -89,7 +91,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
         self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoring.png'))
         self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabApps.png'))
-        self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettings.png'))
+        self.tabWidget.setTabIcon(123.3, QtGui.QIcon('./images/tabSettings.png'))
 
         self.tabWidget.tabBar().setTabToolTip(0, "Home")
         self.tabWidget.tabBar().setTabToolTip(1, "Apps")
@@ -159,6 +161,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.verticalLayoutHome.addWidget(self.textBrowserSpeedtest)
 
         self.speedTestSig.connect(self.textBrowserSpeedtest.setText)
+        self.bandWidthSig.connect(self.setBandWidthChart)
 
         self.pushButtonScan = QtWidgets.QPushButton(self.groupBoxHomeButtons)
         self.pushButtonScan.setObjectName("pushButtonScan")
@@ -216,7 +219,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### Create the application list
         self.list = QtWidgets.QListWidget()
-        self.displayedList = QtWidgets.QListWidget()
 
         ### Insert some apps
         # self.createNewAppItem("Test 1");
@@ -240,7 +242,32 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.appSearchBar.setObjectName("appSearchBar")
         self.appSearchBar.textChanged.connect(self.appSearchBarTextChanged)
 
+        ## BandWidth chart
+        self.chart = QChart()
+        #self.chart.legend().hide()
+        self.ChartView = QChartView(self.chart)
+        self.ChartView.setRenderHint(QPainter.Antialiasing)
+        self.chart.setTitle("Bandwidth by s")
+        self.seriesUp = QLineSeries()
+        self.seriesDown = QLineSeries()
+        self.pen1 = self.seriesUp.pen()
+        self.pen1.setColor(Qt.red)
+        self.seriesUp.setPen(self.pen1)
+        self.pen2 = self.seriesDown.pen()
+        self.pen2.setColor(Qt.blue)
+        self.seriesDown.setPen(self.pen2)
+        self.seriesUp.setUseOpenGL(True)
+        self.seriesDown.setUseOpenGL(True)
 
+        self.seriesUp.append(1,2)
+        self.seriesDown.append(1,3)
+        self.seriesUp.append(2,4)
+        self.seriesDown.append(2,1)
+
+        self.tabMonitoringMainLayout = QtWidgets.QHBoxLayout(self.tabMonitoring)
+        self.tabMonitoringMainLayout.setObjectName("tabMonitoringMainLayout")
+        self.tabMonitoringMainLayout.addWidget(self.ChartView)
+        self.tabMonitoring.setLayout(self.tabMonitoringMainLayout)
 
         ##### Settings tab
         ### Main layout
@@ -346,7 +373,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(self)
         ##self.pushButton_3.clicked.connect(self.addAppClick)
 
-
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -356,6 +382,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.pushButtonSpeed.setText(_translate("MainWindow", "Speed Test"))
 
         self.labelLogo.setText(_translate("MainWindow", "Logo"))
+
+        self.bwChartDisplay()
 
         #self.arrr = getBandWidth(self)
         #print(self.arrr[0])
@@ -405,6 +433,25 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.textBrowserSpeedtest.setText("Loading...")
         thread = threading.Thread(target=self.runSpeedTest)
         thread.start()
+
+    def bwChartDisplay(self):
+        self.threadBW = threading.Thread(target=self.bwChartGetValues)
+        self.threadBW.daemaon = True
+        self.threadBW.start()
+
+    def bwChartGetValues(self):
+        self.i = 0
+        while(self.thi == 1):
+            self.i = 1+self.i
+            arrayResult = getBandWidth(self)
+            time.sleep(1)
+            up = arrayResult[0]
+            down = arrayResult[1]
+            self.bandWidthSig.emit(up, down)
+
+    def setBandWidthChart(self, up, down):
+        self.seriesUp.append(self.i, up)
+        self.seriesDown.append(self.i, down)
 
     def runSpeedTest(self):
         speedTestResult = SpeedTest.returnSpeedTestResult()
@@ -516,20 +563,26 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.OpenVPNidSubmitButton.setEnabled(False)
 
 
+
     def pingUpdate(self):
         packetsSent = 0
         packetsReceived = 0
+
         while(self.appExit is not True):
             pingResult = ping.getPing()
             pingStr = pingResult['averageRoundTripTime']
-            packetsSentSTR = pingResult['Sent'][:-1]
-            packetsReceivedSTR = pingResult['Received'][:-1]
-            packetsSent += int(packetsSentSTR)
-            packetsReceived += int(packetsReceivedSTR)
-            packetLossRatio = 100 - (100*(packetsSent / packetsReceived))
-            self.pingSig.emit("Ping: " + str(pingStr))
-            self.pingLossSig.emit("Loss ratio: " + str(packetLossRatio) + "%")
-            time.sleep(1)
+
+            try:
+                packetsSentSTR = pingResult['Sent'][:-1]
+                packetsReceivedSTR = pingResult['Received'][:-1]
+                packetsSent += int(packetsSentSTR)
+                packetsReceived += int(packetsReceivedSTR)
+                packetLossRatio = 100 - (100*(packetsSent / packetsReceived))
+                self.pingSig.emit("Ping: " + str(pingStr))
+                self.pingLossSig.emit("Loss ratio: " + str(packetLossRatio) + "%")
+                time.sleep(1)
+            except(TypeError, ValueError):
+                print("ping error")
 
     def closeEvent(self, event):
         if(True):
@@ -538,7 +591,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         else:
             event.ignore()
 
+from wapp import WappWidget
 import sys
+import time
 sys.path.append("../Network")
 import SpeedTest
 import External_IP
