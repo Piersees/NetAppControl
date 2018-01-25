@@ -6,6 +6,8 @@ import subprocess
 from pathlib import Path
 import shutil
 from threading import Thread
+import psutil
+import socket
 
 ADAPTER_KEY = r'SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002BE10318}'
 
@@ -14,12 +16,18 @@ ConfigPath = os.environ['USERPROFILE'] + "\\OpenVPN\\config"
 
 ConnectionKey = "SYSTEM\\CurrentControlSet\\Control\\Network\\{4D36E972-E325-11CE-BFC1-08002BE10318}"
 
-gateway = "10.9.9.1"
-ip = "10.9.9.42"
-mask = "255.255.255.0"
+
+
+def getIpAddressGateway(family,name):
+    for interface, snics in psutil.net_if_addrs().items():
+        for snic in snics:
+            if snic.family == family and interface == name:
+                host = snic.address.split(".")
+                host[-1] = "1"
+                return ".".join(host)
+
 
 def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
-
 
 
     if UdpConf is None:
@@ -46,22 +54,25 @@ def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
         line = prog.stdout.readline()
         print(line)
         if b'Initialization' in line:
-            #setAddress(componentId)
             print("Makeroute called")
-            makeRoute()
+            makeRoute(componentId)
         if line == '' and prog.poll() is not None:
             break
 
-def setAddress(componentId):
-    cmd = ["netsh.exe","interface","ip","set","address","name="+componentId,"static",ip, mask, gateway]
-    prog = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+#def setAddress(componentId):
+#    cmd = ["netsh.exe","interface","ip","set","address","name="+componentId,"static",ip, mask, gateway]
+#    prog = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
 
 
-def makeRoute():
+def makeRoute(componentId):
+    gateway = getIpAddressGateway(socket.AF_INET,componentId)
     cmd = ["route", "add", "0.0.0.0", "mask", "0.0.0.0", gateway, "if", "19"]
-    prog = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+    prog = subprocess.Popen(cmd)
 
 def mainVPN(ConfTcp,ConfUdp = None):
+
+    if not Path(OpenVpnPath).is_file():
+        raise ValueError("Openvpn not installed")
 
     with reg.OpenKey(reg.HKEY_LOCAL_MACHINE, ADAPTER_KEY) as adapters:
         try:
@@ -76,6 +87,9 @@ def mainVPN(ConfTcp,ConfUdp = None):
                         pass
         except:
             pass
+
+    if key is None:
+        raise ValueError("TAP Windows not installed")
 
     regConnection = reg.OpenKey(reg.HKEY_LOCAL_MACHINE, ConnectionKey+"\\"+key+"\\Connection")
     componentId = reg.QueryValueEx(regConnection, "name")[0]
