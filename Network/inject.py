@@ -1,11 +1,9 @@
-import sys
 import ctypes
 from ctypes import wintypes
 import psutil
-import win32pipe, win32file, win32security, win32api
-import time
+import win32pipe, win32file
+import socket
 from threading import Thread
-import ntsecuritycon as con
 
 kernel32 = ctypes.WinDLL('kernel32.dll', use_last_error=True)
 
@@ -117,17 +115,23 @@ def NPServer(id, ip):
     print("connected")
     win32file.WriteFile(hNP, ip.encode("utf-8"))
 
+def getIpAddress(family,name):
+    for interface, snics in psutil.net_if_addrs().items():
+        for snic in snics:
+            if snic.family == family and interface == name:
+                return snic.address
+
 d={}
 
+ip = getIpAddress(socket.AF_INET,"Ethernet 3")
 for proc in psutil.process_iter():
     process = psutil.Process(proc.pid)
     pname = process.name()
     if pname == "chrome.exe":
         print(process.pid)
         injectdll(process.pid, 'C:\\Users\\quent\\PycharmProjects\\pfe\\netHook.dll')
-        d[process.pid] = Thread(target=NPServer, args=(process.pid,"10.7.7.48",))
+        d[process.pid] = Thread(target=NPServer, args=(process.pid,ip,))
         d[process.pid].start()
-        #input("one more?")
 print(d)
 
 
