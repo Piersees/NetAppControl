@@ -9,6 +9,7 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from duration import Duration
 
 class appPopUpSecurity(QDialog):
     def __init__(self):
@@ -101,7 +102,7 @@ class appPopUpSecurity(QDialog):
     ### Enable or disable the time input if it is needed or not
     @pyqtSlot()
     def activateTimeInput(self):
-        if (self.durationBox.currentIndex() == 1):
+        if (self.durationBox.currentIndex() == Duration.SetPeriod):
             self.inputTime.setEnabled(True)
         else:
             self.inputTime.setEnabled(False)
@@ -123,13 +124,15 @@ class appPopUpSecurity(QDialog):
         self.durationBox.setItemText(2, _translate("Dialog", "Forever"))
         self.label_7.setText(_translate("Dialog", "Hours"))
 
+
+
     ### Is triggered when the form is the submit.
     ### Returns the following dictionary:
     #### 'duration' : the type of duration; 0: until the application is closed, 1: for a set period of time, 2: forever
     #### 'time' : the entered set period of time
     def exec_(self):
         super(appPopUpSecurity, self).exec_()
-        if( self.durationBox.currentIndex() == 1 ):
+        if( self.durationBox.currentIndex() == Duration.SetPeriod ):
             return { 'duration' : self.durationBox.currentIndex(), 'time' : int(self.inputTime.text()) }
         else:
             return { 'duration' : self.durationBox.currentIndex(), 'time' : 0 }
