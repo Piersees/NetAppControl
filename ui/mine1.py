@@ -8,12 +8,14 @@
 
 from PyQt5 import Qt, QtCore, QtGui, QtWidgets, QtQuick
 from PyQt5.QtChart import QChart, QChartView, QLineSeries
+from PyQt5.QtGui import QPolygonF, QPainter
 from PyQt5.Qt import Qt
 import os
 import threading
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     speedTestSig = QtCore.pyqtSignal(str)
+    bandWidthSig = QtCore.pyqtSignal(int,int)
 
     def setupUi(self, MainWindow):
 
@@ -26,7 +28,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### Handle the central widget
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-
+        self.thi = 1;
         ### Implement the tabs layout
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setGeometry(QtCore.QRect(-10, -10, 1000, 571))
@@ -79,7 +81,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
         self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoring.png'))
         self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabApps.png'))
-        self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettings.png'))
+        self.tabWidget.setTabIcon(123.3, QtGui.QIcon('./images/tabSettings.png'))
 
         self.tabWidget.tabBar().setTabToolTip(0, "Home")
         self.tabWidget.tabBar().setTabToolTip(1, "Apps")
@@ -148,6 +150,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.textBrowserSpeedtest.setText(self.readLastSpeedTest())
         self.verticalLayoutHome.addWidget(self.textBrowserSpeedtest)
         self.speedTestSig.connect(self.textBrowserSpeedtest.setText)
+        self.bandWidthSig.connect(self.setBandWidthChart)
 
         self.pushButtonScan = QtWidgets.QPushButton(self.groupBoxHomeButtons)
         self.pushButtonScan.setObjectName("pushButtonScan")
@@ -203,7 +206,32 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.appSearchBar.setObjectName("appSearchBar")
         self.appSearchBar.textChanged.connect(self.appSearchBarTextChanged)
 
+        ## BandWidth chart
+        self.chart = QChart()
+        #self.chart.legend().hide()
+        self.ChartView = QChartView(self.chart)
+        self.ChartView.setRenderHint(QPainter.Antialiasing)
+        self.chart.setTitle("Bandwidth by s")
+        self.seriesUp = QLineSeries()
+        self.seriesDown = QLineSeries()
+        self.pen1 = self.seriesUp.pen()
+        self.pen1.setColor(Qt.red)
+        self.seriesUp.setPen(self.pen1)
+        self.pen2 = self.seriesDown.pen()
+        self.pen2.setColor(Qt.blue)
+        self.seriesDown.setPen(self.pen2)
+        self.seriesUp.setUseOpenGL(True)
+        self.seriesDown.setUseOpenGL(True)
 
+        self.seriesUp.append(1,2)
+        self.seriesDown.append(1,3)
+        self.seriesUp.append(2,4)
+        self.seriesDown.append(2,1)
+
+        self.tabMonitoringMainLayout = QtWidgets.QHBoxLayout(self.tabMonitoring)
+        self.tabMonitoringMainLayout.setObjectName("tabMonitoringMainLayout")
+        self.tabMonitoringMainLayout.addWidget(self.ChartView)
+        self.tabMonitoring.setLayout(self.tabMonitoringMainLayout)
 
         ##### Settings tab
         ### Main layout
@@ -306,7 +334,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.i = 4;
 
-
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -317,9 +344,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.labelLogo.setText(_translate("MainWindow", "Logo"))
 
-        self.arrr = getBandWidth(self)
-        print(self.arrr[0])
-        print(self.arrr[1])
+        self.bwChartDisplay()
+
 
         self.pixmap = QtGui.QPixmap(os.getcwd() + 'logo.jpg')
         self.myScaledPixmap = self.pixmap.scaled(self.labelLogo.size(), Qt.KeepAspectRatio)
@@ -358,6 +384,25 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.textBrowserSpeedtest.setText("Loading...")
         thread = threading.Thread(target=self.runSpeedTest)
         thread.start()
+
+    def bwChartDisplay(self):
+        self.threadBW = threading.Thread(target=self.bwChartGetValues)
+        self.threadBW.daemaon = True
+        self.threadBW.start()
+
+    def bwChartGetValues(self):
+        self.i = 0
+        while(self.thi == 1):
+            self.i = 1+self.i
+            arrayResult = getBandWidth(self)
+            time.sleep(1)
+            up = arrayResult[0]
+            down = arrayResult[1]
+            self.bandWidthSig.emit(up, down)
+
+    def setBandWidthChart(self, up, down):
+        self.seriesUp.append(self.i, up)
+        self.seriesDown.append(self.i, down)
 
     def runSpeedTest(self):
         speedTestResult = SpeedTest.returnSpeedTestResult()
@@ -434,8 +479,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.OpenVPNidSubmitButton.setEnabled(False)
 
 
+    def stop_threadBW(self):
+        self.threadBW.quit()
+        self.threadBW.wait()
+        self.thi = 0
+
 from wapp import WappWidget
 import sys
+import time
 sys.path.append("../Network")
 import SpeedTest
 import External_IP
