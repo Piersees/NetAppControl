@@ -10,6 +10,9 @@ from PyQt5 import Qt, QtCore, QtGui, QtWidgets, QtQuick
 from PyQt5.QtChart import QChart, QChartView, QLineSeries
 from PyQt5.QtGui import QPolygonF, QPainter
 from PyQt5.Qt import Qt
+from pyqtgraph.Qt import QtGui, QtCore
+import numpy as np
+import pyqtgraph as pg
 import os
 import threading
 import time
@@ -24,6 +27,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     pingLossSig = QtCore.pyqtSignal(str)
     openVPNcertificateEnteredSig = QtCore.pyqtSignal()
 
+
+
     appExit = False
 
     def __init__(self):
@@ -34,6 +39,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### Change the window's size
         self.resize(1000, 600)
+
+        # Enable antialiasing for prettier plots
+        pg.setConfigOptions(antialias=True)
 
         ### Handle the central widget
         self.centralwidget = QtWidgets.QWidget(self)
@@ -77,7 +85,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.home_tab = QtWidgets.QWidget()
         self.tab = QtWidgets.QWidget()
         self.tabSettings = QtWidgets.QWidget()
-        self.tabMonitoring = QtWidgets.QWidget()
+        self.tabMonitoring = pg.GraphicsLayoutWidget()
         self.home_tab.setObjectName("home_tab")
         self.tab.setObjectName("tab")
         self.tabSettings.setObjectName("tabSettings")
@@ -87,6 +95,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tabWidget.addTab(self.tab, "")
         self.tabWidget.addTab(self.tabMonitoring, "")
         self.tabWidget.addTab(self.tabSettings, "")
+
+
+        self.BWplot = self.tabMonitoring.addPlot(title="Bandwidth /s")
+        self.BWplot.plot(np.random.normal(size=100), pen=(255,0,0), name="Upload")
+        self.BWplot.plot(np.random.normal(size=110)+5, pen=(0,255,0), name="Download")
+        self.BWplot.setLabel('left', "Bandwidth", units='MB')
+        self.BWplot.setLabel('bottom', "Seconds", units='s')
 
         self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
         self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoring.png'))
@@ -243,31 +258,31 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.appSearchBar.textChanged.connect(self.appSearchBarTextChanged)
 
         ## BandWidth chart
-        self.chart = QChart()
-        #self.chart.legend().hide()
-        self.ChartView = QChartView(self.chart)
-        self.ChartView.setRenderHint(QPainter.Antialiasing)
-        self.chart.setTitle("Bandwidth by s")
-        self.seriesUp = QLineSeries()
-        self.seriesDown = QLineSeries()
-        self.pen1 = self.seriesUp.pen()
-        self.pen1.setColor(Qt.red)
-        self.seriesUp.setPen(self.pen1)
-        self.pen2 = self.seriesDown.pen()
-        self.pen2.setColor(Qt.blue)
-        self.seriesDown.setPen(self.pen2)
-        self.seriesUp.setUseOpenGL(True)
-        self.seriesDown.setUseOpenGL(True)
+            #self.chart = QChart()
+            #self.chart.legend().hide()
+            #self.ChartView = QChartView(self.chart)
+            #self.ChartView.setRenderHint(QPainter.Antialiasing)
+            #self.chart.setTitle("Bandwidth by s")
+            #self.seriesUp = QLineSeries()
+            #self.seriesDown = QLineSeries()
+            #self.pen1 = self.seriesUp.pen()
+            #self.pen1.setColor(Qt.red)
+            #self.seriesUp.setPen(self.pen1)
+            #self.pen2 = self.seriesDown.pen()
+            #self.pen2.setColor(Qt.blue)
+            #self.seriesDown.setPen(self.pen2)
+            #self.seriesUp.setUseOpenGL(True)
+            #self.seriesDown.setUseOpenGL(True)
 
-        self.seriesUp.append(1,2)
-        self.seriesDown.append(1,3)
-        self.seriesUp.append(2,4)
-        self.seriesDown.append(2,1)
+            #self.seriesUp.append(1,2)
+            #self.seriesDown.append(1,3)
+            #self.seriesUp.append(2,4)
+            #self.seriesDown.append(2,1)
 
-        self.tabMonitoringMainLayout = QtWidgets.QHBoxLayout(self.tabMonitoring)
-        self.tabMonitoringMainLayout.setObjectName("tabMonitoringMainLayout")
-        self.tabMonitoringMainLayout.addWidget(self.ChartView)
-        self.tabMonitoring.setLayout(self.tabMonitoringMainLayout)
+        #self.tabMonitoringMainLayout = QtWidgets.QHBoxLayout(self.tabMonitoring)
+        #self.tabMonitoringMainLayout.setObjectName("tabMonitoringMainLayout")
+        #self.tabMonitoringMainLayout.addWidget(self.ChartView)
+        #self.tabMonitoring.setLayout(self.tabMonitoringMainLayout)
 
         ##### Settings tab
         ### Main layout
@@ -450,8 +465,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.bandWidthSig.emit(up, down)
 
     def setBandWidthChart(self, up, down):
-        self.seriesUp.append(self.i, up)
-        self.seriesDown.append(self.i, down)
+        print("a")
+        #self.seriesUp.append(self.i, up)
+        #self.seriesDown.append(self.i, down)
 
     def runSpeedTest(self):
         speedTestResult = SpeedTest.returnSpeedTestResult()
