@@ -441,7 +441,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def bwChartGetValues(self):
         self.i = 0
-        while(self.thi == 1):
+        while(self.appExit is not True):
             self.i = 1+self.i
             arrayResult = getBandWidth(self)
             time.sleep(1)
