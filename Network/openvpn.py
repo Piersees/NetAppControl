@@ -17,6 +17,7 @@ ConfigPath = os.environ['USERPROFILE'] + "\\OpenVPN\\config"
 ConnectionKey = "SYSTEM\\CurrentControlSet\\Control\\Network\\{4D36E972-E325-11CE-BFC1-08002BE10318}"
 
 
+
 def getIpAddressGateway(family,name):
     for interface, snics in psutil.net_if_addrs().items():
         for snic in snics:
@@ -70,6 +71,9 @@ def makeRoute(componentId):
 
 def mainVPN(ConfTcp,ConfUdp = None):
 
+    if not Path(OpenVpnPath).is_file():
+        raise ValueError("Openvpn not installed")
+
     with reg.OpenKey(reg.HKEY_LOCAL_MACHINE, ADAPTER_KEY) as adapters:
         try:
             for i in range(10000):
@@ -83,6 +87,9 @@ def mainVPN(ConfTcp,ConfUdp = None):
                         pass
         except:
             pass
+
+    if key is None:
+        raise ValueError("TAP Windows not installed")
 
     regConnection = reg.OpenKey(reg.HKEY_LOCAL_MACHINE, ConnectionKey+"\\"+key+"\\Connection")
     componentId = reg.QueryValueEx(regConnection, "name")[0]

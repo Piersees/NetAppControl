@@ -15,11 +15,10 @@
       <file leaf-file-name="mine1.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ui/mine1.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="9450">
-              <caret line="450" column="73" lean-forward="false" selection-start-line="450" selection-start-column="73" selection-end-line="450" selection-end-column="73" />
+            <state relative-caret-position="210">
+              <caret line="526" column="45" lean-forward="false" selection-start-line="526" selection-start-column="31" selection-end-line="526" selection-end-column="45" />
               <folding>
                 <element signature="e#194#249#0" expanded="true" />
-                <marker date="1516872742279" expanded="true" signature="458:538" ph="..." />
               </folding>
             </state>
           </provider>
@@ -28,8 +27,8 @@
       <file leaf-file-name="inject.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Network/inject.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="453">
-              <caret line="133" column="30" lean-forward="false" selection-start-line="133" selection-start-column="30" selection-end-line="133" selection-end-column="30" />
+            <state relative-caret-position="2709">
+              <caret line="129" column="42" lean-forward="true" selection-start-line="129" selection-start-column="42" selection-end-line="129" selection-end-column="42" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -40,8 +39,8 @@
       <file leaf-file-name="openvpn.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Network/openvpn.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="147">
-              <caret line="10" column="0" lean-forward="true" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+            <state relative-caret-position="335">
+              <caret line="85" column="28" lean-forward="true" selection-start-line="85" selection-start-column="28" selection-end-line="85" selection-end-column="28" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -96,6 +95,7 @@
       <find>returnSpeedTestResult</find>
       <find>getAppList</find>
       <find>makeRoute</find>
+      <find>key</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -108,8 +108,8 @@
         <option value="$PROJECT_DIR$/Network/ping.py" />
         <option value="$PROJECT_DIR$/Network/getIpAddress.py" />
         <option value="$PROJECT_DIR$/Network/ip.py" />
-        <option value="$PROJECT_DIR$/Network/inject.py" />
         <option value="$PROJECT_DIR$/ui/mine1.py" />
+        <option value="$PROJECT_DIR$/Network/inject.py" />
         <option value="$PROJECT_DIR$/Network/openvpn.py" />
       </list>
     </option>
@@ -391,7 +391,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295583" sideWeight="0.5021482" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15628539" sideWeight="0.49785176" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.101925254" sideWeight="0.49785176" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -422,7 +422,6 @@
           <caret line="400" column="35" lean-forward="false" selection-start-line="400" selection-start-column="35" selection-end-line="400" selection-end-column="35" />
           <folding>
             <element signature="e#194#249#0" expanded="true" />
-            <marker date="1516872742279" expanded="true" signature="458:538" ph="..." />
           </folding>
         </state>
       </provider>
@@ -479,7 +478,6 @@
           <caret line="431" column="18" lean-forward="false" selection-start-line="431" selection-start-column="18" selection-end-line="431" selection-end-column="18" />
           <folding>
             <element signature="e#194#249#0" expanded="true" />
-            <marker date="1516872742279" expanded="true" signature="458:538" ph="..." />
           </folding>
         </state>
       </provider>
@@ -509,7 +507,6 @@
           <caret line="431" column="18" lean-forward="true" selection-start-line="431" selection-start-column="18" selection-end-line="431" selection-end-column="18" />
           <folding>
             <element signature="e#194#249#0" expanded="true" />
-            <marker date="1516872742279" expanded="true" signature="458:538" ph="..." />
           </folding>
         </state>
       </provider>
@@ -597,31 +594,30 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Network/getIpAddress.py" />
     <entry file="file://$PROJECT_DIR$/Network/ip.py" />
+    <entry file="file://$PROJECT_DIR$/ui/mine1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="526" column="45" lean-forward="false" selection-start-line="526" selection-start-column="31" selection-end-line="526" selection-end-column="45" />
+          <folding>
+            <element signature="e#194#249#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Network/inject.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="453">
-          <caret line="133" column="30" lean-forward="false" selection-start-line="133" selection-start-column="30" selection-end-line="133" selection-end-column="30" />
+        <state relative-caret-position="2709">
+          <caret line="129" column="42" lean-forward="true" selection-start-line="129" selection-start-column="42" selection-end-line="129" selection-end-column="42" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ui/mine1.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="9450">
-          <caret line="450" column="73" lean-forward="false" selection-start-line="450" selection-start-column="73" selection-end-line="450" selection-end-column="73" />
-          <folding>
-            <element signature="e#194#249#0" expanded="true" />
-            <marker date="1516872742279" expanded="true" signature="458:538" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Network/openvpn.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="147">
-          <caret line="10" column="0" lean-forward="true" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+        <state relative-caret-position="335">
+          <caret line="85" column="28" lean-forward="true" selection-start-line="85" selection-start-column="28" selection-end-line="85" selection-end-column="28" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
