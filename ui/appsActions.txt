@@ -11,3 +11,6 @@ app1,security,0,1516285510.2738054
 app3,security,0,1516285831.3089983
 Test 8,security,0,1516285902.9808612
 >>>>>>> a51db4f3328a325f20af83f7d6fc90d4344604e1
+RuntimeBroker.exe,network,0,1516714375.6036918,,False
+SocketHeciServer.exe,network,0,1516714693.043658,,False
+LMS.exe,security,0,1516714725.7814713

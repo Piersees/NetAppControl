@@ -12,21 +12,31 @@ from PyQt5.QtGui import QPolygonF, QPainter
 from PyQt5.Qt import Qt
 import os
 import threading
+import time
+from wapp import WappWidget
+import psutil
+
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     speedTestSig = QtCore.pyqtSignal(str)
     bandWidthSig = QtCore.pyqtSignal(int,int)
+    pingSig = QtCore.pyqtSignal(str)
+    pingLossSig = QtCore.pyqtSignal(str)
+    openVPNcertificateEnteredSig = QtCore.pyqtSignal()
 
-    def setupUi(self, MainWindow):
+    appExit = False
+
+    def __init__(self):
+        QtWidgets.QMainWindow.__init__(self)
 
         ### Create the app window
-        MainWindow.setObjectName("MainWindow")
+        self.setObjectName("self")
 
         ### Change the window's size
-        MainWindow.resize(1000, 600)
+        self.resize(1000, 600)
 
         ### Handle the central widget
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.thi = 1;
         ### Implement the tabs layout
@@ -95,18 +105,18 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.pushButton_3.setGeometry(QtCore.QRect(520, 540, 80, 23))
 
         ### Menu bar
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar = QtWidgets.QMenuBar(self)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 813, 20))
         self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
+        self.setMenuBar(self.menubar)
 
         ### Status bar
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar = QtWidgets.QStatusBar(self)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        self.setStatusBar(self.statusbar)
 
         ### Central widget
-        MainWindow.setCentralWidget(self.centralwidget)
+        self.setCentralWidget(self.centralwidget)
 
         ### Layout for the home page
         self.groupBoxHome = QtWidgets.QGroupBox(self.home_tab)
@@ -149,6 +159,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.textBrowserSpeedtest.setSizePolicy(sizePolicy)
         self.textBrowserSpeedtest.setText(self.readLastSpeedTest())
         self.verticalLayoutHome.addWidget(self.textBrowserSpeedtest)
+
         self.speedTestSig.connect(self.textBrowserSpeedtest.setText)
         self.bandWidthSig.connect(self.setBandWidthChart)
 
@@ -173,22 +184,48 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.labelLogo.setBaseSize(QtCore.QSize(250, 250))
         self.labelLogo.setObjectName("labelLogo")
 
+        ### Network groupbox
+        self.NetworkLayoutWidget = QtWidgets.QWidget(self.home_tab)
+        self.NetworkLayoutWidget.setGeometry(QtCore.QRect(600, 10, 200, 100))
+        self.NetworkLayout = QtWidgets.QVBoxLayout(self.NetworkLayoutWidget)
+
         ### Ip label
-        self.Iplabel = QtWidgets.QLabel(self.home_tab)
-        self.Iplabel.setGeometry(QtCore.QRect(600, 10, 185, 20))
+        self.Iplabel = QtWidgets.QLabel()
         self.Iplabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.Iplabel.setObjectName("Iplabel")
         self.Iplabel.setText("Public IP adress: " + External_IP.Get_IP())
+        self.NetworkLayout.addWidget(self.Iplabel)
+
+        ### Ping label
+        self.Pinglabel = QtWidgets.QLabel()
+        self.Pinglabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.Pinglabel.setObjectName("PingLabel")
+        self.Pinglabel.setText("Pinging...")
+        self.NetworkLayout.addWidget(self.Pinglabel)
+
+        ### Ping label
+        self.PingLosslabel = QtWidgets.QLabel()
+        self.PingLosslabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.PingLosslabel.setObjectName("PingLabel")
+        self.PingLosslabel.setText("")
+        self.NetworkLayout.addWidget(self.PingLosslabel)
+
+        self.pingLossSig.connect(self.PingLosslabel.setText)
+        self.pingSig.connect(self.Pinglabel.setText)
+        self.threadPing = threading.Thread(target=self.pingUpdate)
+        self.threadPing.start()
 
         ### Insert items into the application list
 
         ### Create the application list
         self.list = QtWidgets.QListWidget()
+        self.displayedList = QtWidgets.QListWidget()
 
         ### Insert some apps
         # self.createNewAppItem("Test 1");
         # self.createNewAppItem("Test 2");
         # self.createNewAppItem("Test 3");
+        self.listApp = {}
         self.fillAppList()
 
         ### Arrange the app list layout
@@ -318,6 +355,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.openVPNfileLayout.addWidget(self.openVPNsubmitButton)
 
         self.openVPNsubmitButton.setEnabled(False)
+        self.openVPNcertificate2Changed = False
 
         ## Button connections
         self.openVPNfileDialogButton.clicked.connect(self.selectVPNcertificate)
@@ -325,18 +363,20 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.openVPNsubmitButton.clicked.connect(self.openVPNsubmit)
 
 
+
+        ### Signal connecting
+        self.openVPNcertificateEnteredSig.connect(self.resetAppList)
+
+
         ### GUI arrangements
-        self.retranslateUi(MainWindow)
+        self.retranslateUi(self)
         self.tabWidget.setCurrentIndex(0)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
-        #self.pushButton_3.clicked.connect(self.addAppClick)
-
-        self.i = 4;
+        QtCore.QMetaObject.connectSlotsByName(self)
+        ##self.pushButton_3.clicked.connect(self.addAppClick)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.groupBoxHome.setTitle(_translate("MainWindow", ""))
         self.groupBoxHomeButtons.setTitle(_translate("MainWindow", ""))
         self.pushButtonScan.setText(_translate("MainWindow", "Scan"))
@@ -346,6 +386,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.bwChartDisplay()
 
+        #self.arrr = getBandWidth(self)
+        #print(self.arrr[0])
+        #print(self.arrr[1])
 
         self.pixmap = QtGui.QPixmap(os.getcwd() + 'logo.jpg')
         self.myScaledPixmap = self.pixmap.scaled(self.labelLogo.size(), Qt.KeepAspectRatio)
@@ -360,13 +403,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def addAppClick(self):
-        self.createNewAppItem("Test " + str(self.i), {1,2,3})
-        self.i+=1
+        for i in range(self.list.count()):
+            app_name = self.list.item(i).data(QtCore.Qt.UserRole)
 
     ### Add a new app item to the application list
     def createNewAppItem(self, processName, PID_list):
         wapp = QtWidgets.QListWidgetItem(self.list)
-        wapp.setText(" ")
+        wapp.setData(QtCore.Qt.UserRole, processName)
         wapp_widget = WappWidget()
         wapp_widget.setLabelText(processName)
         wapp_widget.setProcessName(processName)
@@ -377,7 +420,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     ### Triggers when the app search bar text is changed
     def appSearchBarTextChanged(self):
-        print(self.appSearchBar.text())
+        self.list.clear()
+        if(self.appSearchBar.text() == ""):
+            for app in self.listApp:
+                self.createNewAppItem(app, self.listApp[app])
+        else:
+            for app in self.listApp:
+                if self.appSearchBar.text().lower() in app.lower():
+                    self.createNewAppItem(app, self.listApp[app])
 
     def displaySpeedTest(self):
         self.pushButtonSpeed.setEnabled(False)
@@ -431,32 +481,66 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         options = QtWidgets.QFileDialog.Options()
         options |= QtWidgets.QFileDialog.DontUseNativeDialog
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"QFileDialog.getOpenFileName()", "","OpenVPN files (*.ovpn)", options=options)
-        self.openVPNfilenameLabel.setText(fileName)
+
         if(fileName != None):
+            self.openVPNfilenameLabel.setText(fileName)
             self.openVPNsubmitButton.setEnabled(True)
 
     def selectVPNoptionalCertificate(self):
         options = QtWidgets.QFileDialog.Options()
         options |= QtWidgets.QFileDialog.DontUseNativeDialog
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"QFileDialog.getOpenFileName()", "","OpenVPN files (*.ovpn)", options=options)
-        self.openVPNfilenameLabel2.setText(fileName)
+
+        if(fileName != None):
+            self.openVPNfilenameLabel2.setText(fileName)
+            self.openVPNcertificate2Changed = True
 
     def openVPNsubmit(self):
-        ### TODO : handle openVPN
-        print("ok")
+        certificate = self.openVPNfilenameLabel.text().replace("/",r'\\')
 
-    def getAppList(self):
-        pidList1 = { 11, 8, 23 }
-        pidList2 = { 3 }
-        pidList3 = { 98, 278267, 72 }
-        pidList4 = { 8337763 }
-        listApp = [ { "appname" : "app1", "PID_list" : pidList1 }, { "appname" : "app2", "PID_list" : pidList2 }, { "appname" : "app3", "PID_list" : pidList3 }, { "appname" : "app4", "PID_list" : pidList4 } ]
-        return listApp
+        try:
+            openvpn.mainVPN(certificate)
+
+            fw = open("./openVPNcertificates.txt", "w")
+            fw.write(certificate + "\n")
+            if( self.openVPNcertificate2Changed is not False ):
+                certificate2 = self.openVPNfilenameLabel2.text().replace("/",r'\\')
+                fw.write(certificate2 + "\n")
+            fw.close()
+
+            msg = QtWidgets.QMessageBox()
+            msg.setText("openVPN certificate registered")
+            msg.exec_()
+
+            self.openVPNcertificateEnteredSig.emit()
+
+        except(UnboundLocalError):
+            msg = QtWidgets.QMessageBox()
+            msg.setText("Invalid openVPN certificate")
+            msg.exec_()
+
+
+
+    def getAppListWithInternet(self):
+        dic = {}
+        for proc in psutil.process_iter():
+            process = psutil.Process(proc.pid)
+            pname = process.name()
+            if proc.connections():
+                if pname not in dic:
+                    dic[pname] = [proc.pid]
+                else:
+                    dic[pname].append(proc.pid)
+        return dic
 
     def fillAppList(self):
-        listApp = self.getAppList()
-        for app in listApp:
-            self.createNewAppItem(app["appname"], app["PID_list"])
+        self.listApp = self.getAppListWithInternet()
+        for app in self.listApp:
+            self.createNewAppItem(app, self.listApp[app])
+
+    def resetAppList(self):
+        self.list.clear()
+        self.fillAppList()
 
     def submitOpenVPNid(self):
         fh = open("./openVPNid.txt", "w")
@@ -475,14 +559,33 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def enableOpenVPNidSubmit(self):
         if(self.checkIfValidOpenVPNLogins() == True):
             self.OpenVPNidSubmitButton.setEnabled(True)
+
         else:
             self.OpenVPNidSubmitButton.setEnabled(False)
 
 
-    def stop_threadBW(self):
-        self.threadBW.quit()
-        self.threadBW.wait()
-        self.thi = 0
+
+    def pingUpdate(self):
+        packetsSent = 0
+        packetsReceived = 0
+        while(self.appExit is not True):
+            pingResult = ping.getPing()
+            pingStr = pingResult['averageRoundTripTime']
+            packetsSentSTR = pingResult['Sent'][:-1]
+            packetsReceivedSTR = pingResult['Received'][:-1]
+            packetsSent += int(packetsSentSTR)
+            packetsReceived += int(packetsReceivedSTR)
+            packetLossRatio = 100 - (100*(packetsSent / packetsReceived))
+            self.pingSig.emit("Ping: " + str(pingStr))
+            self.pingLossSig.emit("Loss ratio: " + str(packetLossRatio) + "%")
+            time.sleep(1)
+
+    def closeEvent(self, event):
+        if(True):
+            self.appExit = True
+            event.accept()
+        else:
+            event.ignore()
 
 from wapp import WappWidget
 import sys
@@ -490,12 +593,13 @@ import time
 sys.path.append("../Network")
 import SpeedTest
 import External_IP
+import ping
 from BandWidth import getBandWidth
+import openvpn
+
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    ui.show()
     sys.exit(app.exec_())

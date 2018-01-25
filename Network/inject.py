@@ -117,8 +117,7 @@ def NPServer(id, ip):
     print("connected")
     win32file.WriteFile(hNP, ip.encode("utf-8"))
 
-nb=0
-d = {}
+d={}
 
 for proc in psutil.process_iter():
     process = psutil.Process(proc.pid)

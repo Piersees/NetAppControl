@@ -23,7 +23,7 @@ class WappWidget(QWidget):
 
         ### Create the sub widgets
         self.setStyleSheet("QPushButton{width:60px; height:60px;}")
-        self.label = QLabel("Test")
+        self.label = QLabel("")
         self.buttonNetwork = QPushButton()
         self.buttonSecurity = QPushButton()
 
@@ -46,14 +46,15 @@ class WappWidget(QWidget):
         self.buttonSecurity.setIcon(QIcon('./images/lock.png'))
         self.buttonSecurity.setIconSize(QSize(40,40))
 
-        self.setLabelText("abc")
-
         ### Set the layout to the widget
         self.setLayout(layout)
 
         ### Connect the buttons to functions
         self.buttonNetwork.clicked.connect(self.buttonNetworkClick)
         self.buttonSecurity.clicked.connect(self.buttonSecurityClick)
+
+        ### Enables de security button if an OpenVPN certificate is present
+        self.buttonSecurity.setEnabled(self.hasRegisteredOpenVPNCertificate())
 
     ### Returns the label's text
     @pyqtSlot()
@@ -145,6 +146,14 @@ class WappWidget(QWidget):
     @pyqtSlot()
     def getPIDlist(self):
         return self.PID_list
+
+    @pyqtSlot()
+    def hasRegisteredOpenVPNCertificate(self):
+        fr = open('./openVPNcertificates.txt', "r")
+        if ( fr.read() is not "" ):
+            return True
+        else:
+            return False
 
 
     labelText = pyqtProperty(str, getLabelText, setLabelText)

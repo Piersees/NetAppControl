@@ -9,6 +9,7 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from duration import Duration
 
 class appPopUpNetwork(QDialog):
     def __init__(self):
@@ -144,7 +145,7 @@ class appPopUpNetwork(QDialog):
     ### Enable or disable the time input if it is needed or not
     @pyqtSlot()
     def activateTimeInput(self):
-        if (self.durationBox.currentIndex() == 1):
+        if (self.durationBox.currentIndex() == Duration.SetPeriod):
             self.timeInput.setEnabled(True)
         else:
             self.timeInput.setEnabled(False)
@@ -209,7 +210,7 @@ class appPopUpNetwork(QDialog):
     #### 'percentage' : true if the bandwidth is in percentage, false otherwise
     def exec_(self):
         super(appPopUpNetwork, self).exec_()
-        if( self.durationBox.currentIndex() == 1 ):
+        if( self.durationBox.currentIndex() == Duration.SetPeriod ):
             return { 'duration' : self.durationBox.currentIndex(), 'time' : int(self.timeInput.text()), 'bandwidth' : self.bandwidthInput.text(), 'percentage' : self.radioButtonPercent.isChecked() }
         else:
             return { 'duration' : self.durationBox.currentIndex(), 'time' : 0, 'bandwidth' : self.bandwidthInput.text(), 'percentage' : self.radioButtonPercent.isChecked() }
