@@ -27,8 +27,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     pingLossSig = QtCore.pyqtSignal(str)
     openVPNcertificateEnteredSig = QtCore.pyqtSignal()
 
-
-
     appExit = False
 
     def __init__(self):
@@ -42,6 +40,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         # Enable antialiasing for prettier plots
         pg.setConfigOptions(antialias=True)
+        pg.setConfigOption('background', 'w')
+        pg.setConfigOption('foreground', 'k')
 
         ### Handle the central widget
         self.centralwidget = QtWidgets.QWidget(self)
@@ -59,7 +59,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             "    padding-top: 20px;\n"
             "    color: white;\n"
             "    width : 200px;\n"
-            "    height: 50px;\n"
+            "    height: 101px;\n"
             "}\n"
             "\n"
             "QTabBar::tab:selected {\n"
@@ -96,16 +96,18 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tabWidget.addTab(self.tabMonitoring, "")
         self.tabWidget.addTab(self.tabSettings, "")
 
-
+        ## BandWidth graph
         self.BWplot = self.tabMonitoring.addPlot(title="Bandwidth /s")
         self.BWplot.setDownsampling(mode='peak')
         self.BWplot.setClipToView(True)
         self.BWplot.setRange(xRange=[-100, 0])
+        self.BWplot.showAxis('bottom', False)
+        self.BWplot.addLegend()
         self.dataUL = np.empty(600)
         self.dataDL = np.empty(600)
-        self.curveUL = self.BWplot.plot(self.dataUL, fillLevel=-0.25, brush=(200,50,50,100), pen=(255,0,0), name="Upload")
-        self.curveDL = self.BWplot.plot(self.dataDL, fillLevel=-0.05, brush=(50,50,200,100), pen=(0,0,255), name="Download")
-        self.BWplot.setLabel('left', "Bandwidth", units='MB')
+        self.curveUL = self.BWplot.plot(self.dataUL, fillLevel=-0.25, brush=(200,50,50,100), pen=(255,0,0), name="Upload rate")
+        self.curveDL = self.BWplot.plot(self.dataDL, fillLevel=-0.05, brush=(50,50,200,100), pen=(0,0,255), name="Download rate")
+        self.BWplot.setLabel('left', "Bandwidth", units='kB')
         self.ptrBW = 0
 
         self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
@@ -303,33 +305,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.appSearchBar.setObjectName("appSearchBar")
         self.appSearchBar.textChanged.connect(self.appSearchBarTextChanged)
 
-        ## BandWidth chart
-            #self.chart = QChart()
-            #self.chart.legend().hide()
-            #self.ChartView = QChartView(self.chart)
-            #self.ChartView.setRenderHint(QPainter.Antialiasing)
-            #self.chart.setTitle("Bandwidth by s")
-            #self.seriesUp = QLineSeries()
-            #self.seriesDown = QLineSeries()
-            #self.pen1 = self.seriesUp.pen()
-            #self.pen1.setColor(Qt.red)
-            #self.seriesUp.setPen(self.pen1)
-            #self.pen2 = self.seriesDown.pen()
-            #self.pen2.setColor(Qt.blue)
-            #self.seriesDown.setPen(self.pen2)
-            #self.seriesUp.setUseOpenGL(True)
-            #self.seriesDown.setUseOpenGL(True)
-
-            #self.seriesUp.append(1,2)
-            #self.seriesDown.append(1,3)
-            #self.seriesUp.append(2,4)
-            #self.seriesDown.append(2,1)
-
-        #self.tabMonitoringMainLayout = QtWidgets.QHBoxLayout(self.tabMonitoring)
-        #self.tabMonitoringMainLayout.setObjectName("tabMonitoringMainLayout")
-        #self.tabMonitoringMainLayout.addWidget(self.ChartView)
-        #self.tabMonitoring.setLayout(self.tabMonitoringMainLayout)
-
         ##### Settings tab
         ### Main layout
         self.tabSettingsMainLayout = QtWidgets.QHBoxLayout(self.tabSettings)
@@ -357,6 +332,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ## Form layout
         self.OpenVPNidFormLayout = QtWidgets.QFormLayout()
         self.OpenVPNidFormLayout.setObjectName("OpenVPNidFormLayout")
+        self.OpenVPNidFormLayout.setContentsMargins(225, -1, 275, 0);
         self.openVPNidFormVerticalLayout.addLayout(self.OpenVPNidFormLayout)
 
         # Widgets declaration
@@ -385,6 +361,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.OpenVPNidPasswordInput.textChanged.connect(self.enableOpenVPNidSubmit)
 
 
+
+        self.line = QtWidgets.QFrame();
+        self.line.setFrameShape(QtWidgets.QFrame.HLine);
+        self.line.setFrameShadow(QtWidgets.QFrame.Sunken);
+        self.openVPNidFormVerticalLayout.addWidget(self.line)
+
         ### Certificate layout
         self.openVPNfileLayout = QtWidgets.QVBoxLayout()
         self.openVPNfileLayout.setObjectName("openVPNfileLayout")
@@ -405,13 +387,15 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.openVPNsubmitButton.setText("Submit")
 
         ## Widget placement
-        self.openVPNfileLayout = QtWidgets.QVBoxLayout()
+        self.openVPNfileLayout = QtWidgets.QFormLayout()
         self.openVPNidFormVerticalLayout.addLayout(self.openVPNfileLayout)
-        self.openVPNfileLayout.addWidget(self.openVPNfilenameLabel)
-        self.openVPNfileLayout.addWidget(self.openVPNfileDialogButton)
-        self.openVPNfileLayout.addWidget(self.openVPNfilenameLabel2)
-        self.openVPNfileLayout.addWidget(self.openVPNfileDialogButton2)
-        self.openVPNfileLayout.addWidget(self.openVPNsubmitButton)
+        self.openVPNfileLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.openVPNfilenameLabel)
+        self.openVPNfileLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.openVPNfileDialogButton)
+        self.openVPNfileLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.openVPNfilenameLabel2)
+        self.openVPNfileLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.openVPNfileDialogButton2)
+        self.openVPNfileLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.openVPNsubmitButton)
+        self.openVPNfileLayout.setContentsMargins(125, -1, 175, 0);
+
 
         self.openVPNsubmitButton.setEnabled(False)
         self.openVPNcertificate2Changed = False
@@ -516,6 +500,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             time.sleep(1)
 
     def setBandWidthChart(self, up, down):
+        if self.ptrBW == 600:
+            self.dataUL[:-1] = self.dataUL[1:]
+            self.dataDL[:-1] = self.dataDL[1:]
+            self.ptrBW = 599
         self.dataUL[self.ptrBW] = up
         self.dataDL[self.ptrBW] = down
         self.ptrBW += 1
