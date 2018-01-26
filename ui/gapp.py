@@ -19,43 +19,38 @@ class GappWidget(appAbstract):
         self.buttonSecurity.setIconSize(QSize(30,30))
         self.buttonNames.setIconSize(QSize(30,30))
 
-        appList =  { 'Sys':[0], 'svchost.exe':[196,536,620,964,1563,5288,7036], 'jhi_service.exe': [3532] }
-        self.appList = appList
         self.apps = {}
-
-        self.setName("abc")
-        self.setLabelText(self.getName())
-
-        self.fillGroup()
 
         self.buttonNames.clicked.connect(self.showNames)
 
     @pyqtSlot(str)
     def setName(self, value):
         self.name = value
+        self.setLabelText(self.getName())
 
     @pyqtSlot()
     def getName(self):
         return self.name
 
+    @pyqtSlot(dict)
+    def setAppList(self, appList):
+        self.appList = appList
+
     def fillGroup(self):
         self.names = self.returnGroupNameList()
         self.linkApps(self.names)
 
-
     def returnGroupNameList(self):
         fr = open('./appGroups.txt')
         names = []
-
         for app in fr.readlines():
-            line = app.split(" ")
+            line = app.split("|")
             if self.name in line[0]:
                 names.append(line[1].split("\n")[0])
 
         return names
 
     def linkApps(self, names):
-
         for app in self.appList:
             for name in names:
                 if app in names:
@@ -75,7 +70,6 @@ class GappWidget(appAbstract):
     def manageVPN(self, durationType, durationTime):
         ### TODO: link with VPN
         pass
-
 
 if __name__ == "__main__":
     import sys

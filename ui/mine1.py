@@ -244,52 +244,52 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.appListLayout.setObjectName("verticalLayout")
         self.appListLayout.addWidget(self.list)
 
-
         ### Create the app groups groupbox
         self.groupBoxAppGroup = QtWidgets.QGroupBox(self.tab)
         self.groupBoxAppGroup.setObjectName("groupBoxAppGroup")
         self.groupBoxAppGroup.setGeometry(QtCore.QRect(450, 60, 320, 481))
 
+        ### Create the app groups groupbox layout
+        self.groupMainLayoutWidget = QtWidgets.QVBoxLayout(self.groupBoxAppGroup)
+        self.groupMainLayoutWidget.setGeometry(QtCore.QRect(10, 10, 300, 460))
+        self.groupMainLayoutWidget.setObjectName("groupMainLayoutWidget")
+
         ### Create the group list
         self.groupList = QtWidgets.QListWidget()
 
-        ### Insert groups
-        #self.addGroups()
-
-        ### Arrange the group list layout
-        self.groupListLayoutWidget = QtWidgets.QWidget(self.groupBoxAppGroup)
-        self.groupListLayoutWidget.setObjectName("GroupVerticalLayoutWidget")
+        ### Create the app group list layout
+        self.groupListLayoutWidget = QtWidgets.QWidget()
+        self.groupMainLayoutWidget.addWidget(self.groupListLayoutWidget)
+        self.groupListLayoutWidget.setGeometry(QtCore.QRect(10, 10, 300, 450))
+        self.groupListLayoutWidget.setObjectName("groupListLayoutWidget")
         self.groupListLayout = QtWidgets.QVBoxLayout(self.groupListLayoutWidget)
+        self.groupListLayout.setContentsMargins(0, 0, 0, 0)
+        self.groupListLayout.setObjectName("groupListLayout")
+        self.groupListLayout.addWidget(self.groupList)
 
-        self.groupAppLayoutWidget = QtWidgets.QWidget(self.groupBoxAppGroup)
-        self.groupAppLayoutWidget.setGeometry(QtCore.QRect(10, 10, 300, 460))
-        self.groupAppLayoutWidget.setObjectName("groupAppLayoutWidget")
-        self.groupApp = QtWidgets.QVBoxLayout(self.groupAppLayoutWidget)
-        self.groupApp.setContentsMargins(0, 0, 0, 0)
-        self.groupApp.setObjectName("groupApp")
-
-        ### Create the widget lost
-        self.listWidget = QtWidgets.QListWidget(self.groupAppLayoutWidget)
-        self.listWidget.setObjectName("listWidget")
-        self.groupApp.addWidget(self.listWidget)
+        ### Insert groups
+        self.addGroups()
 
         ### Create the buttons layout
         self.groupAppButtonsLayout = QtWidgets.QHBoxLayout()
         self.groupAppButtonsLayout.setObjectName("groupAppButtonsLayout")
-        self.groupApp.addLayout(self.groupAppButtonsLayout)
+        self.groupMainLayoutWidget.addLayout(self.groupAppButtonsLayout)
 
         ### Create the add button
-        self.buttonGroupAppAdd = QtWidgets.QPushButton(self.groupAppLayoutWidget)
+        self.buttonGroupAppAdd = QtWidgets.QPushButton()
+        self.groupAppButtonsLayout.addWidget(self.buttonGroupAppAdd)
         self.buttonGroupAppAdd.setObjectName("buttonGroupAppAdd")
         self.buttonGroupAppAdd.setText("Add to group")
-        self.groupAppButtonsLayout.addWidget(self.buttonGroupAppAdd)
 
         ### Create the new group button
-        self.buttonGroupAppNew = QtWidgets.QPushButton(self.groupAppLayoutWidget)
+        self.buttonGroupAppNew = QtWidgets.QPushButton()
+        self.groupAppButtonsLayout.addWidget(self.buttonGroupAppNew)
         self.buttonGroupAppNew.setObjectName("buttonGroupAppNew")
         self.buttonGroupAppNew.setText("New")
-        self.groupAppButtonsLayout.addWidget(self.buttonGroupAppNew)
 
+        ### Connect the buttons
+        self.buttonGroupAppNew.clicked.connect(self.createNewGroup)
+        self.buttonGroupAppAdd.clicked.connect(self.addToGroup)
 
 
         ### App search bar
@@ -489,7 +489,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def bwChartDisplay(self):
         self.threadBW = threading.Thread(target=self.bwChartGetValues)
         self.threadBW.daemaon = True
-        self.threadBW.start()
+        #self.threadBW.start()
 
     def bwChartGetValues(self):
         self.i = 0
@@ -641,6 +641,56 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 self.pingSig.emit("Ping: lost")
                 self.pingLossSig.emit("Loss ratio: " + str(float("{0:.2f}".format(packetLossRatio / 1000000))) + "%")
 
+
+    def createNewGroupWidget(self, name):
+        gapp = QtWidgets.QListWidgetItem(self.groupList)
+        gapp_widget = GappWidget()
+        gapp_widget.setAppList(self.listApp)
+        gapp_widget.setName(name)
+        gapp_widget.fillGroup()
+        gapp.setSizeHint(gapp_widget.sizeHint())
+        self.groupList.addItem(gapp)
+        self.groupList.setItemWidget(gapp, gapp_widget)
+
+    def addGroups(self):
+        fr = open('./groups.txt', 'r')
+        names = []
+
+        for name in fr.readlines():
+            self.createNewGroupWidget(name.split("\n")[0])
+
+
+    def createNewGroup(self):
+        pass
+        # qwidge = self.list.itemWidget(self.list.item(0))
+        # print(qwidge.getLabelText())
+
+    def addToGroup(self):
+        processes = []
+        data_list = []
+
+        for process in self.list.selectedItems():
+            processes.append(self.list.itemWidget(process).getLabelText())
+
+        selectedGroup = self.groupList.itemWidget( self.groupList.selectedItems()[0] )
+        name = selectedGroup.getName()
+
+        fw = open('./appGroups.txt', 'a')
+        fr = open('./appGroups.txt', 'r')
+        for process in processes:
+            for existingProcess in fr.readlines():
+                line = existingProcess.split('|')
+                if name in line[0]:
+                    print(process + " !! " + line[1].split("\n")[0])
+                    if process not in line[1]:
+                        print("ok")
+                        data_list.append(name + "|" + process + "\n")
+        fw.writelines(data_list)
+        fw.close()
+        fr.close()
+
+        selectedGroup.fillGroup()
+
     def closeEvent(self, event):
         if(True):
             self.appExit = True
@@ -649,6 +699,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             event.ignore()
 
 from wapp import WappWidget
+from gapp import GappWidget
 import sys
 import time
 sys.path.append("../Network")
