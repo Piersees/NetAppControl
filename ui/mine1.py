@@ -120,10 +120,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         # self.tabWidget.iconSize(QtCore.QSize(40,40))
 
-        ### Button
-        self.pushButton_3 = QtWidgets.QPushButton(self.tab)
-        self.pushButton_3.setGeometry(QtCore.QRect(520, 540, 80, 23))
-
         ### Menu bar
         self.menubar = QtWidgets.QMenuBar(self)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 813, 20))
@@ -241,11 +237,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.list = QtWidgets.QListWidget()
 
         ### Insert some apps
-        # self.createNewAppItem("Test 1");
-        # self.createNewAppItem("Test 2");
-        # self.createNewAppItem("Test 3");
-        self.listApp = {}
         self.fillAppList()
+        self.list.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 
         ### Arrange the app list layout
         self.appListLayoutWidget = QtWidgets.QWidget(self.tab)
@@ -255,6 +248,54 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.appListLayout.setContentsMargins(0, 0, 0, 0)
         self.appListLayout.setObjectName("verticalLayout")
         self.appListLayout.addWidget(self.list)
+
+
+        ### Create the app groups groupbox
+        self.groupBoxAppGroup = QtWidgets.QGroupBox(self.tab)
+        self.groupBoxAppGroup.setObjectName("groupBoxAppGroup")
+        self.groupBoxAppGroup.setGeometry(QtCore.QRect(450, 60, 320, 481))
+
+        ### Create the group list
+        self.groupList = QtWidgets.QListWidget()
+
+        ### Insert groups
+        #self.addGroups()
+
+        ### Arrange the group list layout
+        self.groupListLayoutWidget = QtWidgets.QWidget(self.groupBoxAppGroup)
+        self.groupListLayoutWidget.setObjectName("GroupVerticalLayoutWidget")
+        self.groupListLayout = QtWidgets.QVBoxLayout(self.groupListLayoutWidget)
+
+        self.groupAppLayoutWidget = QtWidgets.QWidget(self.groupBoxAppGroup)
+        self.groupAppLayoutWidget.setGeometry(QtCore.QRect(10, 10, 300, 460))
+        self.groupAppLayoutWidget.setObjectName("groupAppLayoutWidget")
+        self.groupApp = QtWidgets.QVBoxLayout(self.groupAppLayoutWidget)
+        self.groupApp.setContentsMargins(0, 0, 0, 0)
+        self.groupApp.setObjectName("groupApp")
+
+        ### Create the widget lost
+        self.listWidget = QtWidgets.QListWidget(self.groupAppLayoutWidget)
+        self.listWidget.setObjectName("listWidget")
+        self.groupApp.addWidget(self.listWidget)
+
+        ### Create the buttons layout
+        self.groupAppButtonsLayout = QtWidgets.QHBoxLayout()
+        self.groupAppButtonsLayout.setObjectName("groupAppButtonsLayout")
+        self.groupApp.addLayout(self.groupAppButtonsLayout)
+
+        ### Create the add button
+        self.buttonGroupAppAdd = QtWidgets.QPushButton(self.groupAppLayoutWidget)
+        self.buttonGroupAppAdd.setObjectName("buttonGroupAppAdd")
+        self.buttonGroupAppAdd.setText("Add to group")
+        self.groupAppButtonsLayout.addWidget(self.buttonGroupAppAdd)
+
+        ### Create the new group button
+        self.buttonGroupAppNew = QtWidgets.QPushButton(self.groupAppLayoutWidget)
+        self.buttonGroupAppNew.setObjectName("buttonGroupAppNew")
+        self.buttonGroupAppNew.setText("New")
+        self.groupAppButtonsLayout.addWidget(self.buttonGroupAppNew)
+
+
 
         ### App search bar
         self.appSearchBar = QtWidgets.QLineEdit(self.tab)
@@ -344,7 +385,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.OpenVPNidPasswordInput.textChanged.connect(self.enableOpenVPNidSubmit)
 
 
-
         ### Certificate layout
         self.openVPNfileLayout = QtWidgets.QVBoxLayout()
         self.openVPNfileLayout.setObjectName("openVPNfileLayout")
@@ -391,7 +431,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.retranslateUi(self)
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(self)
-        ##self.pushButton_3.clicked.connect(self.addAppClick)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -417,8 +456,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.textBrowserHomeInfo.append("\n\tNombre d'applications actives sur le réseau: "+"1000000000");
 
         self.appSearchBar.setPlaceholderText(_translate("MainWindow", "Search"))
-
-        self.pushButton_3.setText(_translate("MainWindow", "PushButton"))
 
     @QtCore.pyqtSlot()
     def addAppClick(self):
@@ -492,7 +529,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         #dataDL[:-1] = dataDL[1:] #shift data in the array to the left
         #dataDL[-1] = download
         #curveDL.setData(dataDL)
-
 
     def runSpeedTest(self):
         speedTestResult = SpeedTest.returnSpeedTestResult()
@@ -618,12 +654,15 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 packetsReceivedSTR = pingResult['Received'][:-1]
                 packetsSent += int(packetsSentSTR)
                 packetsReceived += int(packetsReceivedSTR)
-                packetLossRatio = 100 - (100*(packetsSent / packetsReceived))
+                packetLossRatio = 100 - (100*(packetsReceived / packetsSent))
                 self.pingSig.emit("Ping: " + str(pingStr))
-                self.pingLossSig.emit("Loss ratio: " + str(packetLossRatio) + "%")
+                self.pingLossSig.emit("Loss ratio: " + str(float("{0:.2f}".format(packetLossRatio / 1000000))) + "%")
                 time.sleep(1)
             except(TypeError, ValueError):
-                print("ping error")
+                packetsSent += 1
+                packetLossRatio = 100 - (100*(packetsReceived / packetsSent))
+                self.pingSig.emit("Ping: lost")
+                self.pingLossSig.emit("Loss ratio: " + str(float("{0:.2f}".format(packetLossRatio / 1000000))) + "%")
 
 
 
