@@ -98,10 +98,15 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 
         self.BWplot = self.tabMonitoring.addPlot(title="Bandwidth /s")
-        self.BWplot.plot(np.random.normal(size=100), fillLevel=-0.3, brush=(200,50,50,100), pen=(255,0,0), name="Upload")
-        self.BWplot.plot(np.random.normal(size=110)+5, fillLevel=-0.3, brush=(50,200,50,100), pen=(0,255,0), name="Download")
+        self.BWplot.setDownsampling(mode='peak')
+        self.BWplot.setClipToView(True)
+        self.BWplot.setRange(xRange=[-100, 0])
+        self.dataUL = np.empty(600)
+        self.dataDL = np.empty(600)
+        self.curveUL = self.BWplot.plot(self.dataUL, fillLevel=-0.25, brush=(200,50,50,100), pen=(255,0,0), name="Upload")
+        self.curveDL = self.BWplot.plot(self.dataDL, fillLevel=-0.05, brush=(50,50,200,100), pen=(0,0,255), name="Download")
         self.BWplot.setLabel('left', "Bandwidth", units='MB')
-        self.BWplot.setLabel('bottom', "Seconds", units='s')
+        self.ptrBW = 0
 
         self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
         self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoring.png'))
@@ -456,18 +461,38 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def bwChartGetValues(self):
         self.i = 0
+        presc_UL = 0
+        presc_DL = 0
+        iostat = psutil.net_io_counters(pernic=False, nowrap=True)
+
         while(self.appExit is not True):
             self.i = 1+self.i
-            arrayResult = getBandWidth(self)
-            time.sleep(1)
+            presc_UL=iostat[0]
+            presc_DL=iostat[1]
+            iostat = psutil.net_io_counters(pernic=False, nowrap=True)
+            upload_rate = (iostat[0] - presc_UL)/1000
+            download_rate = (iostat[1] - presc_DL)/1000
+            arrayResult = [upload_rate, download_rate]
             up = arrayResult[0]
             down = arrayResult[1]
             self.bandWidthSig.emit(up, down)
+            time.sleep(1)
 
     def setBandWidthChart(self, up, down):
-        print("a")
-        #self.seriesUp.append(self.i, up)
-        #self.seriesDown.append(self.i, down)
+        self.dataUL[self.ptrBW] = up
+        self.dataDL[self.ptrBW] = down
+        self.ptrBW += 1
+        self.curveUL.setData(self.dataUL[:self.ptrBW])
+        self.curveUL.setPos(-self.ptrBW, 0)
+        self.curveDL.setData(self.dataDL[:self.ptrBW])
+        self.curveDL.setPos(-self.ptrBW, 0)
+        #dataUL[:-1] = dataUL[1:] #shift data in the array to the left
+        #dataUL[-1] = upload
+        #curveUL.setData(dataUL)
+        #dataDL[:-1] = dataDL[1:] #shift data in the array to the left
+        #dataDL[-1] = download
+        #curveDL.setData(dataDL)
+
 
     def runSpeedTest(self):
         speedTestResult = SpeedTest.returnSpeedTestResult()
@@ -599,6 +624,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 time.sleep(1)
             except(TypeError, ValueError):
                 print("ping error")
+
+
 
     def closeEvent(self, event):
         if(True):
