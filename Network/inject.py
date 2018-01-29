@@ -122,18 +122,25 @@ def getIpAddress(family,name):
                 return snic.address
 
 
-def ChangeProcessIp(program,card):
-    d={}
+def ChangeProcessIp(pidlist,processName,card):
 
+    d={}
+    # get ip of the card
     ip = getIpAddress(socket.AF_INET,card)
-    for proc in psutil.process_iter():
-        process = psutil.Process(proc.pid)
-        pname = process.name()
-        if pname == program:
-            print(process.pid)
-            injectdll(process.pid, 'C:\\Users\\quent\\PycharmProjects\\pfe\\netHook.dll')
-            d[process.pid] = Thread(target=NPServer, args=(process.pid,ip,))
-            d[process.pid].start()
+
+    print(pidlist)
+    for pid in pidlist:
+        try:
+            process = psutil.Process(pid)
+            pname = process.name()
+            print(pname)
+            ### Only if the pid hasn't changed
+            if pname == processName:
+                injectdll(process.pid, 'C:\\Users\\quent\\PycharmProjects\\pfe\\netHook.dll')
+                d[process.pid] = Thread(target=NPServer, args=(process.pid,ip,))
+                d[process.pid].start()
+        except:
+            pass
     return d
 
 

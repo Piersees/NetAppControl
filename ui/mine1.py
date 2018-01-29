@@ -15,10 +15,17 @@ import numpy as np
 import pyqtgraph as pg
 import os
 import threading
-import time
-from wapp import WappWidget
 import psutil
-
+from wapp import WappWidget
+from gapp import GappWidget
+import sys
+import time
+sys.path.append("../Network")
+import SpeedTest
+import External_IP
+import ping
+from BandWidth import getBandWidth
+import openvpn
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     speedTestSig = QtCore.pyqtSignal(str)
@@ -26,6 +33,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     pingSig = QtCore.pyqtSignal(str)
     pingLossSig = QtCore.pyqtSignal(str)
     openVPNcertificateEnteredSig = QtCore.pyqtSignal()
+    openVpnThread = None
 
     appExit = False
 
@@ -567,7 +575,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         certificate = self.openVPNfilenameLabel.text().replace("/",r'\\')
 
         try:
-            openvpn.mainVPN(certificate)
+            self.OpenVpnThread = openvpn.mainVPN(certificate)
 
             fw = open("./openVPNcertificates.txt", "w")
             fw.write(certificate + "\n")
@@ -581,6 +589,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             msg.exec_()
 
             self.openVPNcertificateEnteredSig.emit()
+
 
         except(UnboundLocalError):
             msg = QtWidgets.QMessageBox()
@@ -603,6 +612,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def fillAppList(self):
         self.listApp = self.getAppListWithInternet()
+        print(self.listApp)
         for app in self.listApp:
             if ( self.appInWappList(self.listApp, app) is False ):
                 self.createNewAppItem(app, self.listApp[app])
@@ -759,21 +769,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def closeEvent(self, event):
         if(True):
+            try:
+                self.OpenVpnThread.do_run = False
+                self.OpenVpnThread.join()
+            except:
+                pass
             self.appExit = True
             event.accept()
         else:
             event.ignore()
 
-from wapp import WappWidget
-from gapp import GappWidget
-import sys
-import time
-sys.path.append("../Network")
-import SpeedTest
-import External_IP
-import ping
-from BandWidth import getBandWidth
-import openvpn
 
 if __name__ == "__main__":
     import sys

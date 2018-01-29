@@ -3,6 +3,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from appAbstract import appAbstract
 import time
+import sys
+sys.path.append("../Network")
+import inject
 
 class WappWidget(appAbstract):
     def __init__(self, parent=None):
@@ -36,7 +39,7 @@ class WappWidget(appAbstract):
 
     def manageVPN(self, durationType, durationTime):
         ### TODO: link with VPN
-        pass
+        inject.ChangeProcessIp(self.PID_list, self.processName, "Ethernet 3")
 
 
 if __name__ == "__main__":
