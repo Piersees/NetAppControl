@@ -5,75 +5,124 @@ import winreg as reg
 import subprocess
 from pathlib import Path
 import shutil
-from threading import Thread
-
-def VPNConnect(OpenVpnPath,componentId,TcpConf):
-    cmd = [OpenVpnPath,"--dev-node", componentId, "--config", TcpConf,"--route-noexec"]
-    prog = subprocess.Popen(cmd,stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
-
-    time.sleep(0.1)
-    prog.stdin.write(b"quentin.alazay@yahoo.fr")
-    prog.stdin.flush()
-    time.sleep(0.1)
-    prog.stdin.write(b"Pfe2018.")
-    prog.stdin.close()
-
-    while True:
-        line = prog.stdout.readline()
-        print(line)
-        if line == '' and prog.poll() is not None:
-            break
-
-def makeRoute():
-    cmd = ["route", "-p", "add", "0.0.0.0", "mask", "128.0.0.0", "192.168.1.1", "metric", "1", "if", "18"]
-    prog = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+from threading import Thread, currentThread
+import psutil
+import socket
 
 ADAPTER_KEY = r'SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002BE10318}'
 
 OpenVpnPath = "C:\\Program Files\\OpenVPN\\bin\\openvpn.exe"
-ConfigPath = os.environ['USERPROFILE']+"\\OpenVPN\\config"
-
-ConfTcp= "C:\\Users\\quent\\Downloads\\ovpn\\ovpn_tcp\\uk298.nordvpn.com.tcp.ovpn"
-ConfUdp= "C:\\Users\\quent\\Downloads\\ovpn\\ovpn_udp\\uk298.nordvpn.com.udp.ovpn"
+ConfigPath = os.environ['USERPROFILE'] + "\\OpenVPN\\config"
 
 ConnectionKey = "SYSTEM\\CurrentControlSet\\Control\\Network\\{4D36E972-E325-11CE-BFC1-08002BE10318}"
 
-with reg.OpenKey(reg.HKEY_LOCAL_MACHINE, ADAPTER_KEY) as adapters:
+### kill a process and it's children (Mouhahaha !!)
+def kill(proc_pid):
+    process = psutil.Process(proc_pid)
+    for proc in process.children(recursive=True):
+        proc.kill()
+    process.kill()
+
+### Get the gateway address of an interface
+def getIpAddressGateway(family,interfaceName):
+    for interface, snics in psutil.net_if_addrs().items():
+        for snic in snics:
+            if snic.family == family and interface == interfaceName:
+                host = snic.address.split(".")
+                host[-1] = "1"
+                return ".".join(host)
+
+
+### Execute the Openvpn command (use in a thread)
+def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
+
+
+    if UdpConf is None:
+        cmd = [OpenVpnPath,"--dev-node", componentId, "--config", TcpConf,"--route-nopull"]
+    else:
+        cmd = [OpenVpnPath,"--dev-node", componentId, "--config", TcpConf,"--config",UdpConf,"--route-nopull"]
+    prog = subprocess.Popen(cmd,stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+
     try:
-        for i in range(10000):
-            key_name = reg.EnumKey(adapters, i)
-            with reg.OpenKey(adapters, key_name) as adapter:
-                try:
-                    component_id = reg.QueryValueEx(adapter, 'ComponentId')[0]
-                    #print(component_id +"       "+reg.QueryValueEx(adapter, 'NetCfgInstanceId')[0])
-                    if component_id == 'tap0901':
-                        key = reg.QueryValueEx(adapter, 'NetCfgInstanceId')[0]
-#                        try:
-#                            reg.QueryValueEx(adapter, "*NdisDeviceType")
-#                            print("Exists")
-#                        except:
-#
-#                            newKey = reg.CreateKey(reg.HKEY_LOCAL_MACHINE,ADAPTER_KEY+"\\"+key_name+"\\")
-#                            print(reg.HKEY_LOCAL_MACHINE,ADAPTER_KEY+"\\"+key_name)
-#                            reg.SetValueEx(newKey,"*NdisDeviceType", 0,  reg.REG_DWORD, 0x00000001)
-#                            reg.CloseKey(newKey)
-#                            print("key created")
-                except :
-                    pass
+        # Get the credentials
+        fh = open("./openVPNid.txt", "r").read().splitlines()
+        login = fh[0]
+        password = fh[1]
     except:
+        return
+    time.sleep(0.1)
+    prog.stdin.write(login.encode("utf-8"))
+    prog.stdin.flush()
+    time.sleep(0.1)
+    prog.stdin.write(password.encode("utf-8"))
+    prog.stdin.close()
+
+    t = currentThread()
+
+    while True:
+        line = prog.stdout.readline()
+        print(line)
+        if b'Initialization' in line:
+            print("Makeroute called")
+            makeRoute(componentId)
+            break
+
+    while getattr(t, "do_run", True):
+        prog.poll()
+    print("stopped")
+    kill(prog.pid)
+
+#def setAddress(componentId):
+#    cmd = ["netsh.exe","interface","ip","set","address","name="+componentId,"static",ip, mask, gateway]
+#    prog = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+
+### Add the route to connect to the vpn
+def makeRoute(componentId):
+    gateway = getIpAddressGateway(socket.AF_INET,componentId)
+    cmd = ["route", "add", "0.0.0.0", "mask", "0.0.0.0", gateway]
+    prog = subprocess.Popen(cmd)
+
+### Add a vpn connection using the conf file. Returns a thread that runs the VPN
+def mainVPN(ConfTcp,ConfUdp = None):
+
+    if not Path(OpenVpnPath).is_file():
+        raise ValueError("Openvpn not installed")
+
+    with reg.OpenKey(reg.HKEY_LOCAL_MACHINE, ADAPTER_KEY) as adapters:
+        try:
+            for i in range(10000):
+                key_name = reg.EnumKey(adapters, i)
+                with reg.OpenKey(adapters, key_name) as adapter:
+                    try:
+                        component_id = reg.QueryValueEx(adapter, 'ComponentId')[0]
+                        if component_id == 'tap0901':
+                            key = reg.QueryValueEx(adapter, 'NetCfgInstanceId')[0]
+                    except :
+                        pass
+        except:
+            pass
+
+    if key is None:
+        raise ValueError("TAP Windows not installed")
+
+    regConnection = reg.OpenKey(reg.HKEY_LOCAL_MACHINE, ConnectionKey+"\\"+key+"\\Connection")
+    componentId = reg.QueryValueEx(regConnection, "name")[0]
+    print("RESULT: "+componentId)
+
+    if Path(ConfTcp).is_file():
+        TcpConf = ConfigPath + os.path.basename(ConfTcp)
+        if not Path(TcpConf).is_file():
+            shutil.copy2(ConfTcp, TcpConf)
+        if (ConfUdp is not None) and (Path(ConfUdp).is_file()):
+            UdpConf = ConfigPath + os.path.basename(ConfUdp)
+            if not Path().is_file():
+                shutil.copy2(ConfUdp, UdpConf)
+            thVPN = Thread(target=VPNConnect, args=(OpenVpnPath, componentId, TcpConf, UdpConf))
+            thVPN.start()
+        else:
+            thVPN = Thread(target=VPNConnect, args=(OpenVpnPath, componentId, TcpConf,))
+            thVPN.start()
+    else:
         pass
 
-regConnection = reg.OpenKey(reg.HKEY_LOCAL_MACHINE, ConnectionKey+"\\"+key+"\\Connection")
-componentId = reg.QueryValueEx(regConnection, "name")[0]
-print("RESULT: "+componentId)
-
-if Path(ConfTcp).is_file() and Path(ConfUdp).is_file():
-    TcpConf = ConfigPath + os.path.basename(ConfTcp)
-    UdpConf = ConfigPath + os.path.basename(ConfUdp)
-    if not Path(TcpConf).is_file():
-        shutil.copy2(ConfTcp, TcpConf)
-    if not Path().is_file():
-        shutil.copy2(ConfUdp, UdpConf)
-
-    thVPN = Thread(target=VPNConnect,args=(OpenVpnPath,componentId,TcpConf,))
-    thVPN.start()
+    return thVPN
