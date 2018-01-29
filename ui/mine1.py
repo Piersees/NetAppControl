@@ -10,6 +10,9 @@ from PyQt5 import Qt, QtCore, QtGui, QtWidgets, QtQuick
 from PyQt5.QtChart import QChart, QChartView, QLineSeries
 from PyQt5.QtGui import QPolygonF, QPainter
 from PyQt5.Qt import Qt
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg
@@ -55,27 +58,48 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             "    background-color: white;\n"
             "    border-top: 1px solid rgba(0,0,0,0.2);\n"
             "    border-right: 1px solid rgba(0,0,0,0.2);\n"
-            "    padding-bottom: 20px;\n"
+            "    padding-bottom: 40px;\n"
             "    padding-top: 20px;\n"
             "    color: white;\n"
             "    width : 200px;\n"
-            "    height: 101px;\n"
+            "    height: 81px;\n"
             "}\n"
             "\n"
             "QTabBar::tab:selected {\n"
-            "    background-color: rgba(0,0,0,0.5);"
+            "    background-color: rgba(41, 107, 116,0.7);"
             "}\n"
             "\n"
             "QTabBar::tab:selected:hover {\n"
-            "    background-color: rgba(0,0,0,0.5);"
+            "    background-color: rgba(41, 107, 116, 0.7);"
             "}\n"
             "\n"
             "QTabBar::tab:hover {\n"
-            "    background-color:  rgba(0,0,0,0.1);\n"
+            "    background-color: rgba(41, 107, 116, 0.3);\n"
             "}\n"
             "\n"
             "QTabWidget::tab-bar {\n"
             "    \n"
+            "}\n"
+            "QLineEdit {"
+                "border-top: 0px solid white;"
+                "border-left: 0px solid white;"
+                "border-right: 0px solid white;"
+                "padding-bottom: 5px;"
+                "border-bottom: 1px solid #dddddd;"
+            "}"
+            "QLineEdit:focus{"
+                "border-top: 0px solid white;"
+                "border-left: 0px solid white;"
+                "border-right: 0px solid white;"
+                "border-bottom: 2px solid rgb(41, 107, 116);"
+            "    padding-bottom: 5px;"
+            "}"
+            "QLineEdit:selected {"
+            "border-top: 0px solid white;"
+            "border-left: 0px solid white;"
+            "border-right: 0px solid white;"
+            "border-bottom: 2px solid rgb(41, 107, 116);"
+            "    padding-bottom: 5px;"
             "}")
         self.tabWidget.setTabPosition(QtWidgets.QTabWidget.West)
         self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
@@ -90,6 +114,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tab.setObjectName("tab")
         self.tabSettings.setObjectName("tabSettings")
         self.tabMonitoring.setObjectName("tabMonitoring")
+
+
+        self.tabWidget.currentChanged.connect(self.onChange)
 
         self.tabWidget.addTab(self.home_tab, "")
         self.tabWidget.addTab(self.tab, "")
@@ -111,14 +138,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.ptrBW = 0
 
         self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
-        self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoring.png'))
-        self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabApps.png'))
-        self.tabWidget.setTabIcon(123.3, QtGui.QIcon('./images/tabSettings.png'))
+        self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
+        self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
+        self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
+
+        self.tabWidget.setIconSize(QSize(60,60))
 
         self.tabWidget.tabBar().setTabToolTip(0, "Home")
         self.tabWidget.tabBar().setTabToolTip(1, "Apps")
         self.tabWidget.tabBar().setTabToolTip(2, "Monitoring")
         self.tabWidget.tabBar().setTabToolTip(3, "Settings")
+
 
         # self.tabWidget.iconSize(QtCore.QSize(40,40))
 
@@ -309,6 +339,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### Main layout
         self.tabSettingsMainLayout = QtWidgets.QHBoxLayout(self.tabSettings)
         self.tabSettingsMainLayout.setObjectName("tabSettingsMainLayout")
+        self.tabSettings.setStyleSheet("")
+
 
         ##### Sublayouts
         ### ID layout
@@ -653,6 +685,28 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 self.pingLossSig.emit("Loss ratio: " + str(float("{0:.2f}".format(packetLossRatio / 1000000))) + "%")
 
 
+    #@pyqtSlot()
+    def onChange(self,i): #changed!
+        if i == 0:
+            self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
+            self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
+        elif i == 1:
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoring.png'))
+            self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHomeColored.png'))
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
+            self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
+        elif i == 2:
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabApps.png'))
+            self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHomeColored.png'))
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
+            self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
+        elif i == 3:
+            self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettings.png'))
+            self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHomeColored.png'))
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
 
     def closeEvent(self, event):
         if(True):
