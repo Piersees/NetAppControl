@@ -468,14 +468,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     ### Triggers when the app search bar text is changed
     def appSearchBarTextChanged(self):
-        self.list.clear()
         if(self.appSearchBar.text() == ""):
-            for app in self.listApp:
-                self.createNewAppItem(app, self.listApp[app])
+            for i in range(self.list.count()):
+                self.list.item(i).setHidden(False)
         else:
-            for app in self.listApp:
-                if self.appSearchBar.text().lower() in app.lower():
-                    self.createNewAppItem(app, self.listApp[app])
+            for i in range(self.list.count()):
+                app = self.list.item(i)
+                if self.appSearchBar.text().lower() in self.list.itemWidget(app).getLabelText().lower():
+                    app.setHidden(False)
+                else:
+                    app.setHidden(True)
 
     def displaySpeedTest(self):
         self.pushButtonSpeed.setEnabled(False)
@@ -608,12 +610,38 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def fillAppList(self):
         self.listApp = self.getAppListWithInternet()
-        print(self.listApp)
         for app in self.listApp:
-            self.createNewAppItem(app, self.listApp[app])
+            if ( self.appInWappList(self.listApp, app) is False ):
+                self.createNewAppItem(app, self.listApp[app])
+
+    def compareWapp(self, wapp, apps, app):
+        if(wapp.getLabelText() != app):
+            return False
+        else:
+            for wappPID in wapp.getPIDlist():
+                for appPID in apps[app]:
+                    if (wappPID != appPID):
+                        return False
+        return True
+
+    def appInWappList(self, apps, app):
+        for i in range(self.list.count()):
+            wapp = self.list.item(i)
+            if( self.compareWapp(self.list.itemWidget(wapp), apps, app) is True ):
+                return True
+        return False
+
+    def clearList(self):
+        apps = self.getAppListWithInternet()
+        for i in rand(self.list.count()):
+            wapp = self.list.item(i)
+            for app in apps:
+                if ( self.compareWapp(self.list.itemWidget(wapp), apps, app) is False ) :
+                    self.list.removeItemWidget(wapp)
+
 
     def resetAppList(self):
-        self.list.clear()
+        self.clearList()
         self.fillAppList()
 
     def submitOpenVPNid(self):
@@ -685,24 +713,26 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         fr = open('./groups.txt', 'r')
         groups = fr.readlines()
         fr.close()
-
+        
         groupName, okPressed = QtWidgets.QInputDialog.getText(self, "New group","New group name:", QtWidgets.QLineEdit.Normal, "")
 
         alreadyExists = False
         if okPressed and groupName != '':
             for group in groups:
-                if groupName in group.split("\n")[0]:
+                if (groupName == group.split("\n")[0]):
                     alreadyExists = True
 
-        fw = open('./groups.txt', "a")
-
         if alreadyExists is False:
+            fw = open('./groups.txt', "a")
             fw.write(groupName + "\n")
             self.createNewGroupWidget(groupName)
+            fw.close()
         else:
-            self.createNewGroupWidget(groupName)
+            msg = QtWidgets.QMessageBox()
+            msg.setText("Group already exists")
+            msg.exec_()
 
-        fw.close()
+
 
 
 

@@ -45,7 +45,7 @@ class GappWidget(appAbstract):
         names = []
         for app in fr.readlines():
             line = app.split("|")
-            if self.name in line[0]:
+            if (self.name == line[0]):
                 names.append(line[1].split("\n")[0])
 
         return names
@@ -53,7 +53,7 @@ class GappWidget(appAbstract):
     def linkApps(self, names):
         for app in self.appList:
             for name in names:
-                if app is name:
+                if (app == name):
                     self.apps[app] = self.appList[app]
 
 
