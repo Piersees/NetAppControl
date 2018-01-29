@@ -26,6 +26,7 @@ sys.path.append("../Network")
 import SpeedTest
 import External_IP
 import ping
+import NetworkScan
 from BandWidth import getBandWidth
 import openvpn
 
@@ -35,6 +36,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     pingSig = QtCore.pyqtSignal(str)
     pingLossSig = QtCore.pyqtSignal(str)
     openVpnThread = None
+    IP, HOSTNAME, STATUS = range(3)
 
     appExit = False
 
@@ -135,13 +137,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tabWidgetMonitoring.setObjectName("tabWidgetMonitoring")
 
         self.bwTabMonitoring = pg.GraphicsLayoutWidget()
-        self.mdloljesaispasencore = pg.GraphicsLayoutWidget()
+        self.bwTabConnections = QtWidgets.QWidget()
 
         self.bwTabMonitoring.setObjectName("bwTabMonitoring")
-        self.mdloljesaispasencore.setObjectName("mdloljesaispasencore")
+        self.bwTabConnections.setObjectName("bwTabConnections")
 
         self.tabWidgetMonitoring.addTab(self.bwTabMonitoring, "Bandwidth")
-        self.tabWidgetMonitoring.addTab(self.mdloljesaispasencore, "???")
+        self.tabWidgetMonitoring.addTab(self.bwTabConnections, "Connections")
 
         ## BandWidth graph
         self.BWplot = self.bwTabMonitoring.addPlot(title="Bandwidth over time")
@@ -158,6 +160,28 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.BWplot.showGrid(x=True, y=True)
         self.ptrBW = 0
 
+        ## Incoming connections tab
+        self.incomingConnectionsMainLayout = QVBoxLayout()
+        self.bwTabConnections.setLayout(self.incomingConnectionsMainLayout)
+        self.incomingConnectionsGroupBox = QGroupBox("Connections on your network")
+        self.incomingConnectionsMainLayout.addWidget(self.incomingConnectionsGroupBox)
+        self.incomingConnectionsGroupBox.setGeometry(10, 10, self.bwTabConnections.width()-20, self.bwTabConnections.height()-20)
+        self.incomingConnectionsList = QTreeView()
+        self.incomingConnectionsList.setRootIsDecorated(False)
+        self.incomingConnectionsList.setAlternatingRowColors(True)
+
+        self.incomingConnectionsLayout = QHBoxLayout()
+        self.incomingConnectionsLayout.addWidget(self.incomingConnectionsList)
+        self.incomingConnectionsGroupBox.setLayout(self.incomingConnectionsLayout)
+
+        self.incomingConnectionsModel = self.createConnectionModel()
+        self.incomingConnectionsList.setModel(self.incomingConnectionsModel)
+
+        self.threadIncomingConnections = threading.Thread(target=self.manageConnectionsList)
+        self.threadIncomingConnections.start()
+
+
+        ### Setting up tab icons
         self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
         self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabMonitoringColored.png'))
         self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabAppsColored.png'))
@@ -836,6 +860,44 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.buttonGroupAppAdd.setEnabled(True)
         else:
             self.buttonGroupAppAdd.setEnabled(False)
+
+    def createConnectionModel(self):
+        model = QStandardItemModel(0, 3, self)
+        model.setHeaderData(self.IP, Qt.Horizontal, "IP address")
+        model.setHeaderData(self.HOSTNAME, Qt.Horizontal, "Hostname")
+        model.setHeaderData(self.STATUS, Qt.Horizontal, "Status")
+        return model
+
+    def addConnection(self,model, ip, hostname, status):
+        self.incomingConnectionsModel.insertRow(0)
+        self.incomingConnectionsModel.setData(self.incomingConnectionsModel.index(0, self.IP), ip)
+        self.incomingConnectionsModel.setData(self.incomingConnectionsModel.index(0, self.HOSTNAME), hostname)
+        self.incomingConnectionsModel.setData(self.incomingConnectionsModel.index(0, self.STATUS), status)
+
+    def addAllConnections(self):
+        incomingConnections = NetworkScan.GetHostLan()
+        i=0
+        for incomingConnection in incomingConnections:
+            self.addConnection(self.incomingConnectionsModel, incomingConnection, incomingConnections[incomingConnection]['Hostname'], incomingConnections[incomingConnection]['Status'])
+            i+=1
+        print("!"+str(i)+"!")
+
+    def deleteAllConnections(self):
+        self.incomingConnectionsModel.clear()
+        self.incomingConnectionsModel = self.createConnectionModel()
+        self.incomingConnectionsList.setModel(self.incomingConnectionsModel)
+
+
+    def resetConnectionsList(self):
+        #self.deleteAllConnections()
+        self.addAllConnections()
+
+    def manageConnectionsList(self):
+        self.addAllConnections()
+        while(self.appExit is False):
+            print("|"+str(self.incomingConnectionsModel.rowCount())+"|")
+            time.sleep(3)
+            self.resetConnectionsList()
 
     def closeEvent(self, event):
         if(True):
