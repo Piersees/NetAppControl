@@ -15,6 +15,7 @@ import numpy as np
 import pyqtgraph as pg
 import os
 import threading
+import psutil
 from wapp import WappWidget
 from gapp import GappWidget
 import sys
@@ -733,7 +734,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         fw.close()
 
         selectedGroup.fillGroup()
->>>>>>> 11534db277df65ed2af72340a1a9b196abe7797f
 
     def closeEvent(self, event):
         if(True):
