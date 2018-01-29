@@ -5,7 +5,7 @@ import winreg as reg
 import subprocess
 from pathlib import Path
 import shutil
-from threading import Thread
+from threading import Thread, currentThread
 import psutil
 import socket
 
@@ -16,17 +16,24 @@ ConfigPath = os.environ['USERPROFILE'] + "\\OpenVPN\\config"
 
 ConnectionKey = "SYSTEM\\CurrentControlSet\\Control\\Network\\{4D36E972-E325-11CE-BFC1-08002BE10318}"
 
+### kill a process and it's children (Mouhahaha !!)
+def kill(proc_pid):
+    process = psutil.Process(proc_pid)
+    for proc in process.children(recursive=True):
+        proc.kill()
+    process.kill()
 
-
-def getIpAddressGateway(family,name):
+### Get the gateway address of an interface
+def getIpAddressGateway(family,interfaceName):
     for interface, snics in psutil.net_if_addrs().items():
         for snic in snics:
-            if snic.family == family and interface == name:
+            if snic.family == family and interface == interfaceName:
                 host = snic.address.split(".")
                 host[-1] = "1"
                 return ".".join(host)
 
 
+### Execute the Openvpn command (use in a thread)
 def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
 
 
@@ -50,25 +57,32 @@ def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
     prog.stdin.write(password.encode("utf-8"))
     prog.stdin.close()
 
+    t = currentThread()
+
     while True:
         line = prog.stdout.readline()
         print(line)
         if b'Initialization' in line:
             print("Makeroute called")
             makeRoute(componentId)
-        if line == '' and prog.poll() is not None:
             break
+
+    while getattr(t, "do_run", True):
+        prog.poll()
+    print("stopped")
+    kill(prog.pid)
 
 #def setAddress(componentId):
 #    cmd = ["netsh.exe","interface","ip","set","address","name="+componentId,"static",ip, mask, gateway]
 #    prog = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
 
-
+### Add the route to connect to the vpn
 def makeRoute(componentId):
     gateway = getIpAddressGateway(socket.AF_INET,componentId)
-    cmd = ["route", "add", "0.0.0.0", "mask", "0.0.0.0", gateway, "if", "19"]
+    cmd = ["route", "add", "0.0.0.0", "mask", "0.0.0.0", gateway]
     prog = subprocess.Popen(cmd)
 
+### Add a vpn connection using the conf file. Returns a thread that runs the VPN
 def mainVPN(ConfTcp,ConfUdp = None):
 
     if not Path(OpenVpnPath).is_file():
@@ -103,10 +117,12 @@ def mainVPN(ConfTcp,ConfUdp = None):
             UdpConf = ConfigPath + os.path.basename(ConfUdp)
             if not Path().is_file():
                 shutil.copy2(ConfUdp, UdpConf)
-            thVPN = Thread(target=VPNConnect, args=(OpenVpnPath, componentId, TcpConf,UdpConf))
+            thVPN = Thread(target=VPNConnect, args=(OpenVpnPath, componentId, TcpConf, UdpConf))
             thVPN.start()
         else:
             thVPN = Thread(target=VPNConnect, args=(OpenVpnPath, componentId, TcpConf,))
             thVPN.start()
     else:
         pass
+
+    return thVPN

@@ -18,10 +18,17 @@ import numpy as np
 import pyqtgraph as pg
 import os
 import threading
-import time
-from wapp import WappWidget
 import psutil
-
+from wapp import WappWidget
+from gapp import GappWidget
+import sys
+import time
+sys.path.append("../Network")
+import SpeedTest
+import External_IP
+import ping
+from BandWidth import getBandWidth
+import openvpn
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     speedTestSig = QtCore.pyqtSignal(str)
@@ -29,6 +36,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     pingSig = QtCore.pyqtSignal(str)
     pingLossSig = QtCore.pyqtSignal(str)
     openVPNcertificateEnteredSig = QtCore.pyqtSignal()
+    openVpnThread = None
 
     appExit = False
 
@@ -281,52 +289,52 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.appListLayout.setObjectName("verticalLayout")
         self.appListLayout.addWidget(self.list)
 
-
         ### Create the app groups groupbox
         self.groupBoxAppGroup = QtWidgets.QGroupBox(self.tab)
         self.groupBoxAppGroup.setObjectName("groupBoxAppGroup")
         self.groupBoxAppGroup.setGeometry(QtCore.QRect(450, 60, 320, 481))
 
+        ### Create the app groups groupbox layout
+        self.groupMainLayoutWidget = QtWidgets.QVBoxLayout(self.groupBoxAppGroup)
+        self.groupMainLayoutWidget.setGeometry(QtCore.QRect(10, 10, 300, 460))
+        self.groupMainLayoutWidget.setObjectName("groupMainLayoutWidget")
+
         ### Create the group list
         self.groupList = QtWidgets.QListWidget()
 
-        ### Insert groups
-        #self.addGroups()
-
-        ### Arrange the group list layout
-        self.groupListLayoutWidget = QtWidgets.QWidget(self.groupBoxAppGroup)
-        self.groupListLayoutWidget.setObjectName("GroupVerticalLayoutWidget")
+        ### Create the app group list layout
+        self.groupListLayoutWidget = QtWidgets.QWidget()
+        self.groupMainLayoutWidget.addWidget(self.groupListLayoutWidget)
+        self.groupListLayoutWidget.setGeometry(QtCore.QRect(10, 10, 300, 450))
+        self.groupListLayoutWidget.setObjectName("groupListLayoutWidget")
         self.groupListLayout = QtWidgets.QVBoxLayout(self.groupListLayoutWidget)
+        self.groupListLayout.setContentsMargins(0, 0, 0, 0)
+        self.groupListLayout.setObjectName("groupListLayout")
+        self.groupListLayout.addWidget(self.groupList)
 
-        self.groupAppLayoutWidget = QtWidgets.QWidget(self.groupBoxAppGroup)
-        self.groupAppLayoutWidget.setGeometry(QtCore.QRect(10, 10, 300, 460))
-        self.groupAppLayoutWidget.setObjectName("groupAppLayoutWidget")
-        self.groupApp = QtWidgets.QVBoxLayout(self.groupAppLayoutWidget)
-        self.groupApp.setContentsMargins(0, 0, 0, 0)
-        self.groupApp.setObjectName("groupApp")
-
-        ### Create the widget lost
-        self.listWidget = QtWidgets.QListWidget(self.groupAppLayoutWidget)
-        self.listWidget.setObjectName("listWidget")
-        self.groupApp.addWidget(self.listWidget)
+        ### Insert groups
+        self.addGroups()
 
         ### Create the buttons layout
         self.groupAppButtonsLayout = QtWidgets.QHBoxLayout()
         self.groupAppButtonsLayout.setObjectName("groupAppButtonsLayout")
-        self.groupApp.addLayout(self.groupAppButtonsLayout)
+        self.groupMainLayoutWidget.addLayout(self.groupAppButtonsLayout)
 
         ### Create the add button
-        self.buttonGroupAppAdd = QtWidgets.QPushButton(self.groupAppLayoutWidget)
+        self.buttonGroupAppAdd = QtWidgets.QPushButton()
+        self.groupAppButtonsLayout.addWidget(self.buttonGroupAppAdd)
         self.buttonGroupAppAdd.setObjectName("buttonGroupAppAdd")
         self.buttonGroupAppAdd.setText("Add to group")
-        self.groupAppButtonsLayout.addWidget(self.buttonGroupAppAdd)
 
         ### Create the new group button
-        self.buttonGroupAppNew = QtWidgets.QPushButton(self.groupAppLayoutWidget)
+        self.buttonGroupAppNew = QtWidgets.QPushButton()
+        self.groupAppButtonsLayout.addWidget(self.buttonGroupAppNew)
         self.buttonGroupAppNew.setObjectName("buttonGroupAppNew")
         self.buttonGroupAppNew.setText("New")
-        self.groupAppButtonsLayout.addWidget(self.buttonGroupAppNew)
 
+        ### Connect the buttons
+        self.buttonGroupAppNew.clicked.connect(self.createNewGroup)
+        self.buttonGroupAppAdd.clicked.connect(self.addToGroup)
 
 
         ### App search bar
@@ -492,14 +500,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     ### Triggers when the app search bar text is changed
     def appSearchBarTextChanged(self):
-        self.list.clear()
         if(self.appSearchBar.text() == ""):
-            for app in self.listApp:
-                self.createNewAppItem(app, self.listApp[app])
+            for i in range(self.list.count()):
+                self.list.item(i).setHidden(False)
         else:
-            for app in self.listApp:
-                if self.appSearchBar.text().lower() in app.lower():
-                    self.createNewAppItem(app, self.listApp[app])
+            for i in range(self.list.count()):
+                app = self.list.item(i)
+                if self.appSearchBar.text().lower() in self.list.itemWidget(app).getLabelText().lower():
+                    app.setHidden(False)
+                else:
+                    app.setHidden(True)
 
     def displaySpeedTest(self):
         self.pushButtonSpeed.setEnabled(False)
@@ -510,7 +520,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def bwChartDisplay(self):
         self.threadBW = threading.Thread(target=self.bwChartGetValues)
         self.threadBW.daemaon = True
-        self.threadBW.start()
+        #self.threadBW.start()
 
     def bwChartGetValues(self):
         self.i = 0
@@ -595,7 +605,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         certificate = self.openVPNfilenameLabel.text().replace("/",r'\\')
 
         try:
-            openvpn.mainVPN(certificate)
+            self.OpenVpnThread = openvpn.mainVPN(certificate)
 
             fw = open("./openVPNcertificates.txt", "w")
             fw.write(certificate + "\n")
@@ -609,6 +619,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             msg.exec_()
 
             self.openVPNcertificateEnteredSig.emit()
+
 
         except(UnboundLocalError):
             msg = QtWidgets.QMessageBox()
@@ -632,10 +643,37 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def fillAppList(self):
         self.listApp = self.getAppListWithInternet()
         for app in self.listApp:
-            self.createNewAppItem(app, self.listApp[app])
+            if ( self.appInWappList(self.listApp, app) is False ):
+                self.createNewAppItem(app, self.listApp[app])
+
+    def compareWapp(self, wapp, apps, app):
+        if(wapp.getLabelText() != app):
+            return False
+        else:
+            for wappPID in wapp.getPIDlist():
+                for appPID in apps[app]:
+                    if (wappPID != appPID):
+                        return False
+        return True
+
+    def appInWappList(self, apps, app):
+        for i in range(self.list.count()):
+            wapp = self.list.item(i)
+            if( self.compareWapp(self.list.itemWidget(wapp), apps, app) is True ):
+                return True
+        return False
+
+    def clearList(self):
+        apps = self.getAppListWithInternet()
+        for i in rand(self.list.count()):
+            wapp = self.list.item(i)
+            for app in apps:
+                if ( self.compareWapp(self.list.itemWidget(wapp), apps, app) is False ) :
+                    self.list.removeItemWidget(wapp)
+
 
     def resetAppList(self):
-        self.list.clear()
+        self.clearList()
         self.fillAppList()
 
     def submitOpenVPNid(self):
@@ -708,22 +746,91 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
             self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
 
+    def createNewGroupWidget(self, name):
+        gapp = QtWidgets.QListWidgetItem(self.groupList)
+        gapp_widget = GappWidget()
+        gapp_widget.setAppList(self.listApp)
+        gapp_widget.setName(name)
+        gapp_widget.fillGroup()
+        gapp.setSizeHint(gapp_widget.sizeHint())
+        self.groupList.addItem(gapp)
+        self.groupList.setItemWidget(gapp, gapp_widget)
+
+    def addGroups(self):
+        fr = open('./groups.txt', 'r')
+        names = []
+
+        for name in fr.readlines():
+            self.createNewGroupWidget(name.split("\n")[0])
+
+
+    def createNewGroup(self):
+        fr = open('./groups.txt', 'r')
+        groups = fr.readlines()
+        fr.close()
+
+        groupName, okPressed = QtWidgets.QInputDialog.getText(self, "New group","New group name:", QtWidgets.QLineEdit.Normal, "")
+
+        alreadyExists = False
+        if okPressed and groupName != '':
+            for group in groups:
+                if (groupName == group.split("\n")[0]):
+                    alreadyExists = True
+
+        if alreadyExists is False:
+            fw = open('./groups.txt', "a")
+            fw.write(groupName + "\n")
+            self.createNewGroupWidget(groupName)
+            fw.close()
+        else:
+            msg = QtWidgets.QMessageBox()
+            msg.setText("Group already exists")
+            msg.exec_()
+
+
+
+
+
+    def addToGroup(self):
+        processes = []
+        data_list = []
+
+        for process in self.list.selectedItems():
+            processes.append(self.list.itemWidget(process).getLabelText())
+
+        selectedGroup = self.groupList.itemWidget( self.groupList.selectedItems()[0] )
+        name = selectedGroup.getName()
+
+        fw = open('./appGroups.txt', 'a')
+        fr = open('./appGroups.txt', 'r')
+        existingProcesses = fr.readlines()
+        fr.close()
+
+        for process in processes:
+            alreadyExists = False
+            for existingProcess in existingProcesses:
+                line = existingProcess.split('|')
+                if name in line[0]:
+                    if process in line[1]:
+                        alreadyExists = True
+            if alreadyExists is False:
+                data_list.append(name + "|" + process + "\n")
+        fw.writelines(data_list)
+        fw.close()
+
+        selectedGroup.fillGroup()
     def closeEvent(self, event):
         if(True):
+            try:
+                self.OpenVpnThread.do_run = False
+                self.OpenVpnThread.join()
+            except:
+                pass
             self.appExit = True
             event.accept()
         else:
             event.ignore()
 
-from wapp import WappWidget
-import sys
-import time
-sys.path.append("../Network")
-import SpeedTest
-import External_IP
-import ping
-from BandWidth import getBandWidth
-import openvpn
 
 if __name__ == "__main__":
     import sys
