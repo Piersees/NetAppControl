@@ -62,6 +62,10 @@ class appAbstract(QWidget):
         self.label.setText(value)
         self.update()
 
+    @pyqtSlot(bool)
+    def enableSecurityButton(self, value):
+        self.buttonSecurity.setEnabled(value)
+
     ### Triggers when the network button is clicked
     @pyqtSlot()
     def buttonNetworkClick(self):

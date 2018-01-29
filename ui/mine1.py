@@ -32,7 +32,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     bandWidthSig = QtCore.pyqtSignal(int,int)
     pingSig = QtCore.pyqtSignal(str)
     pingLossSig = QtCore.pyqtSignal(str)
-    openVPNcertificateEnteredSig = QtCore.pyqtSignal()
     openVpnThread = None
 
     appExit = False
@@ -241,12 +240,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.threadPing = threading.Thread(target=self.pingUpdate)
         self.threadPing.start()
 
-        ### Insert items into the application list
 
         ### Create the application list
         self.list = QtWidgets.QListWidget()
 
-        ### Insert some apps
+        ### Insert items into the application list
         self.fillAppList()
         self.list.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 
@@ -258,6 +256,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.appListLayout.setContentsMargins(0, 0, 0, 0)
         self.appListLayout.setObjectName("verticalLayout")
         self.appListLayout.addWidget(self.list)
+
+        ### Link the selection changed event to a function
+        self.list.itemSelectionChanged.connect(self.enableAddToGroupButton)
 
         ### Create the app groups groupbox
         self.groupBoxAppGroup = QtWidgets.QGroupBox(self.tab)
@@ -285,6 +286,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### Insert groups
         self.addGroups()
 
+        ### Link the selection changed event to a function
+        self.groupList.itemSelectionChanged.connect(self.enableAddToGroupButton)
+
         ### Create the buttons layout
         self.groupAppButtonsLayout = QtWidgets.QHBoxLayout()
         self.groupAppButtonsLayout.setObjectName("groupAppButtonsLayout")
@@ -305,6 +309,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### Connect the buttons
         self.buttonGroupAppNew.clicked.connect(self.createNewGroup)
         self.buttonGroupAppAdd.clicked.connect(self.addToGroup)
+        self.buttonGroupAppAdd.setEnabled(False)
 
 
         ### App search bar
@@ -412,11 +417,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.openVPNfileDialogButton.clicked.connect(self.selectVPNcertificate)
         self.openVPNfileDialogButton2.clicked.connect(self.selectVPNoptionalCertificate)
         self.openVPNsubmitButton.clicked.connect(self.openVPNsubmit)
-
-
-
-        ### Signal connecting
-        self.openVPNcertificateEnteredSig.connect(self.resetAppList)
 
 
         ### GUI arrangements
@@ -553,7 +553,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def selectVPNcertificate(self):
         options = QtWidgets.QFileDialog.Options()
-        options |= QtWidgets.QFileDialog.DontUseNativeDialog
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"QFileDialog.getOpenFileName()", "","OpenVPN files (*.ovpn)", options=options)
 
         if(fileName != None):
@@ -562,7 +561,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def selectVPNoptionalCertificate(self):
         options = QtWidgets.QFileDialog.Options()
-        options |= QtWidgets.QFileDialog.DontUseNativeDialog
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"QFileDialog.getOpenFileName()", "","OpenVPN files (*.ovpn)", options=options)
 
         if(fileName != None):
@@ -586,7 +584,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             msg.setText("openVPN certificate registered")
             msg.exec_()
 
-            self.openVPNcertificateEnteredSig.emit()
+            for i in range(self.list.count()):
+                wapp = self.list.item(i)
+                self.list.itemWidget(wapp).enableSecurityButton(True)
 
 
         except(UnboundLocalError):
@@ -633,7 +633,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def clearList(self):
         apps = self.getAppListWithInternet()
-        for i in rand(self.list.count()):
+        for i in range(self.list.count()):
             wapp = self.list.item(i)
             for app in apps:
                 if ( self.compareWapp(self.list.itemWidget(wapp), apps, app) is False ) :
@@ -713,7 +713,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         fr = open('./groups.txt', 'r')
         groups = fr.readlines()
         fr.close()
-        
+
         groupName, okPressed = QtWidgets.QInputDialog.getText(self, "New group","New group name:", QtWidgets.QLineEdit.Normal, "")
 
         alreadyExists = False
@@ -731,10 +731,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             msg = QtWidgets.QMessageBox()
             msg.setText("Group already exists")
             msg.exec_()
-
-
-
-
 
     def addToGroup(self):
         processes = []
@@ -764,6 +760,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         fw.close()
 
         selectedGroup.fillGroup()
+
+    def enableAddToGroupButton(self):
+        if(self.list.selectedItems() and self.groupList.selectedItems()):
+            self.buttonGroupAppAdd.setEnabled(True)
+        else:
+            self.buttonGroupAppAdd.setEnabled(False)
 
     def closeEvent(self, event):
         if(True):
