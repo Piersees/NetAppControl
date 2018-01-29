@@ -7,7 +7,6 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import Qt, QtCore, QtGui, QtWidgets, QtQuick
-from PyQt5.QtChart import QChart, QChartView, QLineSeries
 from PyQt5.QtGui import QPolygonF, QPainter
 from PyQt5.Qt import Qt
 from PyQt5.QtCore import *
@@ -62,7 +61,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setGeometry(QtCore.QRect(-10, -10, 1000, 571))
         self.tabWidget.setAutoFillBackground(False)
-        self.tabWidget.setStyleSheet("QTabBar::tab {\n"
+        self.tabWidgetBar = self.tabWidget.tabBar()
+        self.tabWidgetBar.setObjectName("tabWidgetBar")
+        self.tabWidget.setStyleSheet("QTabBar#tabWidgetBar::tab {\n"
             "    background-color: white;\n"
             "    border-top: 1px solid rgba(0,0,0,0.2);\n"
             "    border-right: 1px solid rgba(0,0,0,0.2);\n"
@@ -73,21 +74,18 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             "    height: 81px;\n"
             "}\n"
             "\n"
-            "QTabBar::tab:selected {\n"
+            "QTabBar#tabWidgetBar::tab:selected {\n"
             "    background-color: rgba(41, 107, 116,0.7);"
             "}\n"
             "\n"
-            "QTabBar::tab:selected:hover {\n"
+            "QTabBar#tabWidgetBar::tab:selected:hover {\n"
             "    background-color: rgba(41, 107, 116, 0.7);"
             "}\n"
             "\n"
-            "QTabBar::tab:hover {\n"
+            "QTabBar#tabWidgetBar::tab:hover {\n"
             "    background-color: rgba(41, 107, 116, 0.3);\n"
             "}\n"
             "\n"
-            "QTabWidget::tab-bar {\n"
-            "    \n"
-            "}\n"
             "QLineEdit {"
                 "border-top: 0px solid white;"
                 "border-left: 0px solid white;"
@@ -131,10 +129,25 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tabWidget.addTab(self.tabMonitoring, "")
         self.tabWidget.addTab(self.tabSettings, "")
 
+
+
+        ### Implement the tabs layout
+        self.tabWidgetMonitoring = QtWidgets.QTabWidget(self.tabMonitoring)
+        self.tabWidgetMonitoring.setObjectName("tabWidgetMonitoring")
+
+        self.bwTabMonitoring = pg.GraphicsLayoutWidget()
+        self.mdloljesaispasencore = pg.GraphicsLayoutWidget()
+
+        self.bwTabMonitoring.setObjectName("bwTabMonitoring")
+        self.mdloljesaispasencore.setObjectName("mdloljesaispasencore")
+
+        self.tabWidgetMonitoring.addTab(self.bwTabMonitoring, "Bandwidth")
+        self.tabWidgetMonitoring.addTab(self.mdloljesaispasencore, "???")
+
         ## BandWidth graph
-        self.BWplot = self.tabMonitoring.addPlot(title="Bandwidth /s")
+        self.BWplot = self.bwTabMonitoring.addPlot(title="Bandwidth over time")
         self.BWplot.setDownsampling(mode='peak')
-        self.BWplot.setClipToView(True)
+        #self.BWplot.setClipToView(True)
         self.BWplot.setRange(xRange=[-100, 0])
         self.BWplot.showAxis('bottom', False)
         self.BWplot.addLegend()
@@ -143,11 +156,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.curveUL = self.BWplot.plot(self.dataUL, fillLevel=-0.25, brush=(200,50,50,100), pen=(255,0,0), name="Upload rate")
         self.curveDL = self.BWplot.plot(self.dataDL, fillLevel=-0.05, brush=(50,50,200,100), pen=(0,0,255), name="Download rate")
         self.BWplot.setLabel('left', "Bandwidth", units='kB')
+        self.BWplot.showGrid(x=True, y=True)
         self.ptrBW = 0
 
         self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
-        self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
-        self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
+        self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabMonitoringColored.png'))
+        self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabAppsColored.png'))
         self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
 
         self.tabWidget.setIconSize(QSize(60,60))
@@ -366,6 +380,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.OpenVPNidFormlabel.setAlignment(QtCore.Qt.AlignCenter)
         self.OpenVPNidFormlabel.setObjectName("OpenVPNidFormlabel")
         self.OpenVPNidFormlabel.setText("Open VPN logins")
+        self.OpenVPNidFormlabel.setTextFormat(QtCore.Qt.RichText)
         self.openVPNidFormVerticalLayout.addWidget(self.OpenVPNidFormlabel)
 
 
@@ -520,7 +535,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def bwChartDisplay(self):
         self.threadBW = threading.Thread(target=self.bwChartGetValues)
         self.threadBW.daemaon = True
-        #self.threadBW.start()
+        self.threadBW.start()
 
     def bwChartGetValues(self):
         self.i = 0
@@ -727,24 +742,24 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def onChange(self,i): #changed!
         if i == 0:
             self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
-            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
-            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
-            self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
-        elif i == 1:
-            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoring.png'))
-            self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHomeColored.png'))
-            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabMonitoringColored.png'))
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabAppsColored.png'))
             self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
         elif i == 2:
-            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabApps.png'))
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabMonitoring.png'))
             self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHomeColored.png'))
-            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabAppsColored.png'))
+            self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
+        elif i == 1:
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabApps.png'))
+            self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHomeColored.png'))
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabMonitoringColored.png'))
             self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
         elif i == 3:
             self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettings.png'))
             self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHomeColored.png'))
-            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
-            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabMonitoringColored.png'))
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabAppsColored.png'))
 
     def createNewGroupWidget(self, name):
         gapp = QtWidgets.QListWidgetItem(self.groupList)
