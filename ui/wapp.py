@@ -39,7 +39,11 @@ class WappWidget(appAbstract):
 
     def manageVPN(self, durationType, durationTime):
         ### TODO: link with VPN
-        inject.ChangeProcessIp(self.PID_list, self.processName, "Ethernet 3")
+        threadList = inject.ChangeProcessIp(self.PID_list, self.processName, "Ethernet 3")
+        #time.sleep(10)
+        for th in threadList:
+            pass
+            #th.
 
 
 if __name__ == "__main__":
