@@ -475,11 +475,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             for i in range(self.list.count()):
                 app = self.list.item(i)
                 if self.appSearchBar.text().lower() in self.list.itemWidget(app).getLabelText().lower():
-                    #self.list.itemWidget(app).show()
                     app.setHidden(False)
                 else:
                     app.setHidden(True)
-                    #self.list.itemWidget(app).hide()
 
     def displaySpeedTest(self):
         self.pushButtonSpeed.setEnabled(False)
@@ -612,7 +610,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def fillAppList(self):
         self.listApp = self.getAppListWithInternet()
-        print(self.listApp)
         for app in self.listApp:
             if ( self.appInWappList(self.listApp, app) is False ):
                 self.createNewAppItem(app, self.listApp[app])
@@ -716,25 +713,26 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         fr = open('./groups.txt', 'r')
         groups = fr.readlines()
         fr.close()
-
+        
         groupName, okPressed = QtWidgets.QInputDialog.getText(self, "New group","New group name:", QtWidgets.QLineEdit.Normal, "")
 
         alreadyExists = False
         if okPressed and groupName != '':
             for group in groups:
-                print(groupName + "|" + group.split("\n")[0] + "|")
-                if groupName is group.split("\n")[0]:
+                if (groupName == group.split("\n")[0]):
                     alreadyExists = True
 
-        fw = open('./groups.txt', "a")
-
         if alreadyExists is False:
+            fw = open('./groups.txt', "a")
             fw.write(groupName + "\n")
             self.createNewGroupWidget(groupName)
+            fw.close()
         else:
-            self.createNewGroupWidget(groupName)
+            msg = QtWidgets.QMessageBox()
+            msg.setText("Group already exists")
+            msg.exec_()
 
-        fw.close()
+
 
 
 
