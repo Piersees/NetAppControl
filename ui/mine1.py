@@ -633,7 +633,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def clearList(self):
         apps = self.getAppListWithInternet()
-        for i in rand(self.list.count()):
+        for i in range(self.list.count()):
             wapp = self.list.item(i)
             for app in apps:
                 if ( self.compareWapp(self.list.itemWidget(wapp), apps, app) is False ) :

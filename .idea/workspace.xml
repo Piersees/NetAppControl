@@ -15,18 +15,32 @@
       <file leaf-file-name="mine1.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ui/mine1.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-651">
-              <caret line="11" column="23" lean-forward="true" selection-start-line="11" selection-start-column="23" selection-end-line="11" selection-end-column="23" />
-              <folding />
+            <state relative-caret-position="218">
+              <caret line="642" column="27" lean-forward="true" selection-start-line="642" selection-start-column="27" selection-end-line="642" selection-end-column="27" />
+              <folding>
+                <element signature="e#194#249#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="wapp.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="wapp.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ui/wapp.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
+            <state relative-caret-position="777">
               <caret line="37" column="12" lean-forward="true" selection-start-line="37" selection-start-column="12" selection-end-line="37" selection-end-column="12" />
+              <folding>
+                <element signature="e#0#26#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="gapp.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ui/gapp.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-484">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
               <folding>
                 <element signature="e#0#26#0" expanded="true" />
               </folding>
@@ -44,11 +58,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="inject.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="inject.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Network/inject.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="168">
-              <caret line="90" column="28" lean-forward="false" selection-start-line="90" selection-start-column="28" selection-end-line="90" selection-end-column="28" />
+            <state relative-caret-position="594">
+              <caret line="141" column="36" lean-forward="false" selection-start-line="141" selection-start-column="36" selection-end-line="141" selection-end-column="36" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -110,9 +124,9 @@
         <option value="$PROJECT_DIR$/Network/ip.py" />
         <option value="$PROJECT_DIR$/Network/hoost.py" />
         <option value="$PROJECT_DIR$/Network/openvpn.py" />
-        <option value="$PROJECT_DIR$/ui/mine1.py" />
         <option value="$PROJECT_DIR$/ui/wapp.py" />
         <option value="$PROJECT_DIR$/Network/inject.py" />
+        <option value="$PROJECT_DIR$/ui/mine1.py" />
       </list>
     </option>
   </component>
@@ -411,7 +425,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.50509626" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38505095" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -436,13 +450,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/ui/openVPNid.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Network/ping.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
@@ -512,7 +519,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="12138">
           <caret line="586" column="0" lean-forward="false" selection-start-line="586" selection-start-column="0" selection-end-line="586" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="e#194#249#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -592,7 +601,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="8253">
           <caret line="400" column="35" lean-forward="false" selection-start-line="400" selection-start-column="35" selection-end-line="400" selection-end-column="35" />
-          <folding />
+          <folding>
+            <element signature="e#194#249#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -641,7 +652,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="9051">
           <caret line="431" column="18" lean-forward="false" selection-start-line="431" selection-start-column="18" selection-end-line="431" selection-end-column="18" />
-          <folding />
+          <folding>
+            <element signature="e#194#249#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -667,7 +680,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="9051">
           <caret line="431" column="18" lean-forward="true" selection-start-line="431" selection-start-column="18" selection-end-line="431" selection-end-column="18" />
-          <folding />
+          <folding>
+            <element signature="e#194#249#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -774,30 +789,42 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ui/mine1.py">
+    <entry file="file://$PROJECT_DIR$/Network/inject.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-651">
-          <caret line="11" column="23" lean-forward="true" selection-start-line="11" selection-start-column="23" selection-end-line="11" selection-end-column="23" />
-          <folding />
+        <state relative-caret-position="594">
+          <caret line="141" column="36" lean-forward="false" selection-start-line="141" selection-start-column="36" selection-end-line="141" selection-end-column="36" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ui/wapp.py">
+    <entry file="file://$PROJECT_DIR$/ui/gapp.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="37" column="12" lean-forward="true" selection-start-line="37" selection-start-column="12" selection-end-line="37" selection-end-column="12" />
+        <state relative-caret-position="-484">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#26#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Network/inject.py">
+    <entry file="file://$PROJECT_DIR$/ui/mine1.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
-          <caret line="90" column="28" lean-forward="false" selection-start-line="90" selection-start-column="28" selection-end-line="90" selection-end-column="28" />
+        <state relative-caret-position="218">
+          <caret line="642" column="27" lean-forward="true" selection-start-line="642" selection-start-column="27" selection-end-line="642" selection-end-column="27" />
           <folding>
-            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#194#249#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ui/wapp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="777">
+          <caret line="37" column="12" lean-forward="true" selection-start-line="37" selection-start-column="12" selection-end-line="37" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -139,6 +139,7 @@ def ChangeProcessIp(pidlist,processName,card):
                 injectdll(process.pid, 'C:\\Users\\quent\\PycharmProjects\\pfe\\netHook.dll')
                 d[process.pid] = Thread(target=NPServer, args=(process.pid,ip,))
                 d[process.pid].start()
+                d[process.pid].join()
         except:
             pass
     return d
