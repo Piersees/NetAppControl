@@ -12,6 +12,9 @@ from PyQt5.QtWidgets import *
 from appPopUpSecurity import appPopUpSecurity
 from appPopUpNetwork import appPopUpNetwork
 import time
+import sys
+sys.path.append("../Network")
+import inject
 
 class WappWidget(QWidget):
     def __init__(self, parent=None):
@@ -130,6 +133,12 @@ class WappWidget(QWidget):
         fh = open(filename, "w")
         fh.writelines(data_list)
         fh.close()
+
+        self.implementVPN(value["duration"], value["time"])
+
+    def implementVPN(self, durationType, durationTime):
+        inject.ChangeProcessIp(self.PID_list,self.processName, "Ethernet 3")
+
 
     @pyqtSlot(str)
     def setProcessName(self, value):
