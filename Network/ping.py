@@ -12,6 +12,7 @@ Created on Wed Jan 17 15:03:02 2018
 # import subprocess to spawn a new process
 import subprocess
 
+
 hostname= "8.8.8.8" # determine the Ip to ping, like google.com
 
 # subprocess try
