@@ -53,7 +53,7 @@ class GappWidget(appAbstract):
     def linkApps(self, names):
         for app in self.appList:
             for name in names:
-                if app in names:
+                if app is name:
                     self.apps[app] = self.appList[app]
 
 

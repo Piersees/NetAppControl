@@ -4,3 +4,7 @@ group3|svchost.exe
 group2|System
 group2|wininit.exe
 group3|lsass.exe
+group4|wininit.exe
+group4|svchost.exe
+group4|services.exe
+group4|System

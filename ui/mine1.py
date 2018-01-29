@@ -672,9 +672,29 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 
     def createNewGroup(self):
-        pass
-        # qwidge = self.list.itemWidget(self.list.item(0))
-        # print(qwidge.getLabelText())
+        fr = open('./groups.txt', 'r')
+        groups = fr.readlines()
+        fr.close()
+
+        groupName, okPressed = QtWidgets.QInputDialog.getText(self, "New group","New group name:", QtWidgets.QLineEdit.Normal, "")
+
+        alreadyExists = False
+        if okPressed and groupName != '':
+            for group in groups:
+                if groupName in group.split("\n")[0]:
+                    alreadyExists = True
+
+        fw = open('./groups.txt', "a")
+
+        if alreadyExists is False:
+            fw.write(groupName + "\n")
+            self.createNewGroupWidget(groupName)
+        else:
+            self.createNewGroupWidget(groupName)
+
+        fw.close()
+
+
 
     def addToGroup(self):
         processes = []
@@ -688,17 +708,20 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         fw = open('./appGroups.txt', 'a')
         fr = open('./appGroups.txt', 'r')
+        existingProcesses = fr.readlines()
+        fr.close()
+
         for process in processes:
-            for existingProcess in fr.readlines():
+            alreadyExists = False
+            for existingProcess in existingProcesses:
                 line = existingProcess.split('|')
                 if name in line[0]:
-                    print(process + " !! " + line[1].split("\n")[0])
-                    if process not in line[1]:
-                        print("ok")
-                        data_list.append(name + "|" + process + "\n")
+                    if process in line[1]:
+                        alreadyExists = True
+            if alreadyExists is False:
+                data_list.append(name + "|" + process + "\n")
         fw.writelines(data_list)
         fw.close()
-        fr.close()
 
         selectedGroup.fillGroup()
 
