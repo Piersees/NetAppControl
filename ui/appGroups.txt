@@ -8,3 +8,4 @@ group4|wininit.exe
 group4|svchost.exe
 group4|services.exe
 group4|System
+group2|lsass.exe

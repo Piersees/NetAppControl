@@ -10,6 +10,9 @@ from PyQt5 import Qt, QtCore, QtGui, QtWidgets, QtQuick
 from PyQt5.QtChart import QChart, QChartView, QLineSeries
 from PyQt5.QtGui import QPolygonF, QPainter
 from PyQt5.Qt import Qt
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg
@@ -32,7 +35,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     bandWidthSig = QtCore.pyqtSignal(int,int)
     pingSig = QtCore.pyqtSignal(str)
     pingLossSig = QtCore.pyqtSignal(str)
-    openVPNcertificateEnteredSig = QtCore.pyqtSignal()
     openVpnThread = None
 
     appExit = False
@@ -63,27 +65,48 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             "    background-color: white;\n"
             "    border-top: 1px solid rgba(0,0,0,0.2);\n"
             "    border-right: 1px solid rgba(0,0,0,0.2);\n"
-            "    padding-bottom: 20px;\n"
+            "    padding-bottom: 40px;\n"
             "    padding-top: 20px;\n"
             "    color: white;\n"
             "    width : 200px;\n"
-            "    height: 101px;\n"
+            "    height: 81px;\n"
             "}\n"
             "\n"
             "QTabBar::tab:selected {\n"
-            "    background-color: rgba(0,0,0,0.5);"
+            "    background-color: rgba(41, 107, 116,0.7);"
             "}\n"
             "\n"
             "QTabBar::tab:selected:hover {\n"
-            "    background-color: rgba(0,0,0,0.5);"
+            "    background-color: rgba(41, 107, 116, 0.7);"
             "}\n"
             "\n"
             "QTabBar::tab:hover {\n"
-            "    background-color:  rgba(0,0,0,0.1);\n"
+            "    background-color: rgba(41, 107, 116, 0.3);\n"
             "}\n"
             "\n"
             "QTabWidget::tab-bar {\n"
             "    \n"
+            "}\n"
+            "QLineEdit {"
+                "border-top: 0px solid white;"
+                "border-left: 0px solid white;"
+                "border-right: 0px solid white;"
+                "padding-bottom: 5px;"
+                "border-bottom: 1px solid #dddddd;"
+            "}"
+            "QLineEdit:focus{"
+                "border-top: 0px solid white;"
+                "border-left: 0px solid white;"
+                "border-right: 0px solid white;"
+                "border-bottom: 2px solid rgb(41, 107, 116);"
+            "    padding-bottom: 5px;"
+            "}"
+            "QLineEdit:selected {"
+            "border-top: 0px solid white;"
+            "border-left: 0px solid white;"
+            "border-right: 0px solid white;"
+            "border-bottom: 2px solid rgb(41, 107, 116);"
+            "    padding-bottom: 5px;"
             "}")
         self.tabWidget.setTabPosition(QtWidgets.QTabWidget.West)
         self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
@@ -98,6 +121,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tab.setObjectName("tab")
         self.tabSettings.setObjectName("tabSettings")
         self.tabMonitoring.setObjectName("tabMonitoring")
+
+
+        self.tabWidget.currentChanged.connect(self.onChange)
 
         self.tabWidget.addTab(self.home_tab, "")
         self.tabWidget.addTab(self.tab, "")
@@ -119,14 +145,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.ptrBW = 0
 
         self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
-        self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoring.png'))
-        self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabApps.png'))
-        self.tabWidget.setTabIcon(123.3, QtGui.QIcon('./images/tabSettings.png'))
+        self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
+        self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
+        self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
+
+        self.tabWidget.setIconSize(QSize(60,60))
 
         self.tabWidget.tabBar().setTabToolTip(0, "Home")
         self.tabWidget.tabBar().setTabToolTip(1, "Apps")
         self.tabWidget.tabBar().setTabToolTip(2, "Monitoring")
         self.tabWidget.tabBar().setTabToolTip(3, "Settings")
+
 
         # self.tabWidget.iconSize(QtCore.QSize(40,40))
 
@@ -241,12 +270,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.threadPing = threading.Thread(target=self.pingUpdate)
         self.threadPing.start()
 
-        ### Insert items into the application list
 
         ### Create the application list
         self.list = QtWidgets.QListWidget()
 
-        ### Insert some apps
+        ### Insert items into the application list
         self.fillAppList()
         self.list.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 
@@ -258,6 +286,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.appListLayout.setContentsMargins(0, 0, 0, 0)
         self.appListLayout.setObjectName("verticalLayout")
         self.appListLayout.addWidget(self.list)
+
+        ### Link the selection changed event to a function
+        self.list.itemSelectionChanged.connect(self.enableAddToGroupButton)
 
         ### Create the app groups groupbox
         self.groupBoxAppGroup = QtWidgets.QGroupBox(self.tab)
@@ -285,6 +316,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### Insert groups
         self.addGroups()
 
+        ### Link the selection changed event to a function
+        self.groupList.itemSelectionChanged.connect(self.enableAddToGroupButton)
+
         ### Create the buttons layout
         self.groupAppButtonsLayout = QtWidgets.QHBoxLayout()
         self.groupAppButtonsLayout.setObjectName("groupAppButtonsLayout")
@@ -305,6 +339,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### Connect the buttons
         self.buttonGroupAppNew.clicked.connect(self.createNewGroup)
         self.buttonGroupAppAdd.clicked.connect(self.addToGroup)
+        self.buttonGroupAppAdd.setEnabled(False)
 
 
         ### App search bar
@@ -317,6 +352,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### Main layout
         self.tabSettingsMainLayout = QtWidgets.QHBoxLayout(self.tabSettings)
         self.tabSettingsMainLayout.setObjectName("tabSettingsMainLayout")
+        self.tabSettings.setStyleSheet("")
+
 
         ##### Sublayouts
         ### ID layout
@@ -412,11 +449,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.openVPNfileDialogButton.clicked.connect(self.selectVPNcertificate)
         self.openVPNfileDialogButton2.clicked.connect(self.selectVPNoptionalCertificate)
         self.openVPNsubmitButton.clicked.connect(self.openVPNsubmit)
-
-
-
-        ### Signal connecting
-        self.openVPNcertificateEnteredSig.connect(self.resetAppList)
 
 
         ### GUI arrangements
@@ -553,7 +585,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def selectVPNcertificate(self):
         options = QtWidgets.QFileDialog.Options()
-        options |= QtWidgets.QFileDialog.DontUseNativeDialog
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"QFileDialog.getOpenFileName()", "","OpenVPN files (*.ovpn)", options=options)
 
         if(fileName != None):
@@ -562,7 +593,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def selectVPNoptionalCertificate(self):
         options = QtWidgets.QFileDialog.Options()
-        options |= QtWidgets.QFileDialog.DontUseNativeDialog
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"QFileDialog.getOpenFileName()", "","OpenVPN files (*.ovpn)", options=options)
 
         if(fileName != None):
@@ -586,7 +616,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             msg.setText("openVPN certificate registered")
             msg.exec_()
 
-            self.openVPNcertificateEnteredSig.emit()
+            for i in range(self.list.count()):
+                wapp = self.list.item(i)
+                self.list.itemWidget(wapp).enableSecurityButton(True)
 
 
         except(UnboundLocalError):
@@ -691,6 +723,29 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 self.pingLossSig.emit("Loss ratio: " + str(float("{0:.2f}".format(packetLossRatio / 1000000))) + "%")
 
 
+    #@pyqtSlot()
+    def onChange(self,i): #changed!
+        if i == 0:
+            self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
+            self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
+        elif i == 1:
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoring.png'))
+            self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHomeColored.png'))
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
+            self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
+        elif i == 2:
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabApps.png'))
+            self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHomeColored.png'))
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
+            self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
+        elif i == 3:
+            self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettings.png'))
+            self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHomeColored.png'))
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
+
     def createNewGroupWidget(self, name):
         gapp = QtWidgets.QListWidgetItem(self.groupList)
         gapp_widget = GappWidget()
@@ -713,7 +768,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         fr = open('./groups.txt', 'r')
         groups = fr.readlines()
         fr.close()
-        
+
         groupName, okPressed = QtWidgets.QInputDialog.getText(self, "New group","New group name:", QtWidgets.QLineEdit.Normal, "")
 
         alreadyExists = False
@@ -731,10 +786,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             msg = QtWidgets.QMessageBox()
             msg.setText("Group already exists")
             msg.exec_()
-
-
-
-
 
     def addToGroup(self):
         processes = []
@@ -764,6 +815,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         fw.close()
 
         selectedGroup.fillGroup()
+
+    def enableAddToGroupButton(self):
+        if(self.list.selectedItems() and self.groupList.selectedItems()):
+            self.buttonGroupAppAdd.setEnabled(True)
+        else:
+            self.buttonGroupAppAdd.setEnabled(False)
 
     def closeEvent(self, event):
         if(True):
