@@ -14,6 +14,11 @@ class GappWidget(appAbstract):
         self.buttonNames.setIcon(QIcon('./images/question.png'))
         self.layout.addWidget(self.buttonNames)
 
+        self.buttonDelete = QPushButton()
+        self.buttonDelete.setSizePolicy(self.sizePolicy)
+        self.buttonDelete.setIcon(QIcon('./images/delete.png'))
+        self.layout.addWidget(self.buttonDelete)
+
         self.setStyleSheet("QPushButton{width:40px; height:40px;}")
         self.buttonNetwork.setIconSize(QSize(30,30))
         self.buttonSecurity.setIconSize(QSize(30,30))
@@ -22,6 +27,7 @@ class GappWidget(appAbstract):
         self.apps = {}
 
         self.buttonNames.clicked.connect(self.showNames)
+        self.buttonDelete.clicked.connect(self.deleteElement)
 
     @pyqtSlot(str)
     def setName(self, value):
@@ -61,6 +67,13 @@ class GappWidget(appAbstract):
         msg = QMessageBox()
         msg.setText(str(self.names))
         msg.exec_()
+
+    def setSignal(self, signal):
+        self.signalDel = signal
+
+    def deleteElement(self):
+        self.signalDel.emit(self.name)
+
 
 
     def manageNetwork(self, durationType, durationTime, bandwidth, bandwidthType):

@@ -36,6 +36,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     pingSig = QtCore.pyqtSignal(str)
     pingLossSig = QtCore.pyqtSignal(str)
     incomingConnectionSig = QtCore.pyqtSignal(dict)
+    deleteGroupSig = QtCore.pyqtSignal(str)
     openVpnThread = None
     IP, HOSTNAME, STATUS = range(3)
 
@@ -356,6 +357,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### Insert groups
         self.addGroups()
+
+        ### Connect the delete event
+        self.deleteGroupSig.connect(self.deleteGroup)
 
         ### Link the selection changed event to a function
         self.groupList.itemSelectionChanged.connect(self.enableAddToGroupButton)
@@ -793,6 +797,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         gapp_widget = GappWidget()
         gapp_widget.setAppList(self.listApp)
         gapp_widget.setName(name)
+        gapp_widget.setSignal(self.deleteGroupSig)
         gapp_widget.fillGroup()
         gapp.setSizeHint(gapp_widget.sizeHint())
         self.groupList.addItem(gapp)
@@ -863,6 +868,38 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.buttonGroupAppAdd.setEnabled(True)
         else:
             self.buttonGroupAppAdd.setEnabled(False)
+
+    def deleteGroup(self, groupName):
+        fg = open('./groups.txt' , 'r')
+        group_list = fg.readlines()
+        fg.close()
+        fg = open('./appGroups.txt', 'r')
+        groupApps_list = fg.readlines()
+        fg.close()
+
+        insertGroups = []
+        insertGroupApps = []
+
+        for group in group_list:
+            if ( groupName != group.split("\n")[0] ):
+                insertGroups.append(group)
+        for groupApp in groupApps_list:
+            if ( groupName != groupApp.split("|")[0] ):
+                insertGroupApps.append(groupApp)
+
+        fw = open('./groups.txt' , 'w')
+        fw.writelines(insertGroups)
+        fw.close()
+        fw = open('./appGroups.txt', 'w')
+        fw.writelines(insertGroupApps)
+        fw.close()
+
+        for i in range(self.groupList.count()):
+            gapp = self.groupList.item(i)
+            if(self.groupList.itemWidget(gapp).getName() == groupName):
+                indexToDelete = i
+
+        self.groupList.takeItem(indexToDelete)
 
     def createConnectionModel(self):
         model = QStandardItemModel(0, 3, self)
