@@ -14,7 +14,9 @@ Test 8,security,0,1516285902.9808612
 RuntimeBroker.exe,network,0,1516714375.6036918,,False
 SocketHeciServer.exe,network,0,1516714693.043658,,False
 LMS.exe,security,0,1516714725.7814713
-Steam.exe,security,0,1516887469.5862644
 firefox.exe,security,0,1516887840.091741
 System,security,0,1517217394.2992842
-chrome.exe,security,0,1517231169.9994998
+SmartSettings.exe,security,0,1517238590.4268951
+GitHubDesktop.exe,security,0,1517241684.4298012
+Steam.exe,security,0,1517305623.66088
+chrome.exe,security,2,1517326042.4209566

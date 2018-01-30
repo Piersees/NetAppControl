@@ -524,8 +524,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def bwChartGetValues(self):
         self.i = 0
-        presc_UL = 0
-        presc_DL = 0
         iostat = psutil.net_io_counters(pernic=False, nowrap=True)
 
         while(self.appExit is not True):
@@ -829,6 +827,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 self.OpenVpnThread.join()
             except:
                 pass
+            for i in range(self.list.count()):
+                wapp = self.list.item(i)
+                self.list.itemWidget(wapp).clean()
+
             self.appExit = True
             event.accept()
         else:

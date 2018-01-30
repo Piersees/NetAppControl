@@ -8,6 +8,7 @@ sys.path.append("../Network")
 import inject
 
 class WappWidget(appAbstract):
+
     def __init__(self, parent=None):
 
         super(WappWidget, self).__init__(parent)
@@ -15,6 +16,7 @@ class WappWidget(appAbstract):
         self.setStyleSheet("QPushButton{width:60px; height:60px;}")
         self.buttonNetwork.setIconSize(QSize(40,40))
         self.buttonSecurity.setIconSize(QSize(40,40))
+        self.threadList = {}
 
     @pyqtSlot(str)
     def setProcessName(self, value):
@@ -39,11 +41,15 @@ class WappWidget(appAbstract):
 
     def manageVPN(self, durationType, durationTime):
         ### TODO: link with VPN
-        threadList = inject.ChangeProcessIp(self.PID_list, self.processName, "Ethernet 3")
-        #time.sleep(10)
-        for th in threadList:
-            pass
-            #th.
+        self.threadList = inject.ChangeProcessIp(self.PID_list, self.processName, "Ethernet 3")
+
+    def clean(self):
+        if len(self.threadList) is not 0:
+            for key,thread in self.threadList.items():
+                try:
+                    thread.do_run = False
+                except:
+                    pass
 
 
 if __name__ == "__main__":

@@ -3,7 +3,8 @@ from ctypes import wintypes
 import psutil
 import win32pipe, win32file
 import socket
-from threading import Thread
+from threading import Thread, currentThread
+import time
 
 kernel32 = ctypes.WinDLL('kernel32.dll', use_last_error=True)
 
@@ -103,8 +104,9 @@ def injectdll(pid, dllpath):
             kernel32.CloseHandle(hthrd)
         if hproc is not None:
             kernel32.CloseHandle(hproc)
+    return addr
 
-def NPServer(id, ip):
+def NPServer(id, ip, addr):
     hNP = win32pipe.CreateNamedPipe("\\\\.\\pipe\\"+str(id),
                                       win32pipe.PIPE_ACCESS_DUPLEX,
                                       win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_WAIT,
@@ -115,6 +117,14 @@ def NPServer(id, ip):
     print("connected")
     win32file.WriteFile(hNP, ip.encode("utf-8"))
 
+    t = currentThread()
+    # while not closed
+    while getattr(t, "do_run", True):
+        pass
+
+    # close connection
+    win32pipe.DisconnectNamedPipe(hNP)
+
 def getIpAddress(family,name):
     for interface, snics in psutil.net_if_addrs().items():
         for snic in snics:
@@ -124,7 +134,7 @@ def getIpAddress(family,name):
 
 def ChangeProcessIp(pidlist,processName,card):
 
-    d={}
+    d = {}
     # get ip of the card
     ip = getIpAddress(socket.AF_INET,card)
 
@@ -136,10 +146,9 @@ def ChangeProcessIp(pidlist,processName,card):
             print(pname)
             ### Only if the pid hasn't changed
             if pname == processName:
-                injectdll(process.pid, 'C:\\Users\\quent\\PycharmProjects\\pfe\\netHook.dll')
-                d[process.pid] = Thread(target=NPServer, args=(process.pid,ip,))
+                addr = injectdll(process.pid, 'C:\\Users\\quent\\PycharmProjects\\pfe\\netHook.dll')
+                d[process.pid] = Thread(target=NPServer, args=(process.pid,ip,addr,))
                 d[process.pid].start()
-                d[process.pid].join()
         except:
             pass
     return d
