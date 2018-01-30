@@ -77,7 +77,7 @@ class appAbstract(QWidget):
         value = dialog.exec_()
 
         ### Read the current actions file
-        filename = "./appsActions.data"
+        filename = "../data/appsActions.data"
         fr = open(filename, "r")
         data_list = fr.readlines()
         fr.close()
@@ -116,7 +116,7 @@ class appAbstract(QWidget):
         value = dialog.exec_()
 
         ### Read the current actions file
-        filename = "./appsActions.data"
+        filename = "../data/appsActions.data"
         fr = open(filename, "r")
         data_list = fr.readlines()
         fr.close()

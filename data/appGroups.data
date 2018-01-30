@@ -1,7 +1,4 @@
 group1|services.exe
 group1|lsass.exe
 group3|svchost.exe
-group2|System
-group2|wininit.exe
 group3|lsass.exe
-group2|lsass.exe
