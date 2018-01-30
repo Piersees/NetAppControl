@@ -36,6 +36,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     pingSig = QtCore.pyqtSignal(str)
     pingLossSig = QtCore.pyqtSignal(str)
     incomingConnectionSig = QtCore.pyqtSignal(dict)
+    autoRefreshListSig = QtCore.pyqtSignal(dict)
     deleteGroupSig = QtCore.pyqtSignal(str)
     openVpnThread = None
     IP, HOSTNAME, STATUS = range(3)
@@ -400,6 +401,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.refreshAppsButton.setText("Refresh")
         self.refreshAppsButton.clicked.connect(self.resetAppList)
 
+        ### Automatically refresh
+        self.autoRefreshListSig.connect(self.resetAppListWithDict)
+        self.threadAutoRefresh = threading.Thread(target=self.autoRefreshList)
+        self.threadAutoRefresh.start()
+
         ##### Settings tab
         ### Main layout
         self.tabSettingsMainLayout = QtWidgets.QHBoxLayout(self.tabSettings)
@@ -697,6 +703,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             if ( self.appInWappList(self.listApp, app) is False ):
                 self.createNewAppItem(app, self.listApp[app])
 
+    def fillAppListWithDict(self, listApp):
+        for app in listApp:
+            if ( self.appInWappList(listApp, app) is False ):
+                self.createNewAppItem(app, listApp[app])
+
     def compareWapp(self, wapp, apps, app):
         if(wapp.getProcessName() != app):
             return False
@@ -732,6 +743,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def resetAppList(self):
         self.clearList()
         self.fillAppList()
+
+    def resetAppListWithDict(self, listApp):
+        self.clearList()
+        self.fillAppListWithDict(listApp)
+
+    def autoRefreshList(self):
+        while(self.appExit is False):
+            self.autoRefreshListSig.emit(self.getAppListWithInternet())
+            time.sleep(5)
+
 
     def submitOpenVPNid(self):
         fh = open("../data/openVPNid.data", "w")
