@@ -7,7 +7,6 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import Qt, QtCore, QtGui, QtWidgets, QtQuick
-from PyQt5.QtChart import QChart, QChartView, QLineSeries
 from PyQt5.QtGui import QPolygonF, QPainter
 from PyQt5.Qt import Qt
 from PyQt5.QtCore import *
@@ -27,6 +26,7 @@ sys.path.append("../Network")
 import SpeedTest
 import External_IP
 import ping
+import NetworkScan
 from BandWidth import getBandWidth
 import openvpn
 
@@ -35,7 +35,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     bandWidthSig = QtCore.pyqtSignal(int,int)
     pingSig = QtCore.pyqtSignal(str)
     pingLossSig = QtCore.pyqtSignal(str)
+    incomingConnectionSig = QtCore.pyqtSignal(dict)
+    deleteGroupSig = QtCore.pyqtSignal(str)
     openVpnThread = None
+    IP, HOSTNAME, STATUS = range(3)
 
     appExit = False
 
@@ -61,7 +64,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setGeometry(QtCore.QRect(-10, -10, 1000, 571))
         self.tabWidget.setAutoFillBackground(False)
-        self.tabWidget.setStyleSheet("QTabBar::tab {\n"
+        self.tabWidgetBar = self.tabWidget.tabBar()
+        self.tabWidgetBar.setObjectName("tabWidgetBar")
+        self.tabWidget.setStyleSheet("QTabBar#tabWidgetBar::tab {\n"
             "    background-color: white;\n"
             "    border-top: 1px solid rgba(0,0,0,0.2);\n"
             "    border-right: 1px solid rgba(0,0,0,0.2);\n"
@@ -72,21 +77,18 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             "    height: 81px;\n"
             "}\n"
             "\n"
-            "QTabBar::tab:selected {\n"
+            "QTabBar#tabWidgetBar::tab:selected {\n"
             "    background-color: rgba(41, 107, 116,0.7);"
             "}\n"
             "\n"
-            "QTabBar::tab:selected:hover {\n"
+            "QTabBar#tabWidgetBar::tab:selected:hover {\n"
             "    background-color: rgba(41, 107, 116, 0.7);"
             "}\n"
             "\n"
-            "QTabBar::tab:hover {\n"
+            "QTabBar#tabWidgetBar::tab:hover {\n"
             "    background-color: rgba(41, 107, 116, 0.3);\n"
             "}\n"
             "\n"
-            "QTabWidget::tab-bar {\n"
-            "    \n"
-            "}\n"
             "QLineEdit {"
                 "border-top: 0px solid white;"
                 "border-left: 0px solid white;"
@@ -130,10 +132,25 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tabWidget.addTab(self.tabMonitoring, "")
         self.tabWidget.addTab(self.tabSettings, "")
 
+
+
+        ### Implement the tabs layout
+        self.tabWidgetMonitoring = QtWidgets.QTabWidget(self.tabMonitoring)
+        self.tabWidgetMonitoring.setObjectName("tabWidgetMonitoring")
+
+        self.bwTabMonitoring = pg.GraphicsLayoutWidget()
+        self.bwTabConnections = QtWidgets.QWidget()
+
+        self.bwTabMonitoring.setObjectName("bwTabMonitoring")
+        self.bwTabConnections.setObjectName("bwTabConnections")
+
+        self.tabWidgetMonitoring.addTab(self.bwTabMonitoring, "Bandwidth")
+        self.tabWidgetMonitoring.addTab(self.bwTabConnections, "Connections")
+
         ## BandWidth graph
-        self.BWplot = self.tabMonitoring.addPlot(title="Bandwidth /s")
+        self.BWplot = self.bwTabMonitoring.addPlot(title="Bandwidth over time")
         self.BWplot.setDownsampling(mode='peak')
-        self.BWplot.setClipToView(True)
+        #self.BWplot.setClipToView(True)
         self.BWplot.setRange(xRange=[-100, 0])
         self.BWplot.showAxis('bottom', False)
         self.BWplot.addLegend()
@@ -142,11 +159,36 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.curveUL = self.BWplot.plot(self.dataUL, fillLevel=-0.25, brush=(200,50,50,100), pen=(255,0,0), name="Upload rate")
         self.curveDL = self.BWplot.plot(self.dataDL, fillLevel=-0.05, brush=(50,50,200,100), pen=(0,0,255), name="Download rate")
         self.BWplot.setLabel('left', "Bandwidth", units='kB')
+        self.BWplot.showGrid(x=True, y=True)
         self.ptrBW = 0
 
+        ## Incoming connections tab
+        self.incomingConnectionsMainLayout = QVBoxLayout()
+        self.bwTabConnections.setLayout(self.incomingConnectionsMainLayout)
+        self.incomingConnectionsGroupBox = QGroupBox("Connections on your network")
+        self.incomingConnectionsMainLayout.addWidget(self.incomingConnectionsGroupBox)
+        self.incomingConnectionsGroupBox.setGeometry(10, 10, self.bwTabConnections.width()-20, self.bwTabConnections.height()-20)
+        self.incomingConnectionsList = QTreeView()
+        self.incomingConnectionsList.setRootIsDecorated(False)
+        self.incomingConnectionsList.setAlternatingRowColors(True)
+
+        self.incomingConnectionsLayout = QHBoxLayout()
+        self.incomingConnectionsLayout.addWidget(self.incomingConnectionsList)
+        self.incomingConnectionsGroupBox.setLayout(self.incomingConnectionsLayout)
+
+        self.incomingConnectionsModel = self.createConnectionModel()
+        self.incomingConnectionsList.setModel(self.incomingConnectionsModel)
+
+        self.threadIncomingConnections = threading.Thread(target=self.manageConnectionsList)
+        self.threadIncomingConnections.start()
+
+        self.incomingConnectionSig.connect(self.resetConnectionsList)
+
+
+        ### Setting up tab icons
         self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
-        self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
-        self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
+        self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabMonitoringColored.png'))
+        self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabAppsColored.png'))
         self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
 
         self.tabWidget.setIconSize(QSize(60,60))
@@ -316,6 +358,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### Insert groups
         self.addGroups()
 
+        ### Connect the delete event
+        self.deleteGroupSig.connect(self.deleteGroup)
+
         ### Link the selection changed event to a function
         self.groupList.itemSelectionChanged.connect(self.enableAddToGroupButton)
 
@@ -348,6 +393,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.appSearchBar.setObjectName("appSearchBar")
         self.appSearchBar.textChanged.connect(self.appSearchBarTextChanged)
 
+        ### Refresh button
+        self.refreshAppsButton = QtWidgets.QPushButton(self.tab)
+        self.refreshAppsButton.setGeometry(QtCore.QRect(441, 20, 100, 23))
+        self.refreshAppsButton.setObjectName("refreshAppsButton")
+        self.refreshAppsButton.setText("Refresh")
+        self.refreshAppsButton.clicked.connect(self.resetAppList)
+
         ##### Settings tab
         ### Main layout
         self.tabSettingsMainLayout = QtWidgets.QHBoxLayout(self.tabSettings)
@@ -371,6 +423,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.OpenVPNidFormlabel.setAlignment(QtCore.Qt.AlignCenter)
         self.OpenVPNidFormlabel.setObjectName("OpenVPNidFormlabel")
         self.OpenVPNidFormlabel.setText("Open VPN logins")
+        self.OpenVPNidFormlabel.setTextFormat(QtCore.Qt.RichText)
         self.openVPNidFormVerticalLayout.addWidget(self.OpenVPNidFormlabel)
 
 
@@ -520,7 +573,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def bwChartDisplay(self):
         self.threadBW = threading.Thread(target=self.bwChartGetValues)
         self.threadBW.daemaon = True
-        #self.threadBW.start()
+        self.threadBW.start()
 
     def bwChartGetValues(self):
         self.i = 0
@@ -567,7 +620,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         strST += "Server: " + str(speedTestResult["server"]["name"]) + " | " + str(speedTestResult["server"]["country"]) + " | " + str(speedTestResult["server"]["sponsor"]) + "\n"
         strST += str(speedTestResult["timestamp"])
 
-        fh = open("./lastSpeedTest.txt", "w")
+        fh = open("../data/lastSpeedTest.data", "w")
         fh.write(strST)
         fh.close()
 
@@ -576,7 +629,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.speedTestSig.emit(strST)
 
     def readLastSpeedTest(self):
-        fr = open("./lastSpeedTest.txt", "r")
+        fr = open("../data/lastSpeedTest.data", "r")
         strST = fr.read()
         fr.close()
         return strST
@@ -603,7 +656,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         try:
             self.OpenVpnThread = openvpn.mainVPN(certificate)
 
-            fw = open("./openVPNcertificates.txt", "w")
+            fw = open("../data/openVPNcertificates.data", "w")
             fw.write(certificate + "\n")
             if( self.openVPNcertificate2Changed is not False ):
                 certificate2 = self.openVPNfilenameLabel2.text().replace("/",r'\\')
@@ -645,14 +698,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 self.createNewAppItem(app, self.listApp[app])
 
     def compareWapp(self, wapp, apps, app):
-        if(wapp.getLabelText() != app):
+        if(wapp.getProcessName() != app):
             return False
         else:
             for wappPID in wapp.getPIDlist():
                 for appPID in apps[app]:
                     if (wappPID != appPID):
                         return False
-        return True
+            return True
 
     def appInWappList(self, apps, app):
         for i in range(self.list.count()):
@@ -663,11 +716,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def clearList(self):
         apps = self.getAppListWithInternet()
+        itemsToRemove = []
         for i in range(self.list.count()):
             wapp = self.list.item(i)
+            toDelete = True
             for app in apps:
-                if ( self.compareWapp(self.list.itemWidget(wapp), apps, app) is False ) :
-                    self.list.removeItemWidget(wapp)
+                if(self.compareWapp(self.list.itemWidget(wapp), apps, app) is True):
+                    toDelete = False
+            if(toDelete is True):
+                itemsToRemove.append(self.list.item(i))
+        for item in itemsToRemove:
+            self.list.takeItem(self.list.row(item))
 
 
     def resetAppList(self):
@@ -675,7 +734,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.fillAppList()
 
     def submitOpenVPNid(self):
-        fh = open("./openVPNid.txt", "w")
+        fh = open("../data/openVPNid.data", "w")
         fh.write(self.OpenVPNidLoginInput.text() + "\n" + self.OpenVPNidPasswordInput.text())
         fh.close()
         msg = QtWidgets.QMessageBox()
@@ -725,37 +784,38 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def onChange(self,i): #changed!
         if i == 0:
             self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
-            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
-            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
-            self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
-        elif i == 1:
-            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoring.png'))
-            self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHomeColored.png'))
-            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabMonitoringColored.png'))
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabAppsColored.png'))
             self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
         elif i == 2:
-            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabApps.png'))
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabMonitoring.png'))
             self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHomeColored.png'))
-            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabAppsColored.png'))
+            self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
+        elif i == 1:
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabApps.png'))
+            self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHomeColored.png'))
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabMonitoringColored.png'))
             self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettingsColored.png'))
         elif i == 3:
             self.tabWidget.setTabIcon(3, QtGui.QIcon('./images/tabSettings.png'))
             self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHomeColored.png'))
-            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabMonitoringColored.png'))
-            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabAppsColored.png'))
+            self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabMonitoringColored.png'))
+            self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabAppsColored.png'))
 
     def createNewGroupWidget(self, name):
         gapp = QtWidgets.QListWidgetItem(self.groupList)
         gapp_widget = GappWidget()
         gapp_widget.setAppList(self.listApp)
         gapp_widget.setName(name)
+        gapp_widget.setSignal(self.deleteGroupSig)
         gapp_widget.fillGroup()
         gapp.setSizeHint(gapp_widget.sizeHint())
         self.groupList.addItem(gapp)
         self.groupList.setItemWidget(gapp, gapp_widget)
 
     def addGroups(self):
-        fr = open('./groups.txt', 'r')
+        fr = open('../data/groups.data', 'r')
         names = []
 
         for name in fr.readlines():
@@ -763,7 +823,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 
     def createNewGroup(self):
-        fr = open('./groups.txt', 'r')
+        fr = open('../data/groups.data', 'r')
         groups = fr.readlines()
         fr.close()
 
@@ -776,7 +836,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     alreadyExists = True
 
         if alreadyExists is False:
-            fw = open('./groups.txt', "a")
+            fw = open('../data/groups.data', "a")
             fw.write(groupName + "\n")
             self.createNewGroupWidget(groupName)
             fw.close()
@@ -795,8 +855,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         selectedGroup = self.groupList.itemWidget( self.groupList.selectedItems()[0] )
         name = selectedGroup.getName()
 
-        fw = open('./appGroups.txt', 'a')
-        fr = open('./appGroups.txt', 'r')
+        fw = open('../data/appGroups.data', 'a')
+        fr = open('../data/appGroups.data', 'r')
         existingProcesses = fr.readlines()
         fr.close()
 
@@ -819,6 +879,69 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.buttonGroupAppAdd.setEnabled(True)
         else:
             self.buttonGroupAppAdd.setEnabled(False)
+
+    def deleteGroup(self, groupName):
+        fg = open('../data/groups.data' , 'r')
+        group_list = fg.readlines()
+        fg.close()
+        fg = open('../data/appGroups.data', 'r')
+        groupApps_list = fg.readlines()
+        fg.close()
+
+        insertGroups = []
+        insertGroupApps = []
+
+        for group in group_list:
+            if ( groupName != group.split("\n")[0] ):
+                insertGroups.append(group)
+        for groupApp in groupApps_list:
+            if ( groupName != groupApp.split("|")[0] ):
+                insertGroupApps.append(groupApp)
+
+        fw = open('../data/groups.data' , 'w')
+        fw.writelines(insertGroups)
+        fw.close()
+        fw = open('../data/appGroups.data', 'w')
+        fw.writelines(insertGroupApps)
+        fw.close()
+
+        for i in range(self.groupList.count()):
+            gapp = self.groupList.item(i)
+            if(self.groupList.itemWidget(gapp).getName() == groupName):
+                indexToDelete = i
+
+        self.groupList.takeItem(indexToDelete)
+
+    def createConnectionModel(self):
+        model = QStandardItemModel(0, 3, self)
+        model.setHeaderData(self.IP, Qt.Horizontal, "IP address")
+        model.setHeaderData(self.HOSTNAME, Qt.Horizontal, "Hostname")
+        model.setHeaderData(self.STATUS, Qt.Horizontal, "Status")
+        return model
+
+    def addConnection(self,model, ip, hostname, status):
+        self.incomingConnectionsModel.insertRow(0)
+        self.incomingConnectionsModel.setData(self.incomingConnectionsModel.index(0, self.IP), ip)
+        self.incomingConnectionsModel.setData(self.incomingConnectionsModel.index(0, self.HOSTNAME), hostname)
+        self.incomingConnectionsModel.setData(self.incomingConnectionsModel.index(0, self.STATUS), status)
+
+    def addAllConnections(self, incomingConnections):
+        for incomingConnection in incomingConnections:
+            self.addConnection(self.incomingConnectionsModel, incomingConnection, incomingConnections[incomingConnection]['Hostname'], incomingConnections[incomingConnection]['Status'])
+
+    def deleteAllConnections(self):
+        rangeModel = range(self.incomingConnectionsModel.rowCount())
+        for i in rangeModel:
+            self.incomingConnectionsModel.removeRow(self.incomingConnectionsList.indexAt(QtCore.QPoint(i,0)).row())
+
+    def resetConnectionsList(self, incomingConnections):
+        self.deleteAllConnections()
+        self.addAllConnections(incomingConnections)
+
+    def manageConnectionsList(self):
+        while(self.appExit is False):
+            self.incomingConnectionSig.emit(NetworkScan.GetHostLan())
+            time.sleep(3)
 
     def closeEvent(self, event):
         if(True):
