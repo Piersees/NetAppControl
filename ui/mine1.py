@@ -393,6 +393,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.appSearchBar.setObjectName("appSearchBar")
         self.appSearchBar.textChanged.connect(self.appSearchBarTextChanged)
 
+        ### Refresh button
+        self.refreshAppsButton = QtWidgets.QPushButton(self.tab)
+        self.refreshAppsButton.setGeometry(QtCore.QRect(441, 20, 100, 23))
+        self.refreshAppsButton.setObjectName("refreshAppsButton")
+        self.refreshAppsButton.setText("Refresh")
+        self.refreshAppsButton.clicked.connect(self.resetAppList)
+
         ##### Settings tab
         ### Main layout
         self.tabSettingsMainLayout = QtWidgets.QHBoxLayout(self.tabSettings)
@@ -693,14 +700,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 self.createNewAppItem(app, self.listApp[app])
 
     def compareWapp(self, wapp, apps, app):
-        if(wapp.getLabelText() != app):
+        if(wapp.getProcessName() != app):
             return False
         else:
             for wappPID in wapp.getPIDlist():
                 for appPID in apps[app]:
                     if (wappPID != appPID):
                         return False
-        return True
+            return True
 
     def appInWappList(self, apps, app):
         for i in range(self.list.count()):
@@ -711,11 +718,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def clearList(self):
         apps = self.getAppListWithInternet()
+        itemsToRemove = []
         for i in range(self.list.count()):
             wapp = self.list.item(i)
+            toDelete = True
             for app in apps:
-                if ( self.compareWapp(self.list.itemWidget(wapp), apps, app) is False ) :
-                    self.list.removeItemWidget(wapp)
+                if(self.compareWapp(self.list.itemWidget(wapp), apps, app) is True):
+                    toDelete = False
+            if(toDelete is True):
+                itemsToRemove.append(self.list.item(i))
+        for item in itemsToRemove:
+            self.list.takeItem(self.list.row(item))
 
 
     def resetAppList(self):
