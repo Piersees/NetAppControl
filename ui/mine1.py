@@ -35,6 +35,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     bandWidthSig = QtCore.pyqtSignal(int,int)
     pingSig = QtCore.pyqtSignal(str)
     pingLossSig = QtCore.pyqtSignal(str)
+    incomingConnectionSig = QtCore.pyqtSignal(dict)
     openVpnThread = None
     IP, HOSTNAME, STATUS = range(3)
 
@@ -179,6 +180,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.threadIncomingConnections = threading.Thread(target=self.manageConnectionsList)
         self.threadIncomingConnections.start()
+
+        self.incomingConnectionSig.connect(self.resetConnectionsList)
 
 
         ### Setting up tab icons
@@ -874,30 +877,23 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.incomingConnectionsModel.setData(self.incomingConnectionsModel.index(0, self.HOSTNAME), hostname)
         self.incomingConnectionsModel.setData(self.incomingConnectionsModel.index(0, self.STATUS), status)
 
-    def addAllConnections(self):
-        incomingConnections = NetworkScan.GetHostLan()
-        i=0
+    def addAllConnections(self, incomingConnections):
         for incomingConnection in incomingConnections:
             self.addConnection(self.incomingConnectionsModel, incomingConnection, incomingConnections[incomingConnection]['Hostname'], incomingConnections[incomingConnection]['Status'])
-            i+=1
-        print("!"+str(i)+"!")
 
     def deleteAllConnections(self):
-        self.incomingConnectionsModel.clear()
-        self.incomingConnectionsModel = self.createConnectionModel()
-        self.incomingConnectionsList.setModel(self.incomingConnectionsModel)
+        rangeModel = range(self.incomingConnectionsModel.rowCount())
+        for i in rangeModel:
+            self.incomingConnectionsModel.removeRow(self.incomingConnectionsList.indexAt(QtCore.QPoint(i,0)).row())
 
-
-    def resetConnectionsList(self):
-        #self.deleteAllConnections()
-        self.addAllConnections()
+    def resetConnectionsList(self, incomingConnections):
+        self.deleteAllConnections()
+        self.addAllConnections(incomingConnections)
 
     def manageConnectionsList(self):
-        self.addAllConnections()
         while(self.appExit is False):
-            print("|"+str(self.incomingConnectionsModel.rowCount())+"|")
+            self.incomingConnectionSig.emit(NetworkScan.GetHostLan())
             time.sleep(3)
-            self.resetConnectionsList()
 
     def closeEvent(self, event):
         if(True):
