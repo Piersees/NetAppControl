@@ -47,7 +47,7 @@ class GappWidget(appAbstract):
         self.linkApps(self.names)
 
     def returnGroupNameList(self):
-        fr = open('./appGroups.txt')
+        fr = open('../data/appGroups.data')
         names = []
         for app in fr.readlines():
             line = app.split("|")

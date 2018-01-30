@@ -615,7 +615,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         strST += "Server: " + str(speedTestResult["server"]["name"]) + " | " + str(speedTestResult["server"]["country"]) + " | " + str(speedTestResult["server"]["sponsor"]) + "\n"
         strST += str(speedTestResult["timestamp"])
 
-        fh = open("./lastSpeedTest.txt", "w")
+        fh = open("../data/lastSpeedTest.data", "w")
         fh.write(strST)
         fh.close()
 
@@ -624,7 +624,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.speedTestSig.emit(strST)
 
     def readLastSpeedTest(self):
-        fr = open("./lastSpeedTest.txt", "r")
+        fr = open("../data/lastSpeedTest.data", "r")
         strST = fr.read()
         fr.close()
         return strST
@@ -651,7 +651,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         try:
             self.OpenVpnThread = openvpn.mainVPN(certificate)
 
-            fw = open("./openVPNcertificates.txt", "w")
+            fw = open("../data/openVPNcertificates.data", "w")
             fw.write(certificate + "\n")
             if( self.openVPNcertificate2Changed is not False ):
                 certificate2 = self.openVPNfilenameLabel2.text().replace("/",r'\\')
@@ -723,7 +723,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.fillAppList()
 
     def submitOpenVPNid(self):
-        fh = open("./openVPNid.txt", "w")
+        fh = open("../data/openVPNid.data", "w")
         fh.write(self.OpenVPNidLoginInput.text() + "\n" + self.OpenVPNidPasswordInput.text())
         fh.close()
         msg = QtWidgets.QMessageBox()
@@ -804,7 +804,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.groupList.setItemWidget(gapp, gapp_widget)
 
     def addGroups(self):
-        fr = open('./groups.txt', 'r')
+        fr = open('../data/groups.data', 'r')
         names = []
 
         for name in fr.readlines():
@@ -812,7 +812,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 
     def createNewGroup(self):
-        fr = open('./groups.txt', 'r')
+        fr = open('../data/groups.data', 'r')
         groups = fr.readlines()
         fr.close()
 
@@ -825,7 +825,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     alreadyExists = True
 
         if alreadyExists is False:
-            fw = open('./groups.txt', "a")
+            fw = open('../data/groups.data', "a")
             fw.write(groupName + "\n")
             self.createNewGroupWidget(groupName)
             fw.close()
@@ -844,8 +844,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         selectedGroup = self.groupList.itemWidget( self.groupList.selectedItems()[0] )
         name = selectedGroup.getName()
 
-        fw = open('./appGroups.txt', 'a')
-        fr = open('./appGroups.txt', 'r')
+        fw = open('../data/appGroups.data', 'a')
+        fr = open('../data/appGroups.data', 'r')
         existingProcesses = fr.readlines()
         fr.close()
 
@@ -870,10 +870,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.buttonGroupAppAdd.setEnabled(False)
 
     def deleteGroup(self, groupName):
-        fg = open('./groups.txt' , 'r')
+        fg = open('../data/groups.data' , 'r')
         group_list = fg.readlines()
         fg.close()
-        fg = open('./appGroups.txt', 'r')
+        fg = open('../data/appGroups.data', 'r')
         groupApps_list = fg.readlines()
         fg.close()
 
@@ -887,10 +887,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             if ( groupName != groupApp.split("|")[0] ):
                 insertGroupApps.append(groupApp)
 
-        fw = open('./groups.txt' , 'w')
+        fw = open('../data/groups.data' , 'w')
         fw.writelines(insertGroups)
         fw.close()
-        fw = open('./appGroups.txt', 'w')
+        fw = open('../data/appGroups.data', 'w')
         fw.writelines(insertGroupApps)
         fw.close()
 

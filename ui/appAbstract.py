@@ -77,7 +77,7 @@ class appAbstract(QWidget):
         value = dialog.exec_()
 
         ### Read the current actions file
-        filename = "./appsActions.txt"
+        filename = "./appsActions.data"
         fr = open(filename, "r")
         data_list = fr.readlines()
         fr.close()
@@ -116,7 +116,7 @@ class appAbstract(QWidget):
         value = dialog.exec_()
 
         ### Read the current actions file
-        filename = "./appsActions.txt"
+        filename = "./appsActions.data"
         fr = open(filename, "r")
         data_list = fr.readlines()
         fr.close()
@@ -144,7 +144,7 @@ class appAbstract(QWidget):
 
     @pyqtSlot()
     def hasRegisteredOpenVPNCertificate(self):
-        fr = open('./openVPNcertificates.txt', "r")
+        fr = open('../data/openVPNcertificates.data', "r")
         if ( fr.read() is not "" ):
             return True
         else:
