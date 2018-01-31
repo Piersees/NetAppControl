@@ -4,7 +4,7 @@ import psutil
 import win32pipe, win32file
 import socket
 from threading import Thread, currentThread
-import time
+import os
 
 kernel32 = ctypes.WinDLL('kernel32.dll', use_last_error=True)
 
@@ -146,7 +146,8 @@ def ChangeProcessIp(pidlist,processName,card):
             print(pname)
             ### Only if the pid hasn't changed
             if pname == processName:
-                addr = injectdll(process.pid, 'C:\\Users\\quent\\PycharmProjects\\pfe\\netHook.dll')
+                print(os.path.abspath(os.getcwd()+'\\..\\Network\\netHook.dll'))
+                addr = injectdll(process.pid,os.path.abspath(os.getcwd()+'\\..\\Network\\netHook.dll'))
                 d[process.pid] = Thread(target=NPServer, args=(process.pid,ip,addr,))
                 d[process.pid].start()
         except:

@@ -17,6 +17,7 @@ class WappWidget(appAbstract):
         self.buttonNetwork.setIconSize(QSize(40,40))
         self.buttonSecurity.setIconSize(QSize(40,40))
         self.threadList = {}
+        self.nic = None
 
     @pyqtSlot(str)
     def setProcessName(self, value):
@@ -40,16 +41,15 @@ class WappWidget(appAbstract):
         else:
             self.buttonSecurity.setStyleSheet("width:60px; height:60px")
 
-
-
+    def setNic(self, nic):
+        self.nic = nic
     def manageNetwork(self, durationType, durationTime, bandwidth, bandwidthType):
         ### TODO: regulate network
         pass
 
     def manageVPN(self, durationType, durationTime):
-        ### TODO: link with VPN
         self.colorSecurityButton(True)
-        #self.threadList = inject.ChangeProcessIp(self.PID_list, self.processName, "Ethernet 2")
+        self.threadList = inject.ChangeProcessIp(self.PID_list, self.processName, self.nic)
 
     def clean(self):
         if len(self.threadList) is not 0:

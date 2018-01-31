@@ -40,6 +40,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     deleteGroupSig = QtCore.pyqtSignal(str)
     openVpnThread = None
     IP, HOSTNAME, STATUS = range(3)
+    nic = None
 
     appExit = False
 
@@ -553,6 +554,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         wapp_widget.setLabelText(processName)
         wapp_widget.setProcessName(processName)
         wapp_widget.setPIDlist(PID_list)
+        wapp_widget.setNic(self.nic)
         wapp.setSizeHint(wapp_widget.sizeHint())
         self.list.addItem(wapp)
         self.list.setItemWidget(wapp, wapp_widget)
@@ -660,7 +662,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         certificate = self.openVPNfilenameLabel.text().replace("/",r'\\')
 
         try:
-            self.OpenVpnThread = openvpn.mainVPN(certificate)
+            (self.OpenVpnThread,self.nic) = openvpn.mainVPN(certificate)
 
             fw = open("../data/openVPNcertificates.data", "w")
             fw.write(certificate + "\n")
@@ -673,9 +675,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             msg.setText("openVPN certificate registered")
             msg.exec_()
 
+
             for i in range(self.list.count()):
                 wapp = self.list.item(i)
                 self.list.itemWidget(wapp).enableSecurityButton(True)
+                self.list.itemWidget(wapp).setNic(self.nic)
 
 
         except(UnboundLocalError):

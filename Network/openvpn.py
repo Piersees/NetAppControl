@@ -62,6 +62,7 @@ def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
     while True:
         line = prog.stdout.readline()
         print(line)
+
         if b'Initialization' in line:
             print("Makeroute called")
             makeRoute(componentId)
@@ -127,4 +128,4 @@ def mainVPN(ConfTcp,ConfUdp = None):
     else:
         pass
 
-    return thVPN
+    return (thVPN,componentId)
