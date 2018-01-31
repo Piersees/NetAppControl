@@ -2,9 +2,11 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from appAbstract import appAbstract
+from appsInGroupWidget import appsInGroupWidget
 import time
 
 class GappWidget(appAbstract):
+    delInGroupSig = pyqtSignal(list)
     def __init__(self, parent=None):
 
         super(GappWidget, self).__init__(parent)
@@ -28,6 +30,8 @@ class GappWidget(appAbstract):
 
         self.buttonNames.clicked.connect(self.showNames)
         self.buttonDelete.clicked.connect(self.deleteElement)
+
+        self.delInGroupSig.connect(self.delInGroup)
 
     @pyqtSlot(str)
     def setName(self, value):
@@ -64,9 +68,11 @@ class GappWidget(appAbstract):
 
 
     def showNames(self):
-        msg = QMessageBox()
-        msg.setText(str(self.names))
-        msg.exec_()
+        self.listPopUp = appsInGroupWidget()
+        self.listPopUp.setTitle(self.name)
+        self.listPopUp.fillList(self.names)
+        self.listPopUp.setDeleteSignal(self.delInGroupSig)
+        self.listPopUp.show()
 
     def setSignal(self, signal):
         self.signalDel = signal
@@ -74,7 +80,28 @@ class GappWidget(appAbstract):
     def deleteElement(self):
         self.signalDel.emit(self.name)
 
+    def delInGroup(self, appsToDelete):
+        fr = open('../data/appGroups.data', 'r')
+        apps = fr.readlines()
+        fr.close()
+        print(apps)
 
+        insertData = []
+
+        for appToDelete in appsToDelete:
+            for app in apps:
+                line = app.split('|')
+                if (line[0] == self.name and line[1].split('\n')[0] != appToDelete):
+                    insertData.append(app)
+            for name in self.names:
+                if (appToDelete == name):
+                    self.names.remove(name)
+
+        self.listPopUp.fillList(self.names)
+
+        fw = open('../data/appGroups.data', 'w')
+        fw.writelines(insertData)
+        fw.close()
 
     def manageNetwork(self, durationType, durationTime, bandwidth, bandwidthType):
         ### TODO: regulate network
