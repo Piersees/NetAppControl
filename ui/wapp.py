@@ -43,13 +43,25 @@ class WappWidget(appAbstract):
 
     def setNic(self, nic):
         self.nic = nic
+
     def manageNetwork(self, durationType, durationTime, bandwidth, bandwidthType):
         ### TODO: regulate network
         pass
 
+    def stopNetwork(self):
+        ### TODO: stop network regulation
+        pass
+
     def manageVPN(self, durationType, durationTime):
-        self.colorSecurityButton(True)
-        self.threadList = inject.ChangeProcessIp(self.PID_list, self.processName, self.nic)
+        if len(self.threadList) is not 0:
+            self.colorSecurityButton(True)
+            self.secured = True
+            self.threadList = inject.ChangeProcessIp(self.PID_list, self.processName, self.nic)
+
+    def stopVPN(self):
+        ### TODO: stop VPN
+        print("security stop")
+        pass
 
     def clean(self):
         if len(self.threadList) is not 0:
