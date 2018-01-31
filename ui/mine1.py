@@ -739,13 +739,26 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         for item in itemsToRemove:
             self.list.takeItem(self.list.row(item))
 
+    def clearListWithList(self, apps):
+        itemsToRemove = []
+        for i in range(self.list.count()):
+            wapp = self.list.item(i)
+            toDelete = True
+            for app in apps:
+                if(self.compareWapp(self.list.itemWidget(wapp), apps, app) is True):
+                    toDelete = False
+            if(toDelete is True):
+                itemsToRemove.append(self.list.item(i))
+        for item in itemsToRemove:
+            self.list.takeItem(self.list.row(item))
+
 
     def resetAppList(self):
         self.clearList()
         self.fillAppList()
 
     def resetAppListWithDict(self, listApp):
-        self.clearList()
+        self.clearListWithList(listApp)
         self.fillAppListWithDict(listApp)
 
     def autoRefreshList(self):
