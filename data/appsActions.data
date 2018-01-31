@@ -1,16 +1,11 @@
 Test 3,security,0,0
 Test 2,security,0,0
-<<<<<<< HEAD
-Test 1,network,1,1516362666.50114,36,True
-Test 1,security,0,1516272671.2265646
-=======
 Test 1,network,1,1516233928.0579288,8,True
 Test 1,security,0,1516283122.7372024
 app1,network,0,1516285501.535899,,False
 app1,security,0,1516285510.2738054
 app3,security,0,1516285831.3089983
 Test 8,security,0,1516285902.9808612
->>>>>>> a51db4f3328a325f20af83f7d6fc90d4344604e1
 RuntimeBroker.exe,network,0,1516714375.6036918,,False
 SocketHeciServer.exe,network,0,1516714693.043658,,False
 LMS.exe,security,0,1516714725.7814713
@@ -24,5 +19,5 @@ GitHubDesktop.exe,security,0,1517393929.292409
 uTorrent.exe,security,0,1517394692.0945773
 utorrentie.exe,security,0,1517394700.7886913
 firefox.exe,security,0,1517396561.7768593
-chrome.exe,security,0,1517403918.7517817
-System,security,0,1517408597.6254091
+pycharm64.exe,security,0,1517409431.3976326
+chrome.exe,security,0,1517412094.7358968

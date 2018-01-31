@@ -35,6 +35,12 @@ class WappWidget(appAbstract):
     def getPIDlist(self):
         return self.PID_list
 
+    def colorSecurityButton(self, colored):
+        if colored is True:
+            self.buttonSecurity.setStyleSheet("width:60px; height:60px; background-color:rgb(135, 204, 78)")
+        else:
+            self.buttonSecurity.setStyleSheet("width:60px; height:60px")
+
     def setNic(self, nic):
         self.nic = nic
 
@@ -42,9 +48,20 @@ class WappWidget(appAbstract):
         ### TODO: regulate network
         pass
 
+    def stopNetwork(self):
+        ### TODO: stop network regulation
+        pass
+
     def manageVPN(self, durationType, durationTime):
-        ### TODO: link with VPN
+        self.colorSecurityButton(True)
+        self.secured = True
         self.threadList = inject.ChangeProcessIp(self.PID_list, self.processName, self.nic)
+
+    def stopVPN(self):
+        self.colorSecurityButton(False)
+        self.secured = False
+        self.clean()
+        pass
 
     def clean(self):
         if len(self.threadList) is not 0:

@@ -51,6 +51,9 @@ class appAbstract(QWidget):
         ### Enables de security button if an OpenVPN certificate is present
         self.buttonSecurity.setEnabled(self.hasRegisteredOpenVPNCertificate())
 
+        self.secured = False
+        self.networkManaged = False
+
     ### Returns the label's text
     @pyqtSlot()
     def getLabelText(self):
@@ -66,80 +69,102 @@ class appAbstract(QWidget):
     def enableSecurityButton(self, value):
         self.buttonSecurity.setEnabled(value)
 
+    @pyqtSlot()
+    def getSecured(self):
+        return self.secured
+
+    @pyqtSlot()
+    def getNetworkManaged(self):
+        return self.networkManaged
+
     ### Triggers when the network button is clicked
     @pyqtSlot()
     def buttonNetworkClick(self):
-        ### Open the form
-        dialog = appPopUpNetwork()
-        dialog.setTitle(self.label.text())
 
-        ### Get the values entered
-        value = dialog.exec_()
+        if self.networkManaged is False:
+            ### Open the form
+            dialog = appPopUpNetwork()
+            dialog.setTitle(self.label.text())
 
-        ### Read the current actions file
-        filename = "../data/appsActions.data"
-        fr = open(filename, "r")
-        data_list = fr.readlines()
-        fr.close()
+            ### Get the values entered
+            value = dialog.exec_()
 
-        ### Update an exiting action if needed
-        for line in data_list:
-            if self.label.text() + ",network" in line:
-                data_list.remove(line)
+            ### Read the current actions file
+            filename = "../data/appsActions.data"
+            fr = open(filename, "r")
+            data_list = fr.readlines()
+            fr.close()
 
-        ### Write into the file
-        newLine = self.label.text() + ","
-        newLine += "network,"
-        newLine += str(value["duration"])+ ","
-        newLine += str(time.time() + 3600*value["time"]) + ","
-        newLine += str(value["bandwidth"]) + ","
-        newLine += str(value["percentage"]) + "\n"
-        data_list.append(newLine)
-        fh = open(filename, "w")
-        fh.writelines(data_list)
-        fh.close()
+            ### Update an exiting action if needed
+            for line in data_list:
+                if self.label.text() + ",network" in line:
+                    data_list.remove(line)
 
-        self.manageNetwork(value["duration"], value["time"], ["bandwidth"], ["percentage"])
+            ### Write into the file
+            newLine = self.label.text() + ","
+            newLine += "network,"
+            newLine += str(value["duration"])+ ","
+            newLine += str(time.time() + 3600*value["time"]) + ","
+            newLine += str(value["bandwidth"]) + ","
+            newLine += str(value["percentage"]) + "\n"
+            data_list.append(newLine)
+            fh = open(filename, "w")
+            fh.writelines(data_list)
+            fh.close()
+
+            self.manageNetwork(value["duration"], value["time"], ["bandwidth"], ["percentage"])
+        else:
+            self.stopNetwork()
+
+
 
     def manageNetwork(self, durationType, durationTime, bandwidth, bandwidthType):
-        ### TODO: regulate network
+        pass
+
+    def stopNetwork(self):
         pass
 
     ### Triggers when the security button is clicked
     @pyqtSlot()
     def buttonSecurityClick(self):
-        ### Open the form
-        dialog = appPopUpSecurity()
-        dialog.setTitle(self.label.text())
 
-        ### Get the values entered
-        value = dialog.exec_()
+        if self.secured is False:
+            ### Open the form
+            dialog = appPopUpSecurity()
+            dialog.setTitle(self.label.text())
 
-        ### Read the current actions file
-        filename = "../data/appsActions.data"
-        fr = open(filename, "r")
-        data_list = fr.readlines()
-        fr.close()
+            ### Get the values entered
+            value = dialog.exec_()
 
-        ### Update an exiting action if needed
-        for line in data_list:
-            if self.label.text() + ",security" in line:
-                data_list.remove(line)
+            ### Read the current actions file
+            filename = "../data/appsActions.data"
+            fr = open(filename, "r")
+            data_list = fr.readlines()
+            fr.close()
 
-        ### Write into the file
-        newLine = self.label.text() + ","
-        newLine += "security,"
-        newLine += str(value["duration"])+ ","
-        newLine += str(time.time() + 3600*value["time"]) + "\n"
-        data_list.append(newLine)
-        fh = open(filename, "w")
-        fh.writelines(data_list)
-        fh.close()
+            ### Update an exiting action if needed
+            for line in data_list:
+                if self.label.text() + ",security" in line:
+                    data_list.remove(line)
 
-        self.manageVPN(value["duration"], value["time"])
+            ### Write into the file
+            newLine = self.label.text() + ","
+            newLine += "security,"
+            newLine += str(value["duration"])+ ","
+            newLine += str(time.time() + 3600*value["time"]) + "\n"
+            data_list.append(newLine)
+            fh = open(filename, "w")
+            fh.writelines(data_list)
+            fh.close()
+
+            self.manageVPN(value["duration"], value["time"])
+        else:
+            self.stopVPN()
+
+    def stopVPN(self):
+        pass
 
     def manageVPN(self, durationType, durationTime):
-        ### TODO: link with VPN
         pass
 
     @pyqtSlot()
