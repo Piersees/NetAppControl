@@ -79,16 +79,26 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             "    height: 81px;\n"
             "}\n"
             "\n"
-            "QTabBar#tabWidgetBar::tab:selected {\n"
+            "QTabBar#tabWidgetMonitoringBar::tab {"
+            "background-color: rgb(41, 107, 116);"
+            "border-left: 1px solid rgba(0,0,0,0.2);"
+            "border-bottom: 1px solid rgba(0,0,0,0.2);"
+            "padding: 10px;"
+            "color: white;"
+            "width: 100px;"
+            "}"
+            "QTabBar#tabWidgetBar::tab:selected, QTabBar#tabWidgetMonitoringBar::tab:hover{\n"
             "    background-color: rgba(41, 107, 116,0.7);"
+            "   color: white;"
             "}\n"
             "\n"
-            "QTabBar#tabWidgetBar::tab:selected:hover {\n"
+            "QTabBar#tabWidgetBar::tab:selected:hover{\n"
             "    background-color: rgba(41, 107, 116, 0.7);"
             "}\n"
             "\n"
-            "QTabBar#tabWidgetBar::tab:hover {\n"
+            "QTabBar#tabWidgetMonitoringBar::tab:selected, QTabBar#tabWidgetBar::tab:hover, QTabBar#tabWidgetMonitoringBar::tab:selected:hover{\n"
             "    background-color: rgba(41, 107, 116, 0.3);\n"
+            "   color: rgb(41, 107, 116);"
             "}\n"
             "\n"
             "QLineEdit {"
@@ -111,6 +121,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             "border-right: 0px solid white;"
             "border-bottom: 2px solid rgb(41, 107, 116);"
             "    padding-bottom: 5px;"
+            "}"
+            "QPushButton#refreshAppsButton{"
+            "width:15px; height:15px;border: 1px solid rgb(41, 107, 116); background-color: rgb(41, 107, 116); border-radius: 14px;"
+            "}"
+            "QPushButton#refreshAppsButton:hover{"
+            "border: 1px solid rgba(41, 107, 116, 0.5); background-color: rgba(41, 107, 116,0.5); border-radius: 14px;"
             "}")
         self.tabWidget.setTabPosition(QtWidgets.QTabWidget.West)
         self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
@@ -139,6 +155,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### Implement the tabs layout
         self.tabWidgetMonitoring = QtWidgets.QTabWidget(self.tabMonitoring)
         self.tabWidgetMonitoring.setObjectName("tabWidgetMonitoring")
+
+        self.tabWidgetMonitoringBar = self.tabWidgetMonitoring.tabBar()
+        self.tabWidgetMonitoringBar.setObjectName("tabWidgetMonitoringBar")
 
         self.bwTabMonitoring = pg.GraphicsLayoutWidget()
         self.bwTabConnections = QtWidgets.QWidget()
@@ -397,9 +416,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### Refresh button
         self.refreshAppsButton = QtWidgets.QPushButton(self.tab)
-        self.refreshAppsButton.setGeometry(QtCore.QRect(441, 20, 100, 23))
+        self.refreshAppsButton.setGeometry(QtCore.QRect(441, 20, 30, 30))
         self.refreshAppsButton.setObjectName("refreshAppsButton")
-        self.refreshAppsButton.setText("Refresh")
+        self.refreshAppsButton.setText("")
+        self.refreshAppsButton.setIcon(QIcon('./images/refresh.png'))
         self.refreshAppsButton.clicked.connect(self.resetAppList)
 
         ### Automatically refresh
