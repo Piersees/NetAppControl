@@ -110,17 +110,17 @@ def mainVPN(ConfTcp,ConfUdp = None):
     print("RESULT: "+componentId)
 
     if Path(ConfTcp).is_file():
-        TcpConf = ConfigPath + os.path.basename(ConfTcp)
-        if not Path(TcpConf).is_file():
-            shutil.copy2(ConfTcp, TcpConf)
+        #TcpConf = ConfigPath + os.path.basename(ConfTcp)
+        #if not Path(TcpConf).is_file():
+            #shutil.copy2(ConfTcp, TcpConf)
         if (ConfUdp is not None) and (Path(ConfUdp).is_file()):
-            UdpConf = ConfigPath + os.path.basename(ConfUdp)
-            if not Path().is_file():
-                shutil.copy2(ConfUdp, UdpConf)
-            thVPN = Thread(target=VPNConnect, args=(OpenVpnPath, componentId, TcpConf, UdpConf))
+            #UdpConf = ConfigPath + os.path.basename(ConfUdp)
+            #if not Path().is_file():
+            #    shutil.copy2(ConfUdp, UdpConf)
+            thVPN = Thread(target=VPNConnect, args=(OpenVpnPath, componentId, ConfTcp, ConfUdp))
             thVPN.start()
         else:
-            thVPN = Thread(target=VPNConnect, args=(OpenVpnPath, componentId, TcpConf,))
+            thVPN = Thread(target=VPNConnect, args=(OpenVpnPath, componentId, ConfTcp,))
             thVPN.start()
     else:
         pass
