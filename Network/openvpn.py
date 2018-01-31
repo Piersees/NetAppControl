@@ -66,6 +66,8 @@ def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
             print("Makeroute called")
             makeRoute(componentId)
             break
+        if line is b'':
+            break
 
     while getattr(t, "do_run", True):
         prog.poll()
