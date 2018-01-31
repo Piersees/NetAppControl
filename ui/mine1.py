@@ -756,10 +756,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def resetAppList(self):
         self.clearList()
         self.fillAppList()
+        self.appSearchBarTextChanged()
 
     def resetAppListWithDict(self, listApp):
         self.clearListWithList(listApp)
         self.fillAppListWithDict(listApp)
+        self.appSearchBarTextChanged()
 
     def autoRefreshList(self):
         while(self.appExit is False):
@@ -974,8 +976,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def manageConnectionsList(self):
         while(self.appExit is False):
-            self.incomingConnectionSig.emit(NetworkScan.GetHostLan())
             time.sleep(3)
+            self.incomingConnectionSig.emit(NetworkScan.GetHostLan())
 
     def closeEvent(self, event):
         if(True):
