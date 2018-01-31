@@ -53,14 +53,14 @@ class WappWidget(appAbstract):
         pass
 
     def manageVPN(self, durationType, durationTime):
-        if len(self.threadList) is not 0:
-            self.colorSecurityButton(True)
-            self.secured = True
-            self.threadList = inject.ChangeProcessIp(self.PID_list, self.processName, self.nic)
+        self.colorSecurityButton(True)
+        self.secured = True
+        self.threadList = inject.ChangeProcessIp(self.PID_list, self.processName, self.nic)
 
     def stopVPN(self):
-        ### TODO: stop VPN
-        print("security stop")
+        self.colorSecurityButton(False)
+        self.secured = False
+        self.clean()
         pass
 
     def clean(self):
