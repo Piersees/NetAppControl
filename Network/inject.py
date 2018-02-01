@@ -1,10 +1,11 @@
 import ctypes
 from ctypes import wintypes
 import psutil
-import win32pipe, win32file
+import win32pipe, win32file, win32con
 import socket
 from threading import Thread, currentThread
 import os
+import time
 
 kernel32 = ctypes.WinDLL('kernel32.dll', use_last_error=True)
 
@@ -88,8 +89,7 @@ def injectdll(pid, dllpath):
     hproc = hthrd = addr = None
     try:
         hproc = kernel32.OpenProcess(
-            PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION |
-            PROCESS_VM_WRITE, False, pid)
+            win32con.PROCESS_ALL_ACCESS, False, pid)
         addr = kernel32.VirtualAllocEx(
             hproc, None, size, MEM_COMMIT, PAGE_READWRITE)
         kernel32.WriteProcessMemory(
@@ -106,6 +106,7 @@ def injectdll(pid, dllpath):
             kernel32.CloseHandle(hproc)
     return addr
 
+
 def NPServer(id, ip, addr):
     hNP = win32pipe.CreateNamedPipe("\\\\.\\pipe\\"+str(id),
                                       win32pipe.PIPE_ACCESS_DUPLEX,
@@ -120,7 +121,7 @@ def NPServer(id, ip, addr):
     t = currentThread()
     # while not closed
     while getattr(t, "do_run", True):
-        pass
+        time.sleep(0.2)
 
     # close connection
     win32pipe.DisconnectNamedPipe(hNP)
