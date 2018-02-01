@@ -127,7 +127,6 @@ class appAbstract(QWidget):
     ### Triggers when the security button is clicked
     @pyqtSlot()
     def buttonSecurityClick(self):
-
         if self.secured is False:
             ### Open the form
             dialog = appPopUpSecurity()
@@ -142,22 +141,25 @@ class appAbstract(QWidget):
             data_list = fr.readlines()
             fr.close()
 
-            ### Update an exiting action if needed
-            for line in data_list:
-                if self.label.text() + ",security" in line:
-                    data_list.remove(line)
+            try :
+                ### Update an exiting action if needed
+                for line in data_list:
+                    if self.label.text() + ",security" in line:
+                        data_list.remove(line)
 
-            ### Write into the file
-            newLine = self.label.text() + ","
-            newLine += "security,"
-            newLine += str(value["duration"])+ ","
-            newLine += str(time.time() + 3600*value["time"]) + "\n"
-            data_list.append(newLine)
-            fh = open(filename, "w")
-            fh.writelines(data_list)
-            fh.close()
+                ### Write into the file
+                newLine = self.label.text() + ","
+                newLine += "security,"
+                newLine += str(value["duration"])+ ","
+                newLine += str(time.time() + 3600*value["time"]) + "\n"
+                data_list.append(newLine)
+                fh = open(filename, "w")
+                fh.writelines(data_list)
+                fh.close()
 
-            self.manageVPN(value["duration"], value["time"])
+                self.manageVPN(value["duration"], value["time"])
+            except (RuntimeError):
+                print("App PID has changed, aborting action")
         else:
             self.stopVPN()
 

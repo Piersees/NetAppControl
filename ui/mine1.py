@@ -341,6 +341,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.fillAppList()
         self.list.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 
+        ### Secure the needed apps in the list
+        self.secureForeverSecuredApps()
+
         ### Arrange the app list layout
         self.appListLayoutWidget = QtWidgets.QWidget(self.tab)
         self.appListLayoutWidget.setGeometry(QtCore.QRect(20, 60, 411, 481))
@@ -776,9 +779,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 
     def resetAppList(self):
-        self.clearList()
-        self.fillAppList()
-        self.appSearchBarTextChanged()
+        self.secureForeverSecuredApps()
+        # self.clearList()
+        # self.fillAppList()
+        # self.appSearchBarTextChanged()
 
     def resetAppListWithDict(self, listApp):
         self.clearListWithList(listApp)
@@ -786,8 +790,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.appSearchBarTextChanged()
 
     def autoRefreshList(self):
+        time.sleep(8)
         while(self.appExit is False):
             self.autoRefreshListSig.emit(self.getAppListWithInternet())
+            self.secureForeverSecuredApps()
             time.sleep(5)
 
 
@@ -1002,15 +1008,15 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.incomingConnectionSig.emit(NetworkScan.GetHostLan())
 
     def getActionsList(self):
-        fr = open('../data/appsActions', 'r')
+        fr = open('../data/appsActions.data', 'r')
         actions = fr.readlines()
         fr.close()
 
         list = []
 
         for action in actions:
-            line = action.split('')
-            list.append({'processName':line[0], 'actionType':line[1], 'durationType':line[2], durationTime:line[3]})
+            line = action.split(',')
+            list.append({'processName':line[0], 'actionType':line[1], 'durationType':line[2], 'durationTime':line[3]})
 
         return list
 
@@ -1018,8 +1024,15 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         actions = self.getActionsList()
 
         for action in actions:
-            if ( action['actionType'] == 2 ):
-                print (action['processName'])
+            if ( (action['actionType'] == "security") and (int(action['durationType']) == 2) ):
+                for i in range(self.list.count()):
+                    wapp = self.list.item(i)
+                    app = self.list.itemWidget(wapp)
+                    try:
+                        if(app.getProcessName() == action['processName'] and app.getSecured() is False):
+                            app.manageVPN(action['durationType'], action['durationTime'])
+                    except(AttributeError):
+                        pass
 
 
     def closeEvent(self, event):
