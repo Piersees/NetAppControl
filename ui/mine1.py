@@ -736,10 +736,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         if(wapp.getProcessName() != app):
             return False
         else:
-            for wappPID in wapp.getPIDlist():
-                for appPID in apps[app]:
-                    if (wappPID != appPID):
-                        return False
+            if (wapp.getPIDlist() != apps[app]):
+                return False
             return True
 
     def appInWappList(self, apps, app):
@@ -1002,6 +1000,27 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         while(self.appExit is False):
             time.sleep(3)
             self.incomingConnectionSig.emit(NetworkScan.GetHostLan())
+
+    def getActionsList(self):
+        fr = open('../data/appsActions', 'r')
+        actions = fr.readlines()
+        fr.close()
+
+        list = []
+
+        for action in actions:
+            line = action.split('')
+            list.append({'processName':line[0], 'actionType':line[1], 'durationType':line[2], durationTime:line[3]})
+
+        return list
+
+    def secureForeverSecuredApps(self):
+        actions = self.getActionsList()
+
+        for action in actions:
+            if ( action['actionType'] == 2 ):
+                print (action['processName'])
+
 
     def closeEvent(self, event):
         if(True):
