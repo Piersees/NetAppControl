@@ -516,6 +516,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.OpenVPNidPasswordLabel.setText("Password:")
         self.OpenVPNidSubmitButton.setText("Submit")
 
+        self.OpenVPNidPasswordInput.setEchoMode(2)
+
         # Button connecting
         self.OpenVPNidSubmitButton.setEnabled(False)
         self.OpenVPNidSubmitButton.clicked.connect(self.submitOpenVPNid)
