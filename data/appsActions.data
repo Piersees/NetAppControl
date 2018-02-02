@@ -21,3 +21,9 @@ utorrentie.exe,security,0,1517394700.7886913
 firefox.exe,security,0,1517396561.7768593
 pycharm64.exe,security,0,1517409431.3976326
 chrome.exe,security,0,1517412094.7358968
+NetworkManager.exe,network,0,1517533023.0351524,,False
+group3,network,0,1517533876.8334353,,False
+System,network,0,1517534447.4934,,False
+System Idle Process,security,0,1517535382.2483082
+System,security,0,1517535431.8151784
+group1,security,0,1517535447.2141848

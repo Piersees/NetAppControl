@@ -19,7 +19,8 @@ class GappWidget(appAbstract):
         self.buttonDelete.setIcon(QIcon('./images/delete.png'))
         self.layout.addWidget(self.buttonDelete)
 
-        self.setStyleSheet("QPushButton{width:40px; height:40px;}")
+        self.setStyleSheet("QPushButton{border-radius: 5px;width:40px; height:40px; border: 1px solid rgba(41, 107, 116,1); background-color: rgba(41, 107, 116,0);}QPushButton:hover{background-color: rgba(41, 107, 116,0.25);}")
+        self.buttonNetwork.setIconSize(QSize(40,40))
         self.buttonNetwork.setIconSize(QSize(30,30))
         self.buttonSecurity.setIconSize(QSize(30,30))
         self.buttonNames.setIconSize(QSize(30,30))

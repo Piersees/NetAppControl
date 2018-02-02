@@ -13,7 +13,7 @@ class WappWidget(appAbstract):
 
         super(WappWidget, self).__init__(parent)
 
-        self.setStyleSheet("QPushButton{width:60px; height:60px;}")
+        self.setStyleSheet("QPushButton{border-radius: 5px;width:60px; height:60px; border: 1px solid rgba(41, 107, 116,1); background-color: rgba(41, 107, 116,0);}QPushButton:hover{background-color: rgba(41, 107, 116,0.25);}")
         self.buttonNetwork.setIconSize(QSize(40,40))
         self.buttonSecurity.setIconSize(QSize(40,40))
         self.threadList = {}
@@ -37,9 +37,11 @@ class WappWidget(appAbstract):
 
     def colorSecurityButton(self, colored):
         if colored is True:
-            self.buttonSecurity.setStyleSheet("width:60px; height:60px; background-color:rgb(135, 204, 78)")
+            #self.buttonSecurity.setStyleSheet("width:60px; height:60px; background-color:rgb(135, 204, 78)")
+            self.buttonSecurity.setIcon(QIcon('./images/unlock.png'))
         else:
-            self.buttonSecurity.setStyleSheet("width:60px; height:60px")
+            #self.buttonSecurity.setStyleSheet("width:60px; height:60px")
+            self.buttonSecurity.setIcon(QIcon('./images/lock.png'))
 
     def setNic(self, nic):
         self.nic = nic
