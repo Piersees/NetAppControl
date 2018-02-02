@@ -66,12 +66,35 @@ class WappWidget(appAbstract):
         pass
 
     def clean(self):
+        self.deleteAction('security')
         if len(self.threadList) is not 0:
             for key,thread in self.threadList.items():
                 try:
                     thread.do_run = False
                 except:
                     pass
+
+    def deleteAction(self, actionType):
+            fr = open('../data/appsActions.data', 'r')
+            actions = fr.readlines()
+            fr.close()
+
+            insertData = []
+
+            for action in actions:
+                line = action.split(',')
+                dic = {'processName':line[0], 'actionType':line[1], 'durationType':line[2], 'durationTime':line[3]}
+
+                if ( not (dic['processName'] == self.processName and dic['actionType'] == actionType ) ):
+                    insertData.append(action)
+
+                fw = open('../data/appsActions.data', 'w')
+                fw.writelines(insertData)
+                fw.close()
+
+
+
+
 
 
 if __name__ == "__main__":

@@ -69,9 +69,11 @@ def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
             break
         if line is b'':
             break
+        time.sleep(0.5)
 
     while getattr(t, "do_run", True):
         prog.poll()
+        time.sleep(0.5)
     print("stopped")
     kill(prog.pid)
 
@@ -82,7 +84,7 @@ def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
 ### Add the route to connect to the vpn
 def makeRoute(componentId):
     gateway = getIpAddressGateway(socket.AF_INET,componentId)
-    cmd = ["route", "add", "0.0.0.0", "mask", "0.0.0.0", gateway]
+    cmd = ["route", "add", "0.0.0.0", "mask", "0.0.0.0", gateway, "metric", "1000"]
     prog = subprocess.Popen(cmd)
 
 ### Add a vpn connection using the conf file. Returns a thread that runs the VPN
