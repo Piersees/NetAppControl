@@ -89,30 +89,31 @@ class appAbstract(QWidget):
             ### Get the values entered
             value = dialog.exec_()
 
-            ### Read the current actions file
-            filename = "../data/appsActions.data"
-            fr = open(filename, "r")
-            data_list = fr.readlines()
-            fr.close()
+            if (value != None):
+                ### Read the current actions file
+                filename = "../data/appsActions.data"
+                fr = open(filename, "r")
+                data_list = fr.readlines()
+                fr.close()
 
-            ### Update an exiting action if needed
-            for line in data_list:
-                if self.label.text() + ",network" in line:
-                    data_list.remove(line)
+                ### Update an exiting action if needed
+                for line in data_list:
+                    if self.label.text() + ",network" in line:
+                        data_list.remove(line)
 
-            ### Write into the file
-            newLine = self.label.text() + ","
-            newLine += "network,"
-            newLine += str(value["duration"])+ ","
-            newLine += str(time.time() + 3600*value["time"]) + ","
-            newLine += str(value["bandwidth"]) + ","
-            newLine += str(value["percentage"]) + "\n"
-            data_list.append(newLine)
-            fh = open(filename, "w")
-            fh.writelines(data_list)
-            fh.close()
+                ### Write into the file
+                newLine = self.label.text() + ","
+                newLine += "network,"
+                newLine += str(value["duration"])+ ","
+                newLine += str(time.time() + 3600*value["time"]) + ","
+                newLine += str(value["bandwidth"]) + ","
+                newLine += str(value["percentage"]) + "\n"
+                data_list.append(newLine)
+                fh = open(filename, "w")
+                fh.writelines(data_list)
+                fh.close()
 
-            self.manageNetwork(value["duration"], value["time"], ["bandwidth"], ["percentage"])
+                self.manageNetwork(value["duration"], value["time"], ["bandwidth"], ["percentage"])
         else:
             self.stopNetwork()
 
@@ -135,31 +136,32 @@ class appAbstract(QWidget):
             ### Get the values entered
             value = dialog.exec_()
 
-            ### Read the current actions file
-            filename = "../data/appsActions.data"
-            fr = open(filename, "r")
-            data_list = fr.readlines()
-            fr.close()
+            if (value != None):
+                ### Read the current actions file
+                filename = "../data/appsActions.data"
+                fr = open(filename, "r")
+                data_list = fr.readlines()
+                fr.close()
 
-            try :
-                ### Update an exiting action if needed
-                for line in data_list:
-                    if self.label.text() + ",security" in line:
-                        data_list.remove(line)
+                try :
+                    ### Update an exiting action if needed
+                    for line in data_list:
+                        if self.label.text() + ",security" in line:
+                            data_list.remove(line)
 
-                ### Write into the file
-                newLine = self.label.text() + ","
-                newLine += "security,"
-                newLine += str(value["duration"])+ ","
-                newLine += str(time.time() + 3600*value["time"]) + "\n"
-                data_list.append(newLine)
-                fh = open(filename, "w")
-                fh.writelines(data_list)
-                fh.close()
+                    ### Write into the file
+                    newLine = self.label.text() + ","
+                    newLine += "security,"
+                    newLine += str(value["duration"])+ ","
+                    newLine += str(time.time() + 3600*value["time"]) + "\n"
+                    data_list.append(newLine)
+                    fh = open(filename, "w")
+                    fh.writelines(data_list)
+                    fh.close()
 
-                self.manageVPN(value["duration"], value["time"])
-            except (RuntimeError):
-                print("App PID has changed, aborting action")
+                    self.manageVPN(value["duration"], value["time"])
+                except (RuntimeError):
+                    print("App PID has changed, aborting action")
         else:
             self.stopVPN()
 
