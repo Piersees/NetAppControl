@@ -1015,12 +1015,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         fr = open('../data/appsActions.data', 'r')
         actions = fr.readlines()
         fr.close()
-
         list = []
 
         for action in actions:
-            line = action.split(',')
-            list.append({'processName':line[0], 'actionType':line[1], 'durationType':line[2], 'durationTime':line[3]})
+            try:
+                line = action.split(',')
+                list.append({'processName':line[0], 'actionType':line[1], 'durationType':line[2], 'durationTime':line[3]})
+            except:
+                pass
 
         return list
 
