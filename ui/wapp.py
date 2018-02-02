@@ -16,6 +16,8 @@ class WappWidget(appAbstract):
         self.setStyleSheet("QPushButton{border-radius: 5px;width:60px; height:60px; border: 1px solid rgba(41, 107, 116,1); background-color: rgba(41, 107, 116,0);}QPushButton:hover{background-color: rgba(41, 107, 116,0.25);}")
         self.buttonNetwork.setIconSize(QSize(40,40))
         self.buttonSecurity.setIconSize(QSize(40,40))
+        self.buttonNetwork.setToolTip("Network configuration")
+        self.buttonSecurity.setToolTip("Security configuration")
         self.threadList = {}
         self.nic = None
 
