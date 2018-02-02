@@ -69,7 +69,7 @@ def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
             break
         if line is b'':
             break
-        time.sleep(0.5)
+        time.sleep(0.2)
 
     while getattr(t, "do_run", True):
         prog.poll()
@@ -115,13 +115,7 @@ def mainVPN(ConfTcp,ConfUdp = None):
     print("RESULT: "+componentId)
 
     if Path(ConfTcp).is_file():
-        #TcpConf = ConfigPath + os.path.basename(ConfTcp)
-        #if not Path(TcpConf).is_file():
-            #shutil.copy2(ConfTcp, TcpConf)
         if (ConfUdp is not None) and (Path(ConfUdp).is_file()):
-            #UdpConf = ConfigPath + os.path.basename(ConfUdp)
-            #if not Path().is_file():
-            #    shutil.copy2(ConfUdp, UdpConf)
             thVPN = Thread(target=VPNConnect, args=(OpenVpnPath, componentId, ConfTcp, ConfUdp))
             thVPN.start()
         else:

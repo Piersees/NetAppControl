@@ -54,6 +54,32 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### Change the window's size
         self.resize(1000, 600)
 
+        self.setStyleSheet("QInputDialog {background-color: white;} QInputDialog QLabel{color: rgb(41, 107, 116);font-size: 20px; border-bottom: 1px solid rgb(41, 107, 116); }"
+        "QInputDialog QLineEdit {"
+            "border-top: 0px solid white;"
+            "border-left: 0px solid white;"
+            "border-right: 0px solid white;"
+            "padding-bottom: 5px;"
+            "border-bottom: 1px solid #dddddd;"
+        "}"
+        "QInputDialog QLineEdit:focus{"
+            "border-top: 0px solid white;"
+            "border-left: 0px solid white;"
+            "border-right: 0px solid white;"
+            "border-bottom: 2px solid rgb(41, 107, 116);"
+        "    padding-bottom: 5px;"
+        "}"
+        "QInputDialog QLineEdit:selected {"
+        "border-top: 0px solid white;"
+        "border-left: 0px solid white;"
+        "border-right: 0px solid white;"
+        "border-bottom: 2px solid rgb(41, 107, 116);"
+        "    padding-bottom: 5px;"
+        "}"
+        "QInputDialog QPushButton{"
+        "border-radius: 5px; color: rgb(41, 107, 116); padding: 15px; border: 1px solid rgba(41, 107, 116,1); background-color: rgba(41, 107, 116,0);}"
+        "QInputDialog QPushButton:hover{background-color: rgba(41, 107, 116,0.25);}");
+
         ### Enable antialiasing for prettier plots
         pg.setConfigOptions(antialias=True)
         ### Set the plots background to white and the axes to black
@@ -464,12 +490,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.OpenVPNidPasswordLabel.setText("Password:")
         self.OpenVPNidSubmitButton.setText("Submit")
 
+        self.OpenVPNidPasswordInput.setEchoMode(2)
+
         # Button connecting
         self.OpenVPNidSubmitButton.setEnabled(False)
         self.OpenVPNidSubmitButton.clicked.connect(self.submitOpenVPNid)
         self.OpenVPNidLoginInput.textChanged.connect(self.enableOpenVPNidSubmit)
         self.OpenVPNidPasswordInput.textChanged.connect(self.enableOpenVPNidSubmit)
-
 
 
         self.line = QtWidgets.QFrame();
@@ -520,6 +547,37 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.retranslateUi(self)
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(self)
+
+        self.autoStartVPN()
+
+    def autoStartVPN(self):
+        try:
+            fh = open("../data/openVPNcertificates.data", "r").read().splitlines()
+            certificate = fh[0]
+            print(certificate)
+            try:
+                (self.OpenVpnThread,self.nic) = openvpn.mainVPN(certificate)
+
+                fw = open("../data/openVPNcertificates.data", "w")
+                fw.write(certificate + "\n")
+                if( self.openVPNcertificate2Changed is not False ):
+                    certificate2 = self.openVPNfilenameLabel2.text().replace("/",r'\\')
+                    fw.write(certificate2 + "\n")
+                fw.close()
+
+
+                for i in range(self.list.count()):
+                    wapp = self.list.item(i)
+                    self.list.itemWidget(wapp).enableSecurityButton(True)
+                    self.list.itemWidget(wapp).setNic(self.nic)
+
+
+            except(UnboundLocalError):
+                msg = QtWidgets.QMessageBox()
+                msg.setText("Invalid openVPN certificate")
+                msg.exec_()
+        except:
+            print("no certificate")
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -843,6 +901,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         groups = fr.readlines()
         fr.close()
 
+        dialog = QtWidgets.QInputDialog()
+
         groupName, okPressed = QtWidgets.QInputDialog.getText(self, "New group","New group name:", QtWidgets.QLineEdit.Normal, "")
 
         alreadyExists = False
@@ -963,12 +1023,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         fr = open('../data/appsActions.data', 'r')
         actions = fr.readlines()
         fr.close()
-
         list = []
 
         for action in actions:
-            line = action.split(',')
-            list.append({'processName':line[0], 'actionType':line[1], 'durationType':line[2], 'durationTime':line[3]})
+            try:
+                line = action.split(',')
+                list.append({'processName':line[0], 'actionType':line[1], 'durationType':line[2], 'durationTime':line[3]})
+            except:
+                pass
 
         return list
 
@@ -991,13 +1053,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             time.sleep(5)
             self.displayIpSig.emit("Public IP adress: " + External_IP.Get_IP())
 
+    def stopVPN(self):
+        try:
+            self.OpenVpnThread.do_run = False
+            self.OpenVpnThread.join()
+        except:
+            pass
+
     def closeEvent(self, event):
         if(True):
-            try:
-                self.OpenVpnThread.do_run = False
-                self.OpenVpnThread.join()
-            except:
-                pass
+            self.stopVPN()
             for i in range(self.list.count()):
                 wapp = self.list.item(i)
                 self.list.itemWidget(wapp).clean()
