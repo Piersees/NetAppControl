@@ -20,6 +20,7 @@ import threading
 import psutil
 from wapp import WappWidget
 from gapp import GappWidget
+from speedtestwidget import SpeedTestWidget
 import sys
 import time
 sys.path.append("../Network")
@@ -31,7 +32,6 @@ from BandWidth import getBandWidth
 import openvpn
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
-    speedTestSig = QtCore.pyqtSignal(str)
     bandWidthSig = QtCore.pyqtSignal(int,int)
     pingSig = QtCore.pyqtSignal(str)
     pingLossSig = QtCore.pyqtSignal(str)
@@ -192,12 +192,15 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.bwTabMonitoring = pg.GraphicsLayoutWidget()
         self.bwTabConnections = QtWidgets.QWidget()
+        self.bwTabSpeedtest = QtWidgets.QWidget()
 
         self.bwTabMonitoring.setObjectName("bwTabMonitoring")
         self.bwTabConnections.setObjectName("bwTabConnections")
+        self.bwTabSpeedtest.setObjectName("bwTabSpeedtest")
 
         self.tabWidgetMonitoring.addTab(self.bwTabMonitoring, "Bandwidth")
         self.tabWidgetMonitoring.addTab(self.bwTabConnections, "Connections")
+        self.tabWidgetMonitoring.addTab(self.bwTabSpeedtest, "Speedtest")
 
         ## BandWidth graph
         self.BWplot = self.bwTabMonitoring.addPlot(title="Bandwidth over time")
@@ -235,6 +238,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.threadIncomingConnections.start()
 
         self.incomingConnectionSig.connect(self.resetConnectionsList)
+
+        ## Speedtest tab
+        self.speedtestLayout = QtWidgets.QVBoxLayout()
+        self.bwTabSpeedtest.setLayout(self.speedtestLayout)
+        self.speedtestWidget = SpeedTestWidget()
+        self.speedtestLayout.addWidget(self.speedtestWidget)
 
 
         ### Setting up tab icons
@@ -286,41 +295,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.textBrowserHomeInfo.setMaximumSize(QtCore.QSize(250, 16777215))
         self.textBrowserHomeInfo.setText("[ INFORMATIONS ]")
         self.horizontalLayoutHome.addWidget(self.textBrowserHomeInfo)
-
-        ### Buttons for the home page
-        self.groupBoxHomeButtons = QtWidgets.QGroupBox(self.groupBoxHome)
-        self.groupBoxHomeButtons.setObjectName("groupBoxHomeButtons")
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.groupBoxHomeButtons.sizePolicy().hasHeightForWidth())
-        self.groupBoxHomeButtons.setSizePolicy(sizePolicy)
-        self.groupBoxHomeButtons.setMaximumSize(QtCore.QSize(250, 16777215))
-        self.verticalLayoutHome = QtWidgets.QVBoxLayout(self.groupBoxHomeButtons)
-        self.verticalLayoutHome.setObjectName("verticalLayoutHome")
-
-        self.textBrowserSpeedtest = QtWidgets.QTextBrowser(self.groupBoxHome)
-        self.textBrowserSpeedtest.setObjectName("textBrowserSpeedtest")
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.textBrowserSpeedtest.sizePolicy().hasHeightForWidth())
-        self.textBrowserSpeedtest.setSizePolicy(sizePolicy)
-        self.textBrowserSpeedtest.setText(self.readLastSpeedTest())
-        self.verticalLayoutHome.addWidget(self.textBrowserSpeedtest)
-
-        self.speedTestSig.connect(self.textBrowserSpeedtest.setText)
-        self.bandWidthSig.connect(self.setBandWidthChart)
-
-        self.pushButtonScan = QtWidgets.QPushButton(self.groupBoxHomeButtons)
-        self.pushButtonScan.setObjectName("pushButtonScan")
-        self.verticalLayoutHome.addWidget(self.pushButtonScan)
-        self.pushButtonSpeed = QtWidgets.QPushButton(self.groupBoxHomeButtons)
-        self.pushButtonSpeed.setObjectName("pushButtonSpeed")
-        self.verticalLayoutHome.addWidget(self.pushButtonSpeed)
-        self.horizontalLayoutHome.addWidget(self.groupBoxHomeButtons)
-
-        self.pushButtonSpeed.clicked.connect(self.displaySpeedTest)
 
         ### Logo for the home page
         self.labelLogo = QtWidgets.QLabel(self.home_tab)
@@ -574,13 +548,40 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(self)
 
+        self.autoStartVPN()
+
+    def autoStartVPN(self):
+        try:
+            fh = open("../data/openVPNcertificates.data", "r").read().splitlines()
+            certificate = fh[0]
+            print(certificate)
+            try:
+                (self.OpenVpnThread,self.nic) = openvpn.mainVPN(certificate)
+
+                fw = open("../data/openVPNcertificates.data", "w")
+                fw.write(certificate + "\n")
+                if( self.openVPNcertificate2Changed is not False ):
+                    certificate2 = self.openVPNfilenameLabel2.text().replace("/",r'\\')
+                    fw.write(certificate2 + "\n")
+                fw.close()
+
+
+                for i in range(self.list.count()):
+                    wapp = self.list.item(i)
+                    self.list.itemWidget(wapp).enableSecurityButton(True)
+                    self.list.itemWidget(wapp).setNic(self.nic)
+
+
+            except(UnboundLocalError):
+                msg = QtWidgets.QMessageBox()
+                msg.setText("Invalid openVPN certificate")
+                msg.exec_()
+        except:
+            print("no certificate")
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.groupBoxHome.setTitle(_translate("MainWindow", ""))
-        self.groupBoxHomeButtons.setTitle(_translate("MainWindow", ""))
-        self.pushButtonScan.setText(_translate("MainWindow", "Scan"))
-        self.pushButtonSpeed.setText(_translate("MainWindow", "Speed Test"))
 
         self.labelLogo.setText(_translate("MainWindow", "Logo"))
 
@@ -630,12 +631,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 else:
                     app.setHidden(True)
 
-    def displaySpeedTest(self):
-        self.pushButtonSpeed.setEnabled(False)
-        self.textBrowserSpeedtest.setText("Loading...")
-        thread = threading.Thread(target=self.runSpeedTest)
-        thread.start()
-
     def bwChartDisplay(self):
         self.threadBW = threading.Thread(target=self.bwChartGetValues)
         self.threadBW.daemaon = True
@@ -677,28 +672,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         #dataDL[-1] = download
         #curveDL.setData(dataDL)
 
-    def runSpeedTest(self):
-        speedTestResult = SpeedTest.returnSpeedTestResult()
 
-        strST = "Download rate: " + str(float("{0:.2f}".format(speedTestResult["download"] / 1000000))) + "Mb/s\n"
-        strST += "Upload rate: " + str(float("{0:.2f}".format(speedTestResult["upload"] / 1000000))) + "Mb/s\n"
-        strST += "Ping: " + str(int(speedTestResult["ping"])) + "\n"
-        strST += "Server: " + str(speedTestResult["server"]["name"]) + " | " + str(speedTestResult["server"]["country"]) + " | " + str(speedTestResult["server"]["sponsor"]) + "\n"
-        strST += str(speedTestResult["timestamp"])
 
-        fh = open("../data/lastSpeedTest.data", "w")
-        fh.write(strST)
-        fh.close()
-
-        self.pushButtonSpeed.setEnabled(True)
-
-        self.speedTestSig.emit(strST)
-
-    def readLastSpeedTest(self):
-        fr = open("../data/lastSpeedTest.data", "r")
-        strST = fr.read()
-        fr.close()
-        return strST
 
     def selectVPNcertificate(self):
         options = QtWidgets.QFileDialog.Options()
@@ -1078,13 +1053,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             time.sleep(5)
             self.displayIpSig.emit("Public IP adress: " + External_IP.Get_IP())
 
+    def stopVPN(self):
+        try:
+            self.OpenVpnThread.do_run = False
+            self.OpenVpnThread.join()
+        except:
+            pass
+
     def closeEvent(self, event):
         if(True):
-            try:
-                self.OpenVpnThread.do_run = False
-                self.OpenVpnThread.join()
-            except:
-                pass
+            self.stopVPN()
             for i in range(self.list.count()):
                 wapp = self.list.item(i)
                 self.list.itemWidget(wapp).clean()
