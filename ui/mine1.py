@@ -54,6 +54,32 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### Change the window's size
         self.resize(1000, 600)
 
+        self.setStyleSheet("QInputDialog {background-color: white;} QInputDialog QLabel{color: rgb(41, 107, 116);font-size: 20px; border-bottom: 1px solid rgb(41, 107, 116); }"
+        "QInputDialog QLineEdit {"
+            "border-top: 0px solid white;"
+            "border-left: 0px solid white;"
+            "border-right: 0px solid white;"
+            "padding-bottom: 5px;"
+            "border-bottom: 1px solid #dddddd;"
+        "}"
+        "QInputDialog QLineEdit:focus{"
+            "border-top: 0px solid white;"
+            "border-left: 0px solid white;"
+            "border-right: 0px solid white;"
+            "border-bottom: 2px solid rgb(41, 107, 116);"
+        "    padding-bottom: 5px;"
+        "}"
+        "QInputDialog QLineEdit:selected {"
+        "border-top: 0px solid white;"
+        "border-left: 0px solid white;"
+        "border-right: 0px solid white;"
+        "border-bottom: 2px solid rgb(41, 107, 116);"
+        "    padding-bottom: 5px;"
+        "}"
+        "QInputDialog QPushButton{"
+        "border-radius: 5px; color: rgb(41, 107, 116); padding: 15px; border: 1px solid rgba(41, 107, 116,1); background-color: rgba(41, 107, 116,0);}"
+        "QInputDialog QPushButton:hover{background-color: rgba(41, 107, 116,0.25);}");
+
         ### Enable antialiasing for prettier plots
         pg.setConfigOptions(antialias=True)
         ### Set the plots background to white and the axes to black
@@ -490,12 +516,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.OpenVPNidPasswordLabel.setText("Password:")
         self.OpenVPNidSubmitButton.setText("Submit")
 
+        self.OpenVPNidPasswordInput.setEchoMode(2)
+
         # Button connecting
         self.OpenVPNidSubmitButton.setEnabled(False)
         self.OpenVPNidSubmitButton.clicked.connect(self.submitOpenVPNid)
         self.OpenVPNidLoginInput.textChanged.connect(self.enableOpenVPNidSubmit)
         self.OpenVPNidPasswordInput.textChanged.connect(self.enableOpenVPNidSubmit)
-
 
 
         self.line = QtWidgets.QFrame();
@@ -929,6 +956,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         fr = open('../data/groups.data', 'r')
         groups = fr.readlines()
         fr.close()
+
+        dialog = QtWidgets.QInputDialog()
 
         groupName, okPressed = QtWidgets.QInputDialog.getText(self, "New group","New group name:", QtWidgets.QLineEdit.Normal, "")
 
