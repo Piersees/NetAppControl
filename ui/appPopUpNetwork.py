@@ -136,6 +136,8 @@ class appPopUpNetwork(QDialog):
         self.radioButtonPercent.toggled.connect(self.enableSubmitting)
         self.radioButtonMb.toggled.connect(self.enableSubmitting)
 
+        self.cancel = False
+
         self.retranslateUi(self)
         QMetaObject.connectSlotsByName(self)
 
@@ -215,6 +217,8 @@ class appPopUpNetwork(QDialog):
     #### 'percentage' : true if the bandwidth is in percentage, false otherwise
     def exec_(self):
         super(appPopUpNetwork, self).exec_()
+        if (self.cancel is True) :
+            return None
         if( self.durationBox.currentIndex() == Duration.SetPeriod ):
             return { 'duration' : self.durationBox.currentIndex(), 'time' : int(self.timeInput.text()), 'bandwidth' : self.bandwidthInput.text(), 'percentage' : self.radioButtonPercent.isChecked() }
         else:
@@ -233,5 +237,8 @@ class appPopUpNetwork(QDialog):
             return True
         except (TypeError, ValueError):
             pass
-
         return False
+
+    def closeEvent(self, event):
+        self.cancel = True
+        self.reject()
