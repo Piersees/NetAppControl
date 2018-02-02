@@ -38,6 +38,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     incomingConnectionSig = QtCore.pyqtSignal(dict)
     autoRefreshListSig = QtCore.pyqtSignal(dict)
     deleteGroupSig = QtCore.pyqtSignal(str)
+    displayIpSig = QtCore.pyqtSignal(str)
     openVpnThread = None
     IP, HOSTNAME, STATUS = range(3)
     nic = None
@@ -317,6 +318,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.Iplabel.setObjectName("Iplabel")
         self.Iplabel.setText("Public IP adress: " + External_IP.Get_IP())
         self.NetworkLayout.addWidget(self.Iplabel)
+        self.displayIpSig.connect(self.Iplabel.setText)
+        self.threadDisplayIP = threading.Thread(target=self.displayIP)
+        self.threadDisplayIP.start()
 
         ### Ping label
         self.Pinglabel = QtWidgets.QLabel()
@@ -1038,6 +1042,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     except(AttributeError):
                         pass
 
+    def displayIP(self):
+        while(self.appExit is False):
+            time.sleep(5)
+            self.displayIpSig.emit("Public IP adress: " + External_IP.Get_IP())
 
     def closeEvent(self, event):
         if(True):
