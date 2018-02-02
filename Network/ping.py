@@ -1,57 +1,44 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Jan 17 15:03:02 2018
+Created on Thu Feb  1 17:16:01 2018
 
 @author: aitza
+
 """
 """""""""""""""""""""""""""
 " Ping Module, plugN'safe "
 "   """"""""""""""""""    "
 """""""""""""""""""""""""""
 
-# import subprocess to spawn a new process
+#import subrocess to spawn porcess
 import subprocess
+import re #re to do regex expression to extract infos
 
 def getPing():
     hostname= "8.8.8.8" # determine the Ip to ping, like google.com
 
-    # subprocess try
+#try to call subprocess
     try:
-    # ping commande
         response = subprocess.check_output(
-            ['ping', '-n', '1', hostname],
-            stderr=subprocess.STDOUT,  # get all output
-            universal_newlines=True  # return string not bytes
-            )
+                ['ping', '-n', '1', hostname],
+                shell=True,
+                stderr=subprocess.STDOUT,  # get error output
+                universal_newlines=True  # return string not bytes
+                )
 
-        #store ping as a list
-        datar= response.split(' ')
-        #delete unecessary infos
-        del datar[0:15]
+        ping_stats = re.findall(r'=(.*)$', response) # retrieve last line of the stats after the '='
 
-        #clean the list
-        datar= [x for x in datar if (x != '=' and x != '')]
+        ping_timestr= re.sub(r'ms.*','',ping_stats[0]) #keep only numbers
+        try:
+            ping_time= int(ping_timestr) #get the ping time as an int
+            return ping_time
 
-        #create dictionary
-        ping_dict = {}
-        ping_dict['Sent'] = datar[2]
-        ping_dict['Received'] = datar[4]
-        ping_dict['Lost']= datar[6]
-        ping_dict['averageRoundTripTime']= datar[-1]
-        ping_dict['maxRoundTripTime']= datar[17]
-        ping_dict['min_round_trip_time']= datar[15]
+        except :
+            ping_time= "lost"
 
-        return ping_dict
-        
+#handle subprocess error
     except subprocess.CalledProcessError:
-        ping_dict = {}
-        ping_dict['Sent'] = 1
-        ping_dict['Received'] = 0
-        ping_dict['Lost']= 1
-        ping_dict['averageRoundTripTime']= 1000
-        ping_dict['maxRoundTripTime']= 1000
-        ping_dict['min_round_trip_time']= 1000
-        return ping_dict
+        return "error" #return an error message
 
 if __name__ == "__main__":
     getPing()

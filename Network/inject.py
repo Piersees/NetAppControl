@@ -87,16 +87,21 @@ kernel32.CloseHandle.argtypes = (
 def injectdll(pid, dllpath):
     size = (len(dllpath) + 1) * WCHAR_SIZE
     hproc = hthrd = addr = None
+    print(size)
     try:
         hproc = kernel32.OpenProcess(
-            win32con.PROCESS_ALL_ACCESS, False, pid)
+        win32con.PROCESS_ALL_ACCESS, False, pid)
         addr = kernel32.VirtualAllocEx(
             hproc, None, size, MEM_COMMIT, PAGE_READWRITE)
+        print("VirtualAllocEx Done: "+str(addr))
         kernel32.WriteProcessMemory(
             hproc, addr, dllpath, size, None)
+        print("WriteProcessMemory Done: "+str(addr))
         hthrd = kernel32.CreateRemoteThread(
             hproc, None, 0, kernel32.LoadLibraryW, addr, 0, None)
+        print("CreateRemoteThread Done: "+str(hthrd))
         kernel32.WaitForSingleObject(hthrd, 1000)
+        print("WaitForSingleObject Done: "+str(hthrd))
     finally:
         if addr is not None:
             kernel32.VirtualFreeEx(hproc, addr, 0, MEM_RELEASE)
@@ -105,7 +110,6 @@ def injectdll(pid, dllpath):
         if hproc is not None:
             kernel32.CloseHandle(hproc)
     return addr
-
 
 def NPServer(id, ip, addr):
     hNP = win32pipe.CreateNamedPipe("\\\\.\\pipe\\"+str(id),
@@ -149,11 +153,8 @@ def ChangeProcessIp(pidlist,processName,card):
             if pname == processName:
                 print(os.path.abspath(os.getcwd()+'\\..\\Network\\netHook.dll'))
                 addr = injectdll(process.pid,os.path.abspath(os.getcwd()+'\\..\\Network\\netHook.dll'))
-                d[process.pid] = Thread(target=NPServer, args=(process.pid,ip,addr,))
+                d[process.pid] = Thread(target=NPServer, args=(process.pid,ip,))
                 d[process.pid].start()
         except:
             pass
     return d
-
-
-
