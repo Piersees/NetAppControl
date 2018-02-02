@@ -90,13 +90,7 @@ def injectdll(pid, dllpath):
     print(size)
     try:
         hproc = kernel32.OpenProcess(
-<<<<<<< Updated upstream
-            win32con.PROCESS_ALL_ACCESS, False, pid)
-=======
-            PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION |
-            PROCESS_VM_WRITE, False, pid)
-        print("Openprocess Done: "+str(hproc))
->>>>>>> Stashed changes
+        win32con.PROCESS_ALL_ACCESS, False, pid)
         addr = kernel32.VirtualAllocEx(
             hproc, None, size, MEM_COMMIT, PAGE_READWRITE)
         print("VirtualAllocEx Done: "+str(addr))
@@ -117,12 +111,7 @@ def injectdll(pid, dllpath):
             kernel32.CloseHandle(hproc)
     return addr
 
-<<<<<<< Updated upstream
-
 def NPServer(id, ip, addr):
-=======
-def NPServer(id, ip):
->>>>>>> Stashed changes
     hNP = win32pipe.CreateNamedPipe("\\\\.\\pipe\\"+str(id),
                                       win32pipe.PIPE_ACCESS_DUPLEX,
                                       win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_WAIT,
@@ -169,6 +158,3 @@ def ChangeProcessIp(pidlist,processName,card):
         except:
             pass
     return d
-
-
-

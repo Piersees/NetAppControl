@@ -1,5 +1,3 @@
 Network/__pycache__/*
 ui/__pycache__/*
-ui/appsActions.txt
-ui/openVPNid.txt
-ui/lastSpeedText.txt
+data/appsAction.data

@@ -719,13 +719,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def getAppListWithInternet(self):
         dic = {}
         for proc in psutil.process_iter():
-            process = psutil.Process(proc.pid)
-            pname = process.name()
-            if proc.connections():
-                if pname not in dic:
-                    dic[pname] = [proc.pid]
-                else:
-                    dic[pname].append(proc.pid)
+            try :
+                process = psutil.Process(proc.pid)
+                pname = process.name()
+                if proc.connections():
+                    if pname not in dic:
+                        dic[pname] = [proc.pid]
+                    else:
+                        dic[pname].append(proc.pid)
+            except ( psutil.NoSuchProcess ):
+                pass
         return dic
 
     def fillAppList(self):
@@ -830,25 +833,22 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         while(self.appExit is not True):
             pingResult = ping.getPing()
-            pingStr = pingResult['averageRoundTripTime']
 
-            try:
-                packetsSentSTR = pingResult['Sent'][:-1]
-                packetsReceivedSTR = pingResult['Received'][:-1]
-                packetsSent += int(packetsSentSTR)
-                packetsReceived += int(packetsReceivedSTR)
-                packetLossRatio = 100 - (100*(packetsReceived / packetsSent))
-                self.pingSig.emit("Ping: " + str(pingStr))
-                self.pingLossSig.emit("Loss ratio: " + str(float("{0:.2f}".format(packetLossRatio / 1000000))) + "%")
-                time.sleep(1)
-            except(TypeError, ValueError):
+            if ( pingResult != "lost" and pingResult != None):
+                self.pingSig.emit("Ping: " + str(pingResult) + " ms")
                 packetsSent += 1
-                packetLossRatio = 100 - (100*(packetsReceived / packetsSent))
+                packetsReceived += 1
+            else:
                 self.pingSig.emit("Ping: lost")
-                self.pingLossSig.emit("Loss ratio: " + str(float("{0:.2f}".format(packetLossRatio / 1000000))) + "%")
+                packetsSent += 1
+
+            packetLossRatio = 100 - (100*(packetsReceived / packetsSent))
+            packetLossRatio = "%.2f" % packetLossRatio
+            self.pingLossSig.emit("Loss ratio: " + str(packetLossRatio) + "%")
+
+            time.sleep(1)
 
 
-    #@pyqtSlot()
     def onChange(self,i): #changed!
         if i == 0:
             self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
