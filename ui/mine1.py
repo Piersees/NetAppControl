@@ -547,6 +547,37 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(self)
 
+        self.autoStartVPN()
+
+    def autoStartVPN(self):
+        try:
+            fh = open("../data/openVPNcertificates.data", "r").read().splitlines()
+            certificate = fh[0]
+            print(certificate)
+            try:
+                (self.OpenVpnThread,self.nic) = openvpn.mainVPN(certificate)
+
+                fw = open("../data/openVPNcertificates.data", "w")
+                fw.write(certificate + "\n")
+                if( self.openVPNcertificate2Changed is not False ):
+                    certificate2 = self.openVPNfilenameLabel2.text().replace("/",r'\\')
+                    fw.write(certificate2 + "\n")
+                fw.close()
+
+
+                for i in range(self.list.count()):
+                    wapp = self.list.item(i)
+                    self.list.itemWidget(wapp).enableSecurityButton(True)
+                    self.list.itemWidget(wapp).setNic(self.nic)
+
+
+            except(UnboundLocalError):
+                msg = QtWidgets.QMessageBox()
+                msg.setText("Invalid openVPN certificate")
+                msg.exec_()
+        except:
+            print("no certificate")
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -1049,13 +1080,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             time.sleep(5)
             self.displayIpSig.emit("Public IP adress: " + External_IP.Get_IP())
 
+    def stopVPN(self):
+        try:
+            self.OpenVpnThread.do_run = False
+            self.OpenVpnThread.join()
+        except:
+            pass
+
     def closeEvent(self, event):
         if(True):
-            try:
-                self.OpenVpnThread.do_run = False
-                self.OpenVpnThread.join()
-            except:
-                pass
+            self.stopVPN()
             for i in range(self.list.count()):
                 wapp = self.list.item(i)
                 self.list.itemWidget(wapp).clean()
