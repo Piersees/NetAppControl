@@ -19,19 +19,25 @@ class appsInGroupWidget(QDialog):
         super(appsInGroupWidget, self).__init__(parent)
         self.resize(200, 400)
         self.setWindowTitle("Apps in group")
-
         self.mainLayout = QVBoxLayout()
         self.setLayout(self.mainLayout)
+
+        self.setStyleSheet("QDialog{background-color:white;}QLabel{color:rgba(41, 107, 116, 1);}QPushButton{border-radius: 20px;width:60px; height:60px;border: 1px solid rgb(41, 107, 116); background-color: rgb(41, 107, 116);}QPushButton:hover{border: 1px solid rgba(41, 107, 116, 0.5); background-color: rgba(41, 107, 116,0.5);}")
 
         self.labelTitle = QLabel()
         font = QFont()
         font.setPointSize(20)
-        font.setBold(True)
-        font.setWeight(75)
+        font.setWeight(0)
+        font.setLetterSpacing(QFont.AbsoluteSpacing,2)
         self.labelTitle.setFont(font)
         self.labelTitle.setTextFormat(Qt.AutoText)
         self.labelTitle.setAlignment(Qt.AlignCenter)
         self.mainLayout.addWidget(self.labelTitle)
+
+        self.line = QFrame();
+        self.line.setFrameShape(QFrame.HLine);
+        self.line.setFrameShadow(QFrame.Sunken);
+        self.mainLayout.addWidget(self.line)
 
         self.list = QListWidget()
         self.list.setSelectionMode(QAbstractItemView.ExtendedSelection)
@@ -43,7 +49,9 @@ class appsInGroupWidget(QDialog):
         self.appListLayout.addWidget(self.list)
 
         self.buttonDelete = QPushButton()
-        self.buttonDelete.setText("Delete")
+        #self.buttonDelete.setText("Delete")
+        self.buttonDelete.setIcon(QIcon('./images/deletewhite.png'))
+        self.buttonDelete.setToolTip("Remove application(s) from group")
         self.mainLayout.addWidget(self.buttonDelete)
         self.buttonDelete.clicked.connect(self.deleteSelection)
 

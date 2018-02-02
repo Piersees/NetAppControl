@@ -19,13 +19,18 @@ class appPopUpNetwork(QDialog):
         self.setObjectName("self")
         self.resize(329, 349)
 
+        self.setStyleSheet("QDialog{background-color:white;}QLabel#label,QLabel#labelNetwork{color:rgba(41, 107, 116, 1);}")
+
+
         ### Title
         self.labelTitle = QLabel(self)
-        self.labelTitle.setGeometry(QRect(50, 10, 221, 71))
+        self.labelTitle.setWordWrap(True)
+        #self.labelTitle.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        self.labelTitle.setGeometry(QRect(0, 0, 329, 71))
         font = QFont()
-        font.setPointSize(20)
-        font.setBold(True)
-        font.setWeight(75)
+        font.setPointSize(18)
+        font.setWeight(0)
+        font.setLetterSpacing(QFont.AbsoluteSpacing,2)
         self.labelTitle.setFont(font)
         self.labelTitle.setTextFormat(Qt.AutoText)
         self.labelTitle.setAlignment(Qt.AlignCenter)
@@ -34,18 +39,18 @@ class appPopUpNetwork(QDialog):
         ### Horizontal line
         self.line = QFrame(self)
         self.line.setGeometry(QRect(50, 85, 221, 16))
-        self.line.setLineWidth(2)
+        self.line.setLineWidth(1)
         self.line.setFrameShape(QFrame.HLine)
         self.line.setFrameShadow(QFrame.Sunken)
         self.line.setObjectName("line")
 
         ### Network label
         self.labelNetwork = QLabel(self)
-        self.labelNetwork.setGeometry(QRect(30, 125, 281, 16))
+        self.labelNetwork.setGeometry(QRect(30, 125, 281, 20))
         font = QFont()
         font.setPointSize(11)
-        font.setBold(True)
-        font.setWeight(75)
+        font.setLetterSpacing(QFont.AbsoluteSpacing,2)
+        font.setWeight(0)
         self.labelNetwork.setFont(font)
         self.labelNetwork.setAlignment(Qt.AlignCenter)
         self.labelNetwork.setObjectName("labelNetwork")

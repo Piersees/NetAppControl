@@ -53,8 +53,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### Change the window's size
         self.resize(1000, 600)
 
-        # Enable antialiasing for prettier plots
+        ### Enable antialiasing for prettier plots
         pg.setConfigOptions(antialias=True)
+        ### Set the plots background to white and the axes to black
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
 
@@ -127,6 +128,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             "}"
             "QPushButton#refreshAppsButton:hover{"
             "border: 1px solid rgba(41, 107, 116, 0.5); background-color: rgba(41, 107, 116,0.5); border-radius: 14px;"
+            "}"
+            "QLabel#OpenVPNidFormlabel{"
+            "color:rgba(41, 107, 116, 1);"
             "}")
         self.tabWidget.setTabPosition(QtWidgets.QTabWidget.West)
         self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
@@ -446,9 +450,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ## Title layout label
         self.OpenVPNidFormlabel = QtWidgets.QLabel()
         font = QtGui.QFont()
-        font.setPointSize(10)
-        font.setBold(True)
-        font.setWeight(75)
+        font.setPointSize(25)
+        font.setWeight(0)
+        font.setLetterSpacing(QFont.AbsoluteSpacing,2)
         self.OpenVPNidFormlabel.setFont(font)
         self.OpenVPNidFormlabel.setAlignment(QtCore.Qt.AlignCenter)
         self.OpenVPNidFormlabel.setObjectName("OpenVPNidFormlabel")

@@ -19,13 +19,18 @@ class appPopUpSecurity(QDialog):
         self.setObjectName("appPopUpSecurity")
         self.resize(329, 290)
 
+        self.setStyleSheet("QDialog{background-color:white;}QLabel#label,QLabel#label_2{color:rgba(41, 107, 116, 1);}")
+
+
         ### Title
         self.labelTitle = QLabel(self)
-        self.labelTitle.setGeometry(QRect(50, 5, 221, 71))
+        self.labelTitle.setWordWrap(True)
+        #self.labelTitle.setGeometry(QRect(50, 5, 221, 71))
+        self.labelTitle.setGeometry(QRect(0, 0, 329, 71))
         font = QFont()
-        font.setPointSize(20)
-        font.setBold(True)
-        font.setWeight(75)
+        font.setPointSize(18)
+        font.setWeight(0)
+        font.setLetterSpacing(QFont.AbsoluteSpacing,2)
         self.labelTitle.setFont(font)
         self.labelTitle.setTextFormat(Qt.AutoText)
         self.labelTitle.setAlignment(Qt.AlignCenter)
@@ -34,18 +39,18 @@ class appPopUpSecurity(QDialog):
         ### Line under title
         self.line = QFrame(self)
         self.line.setGeometry(QRect(60, 70, 221, 16))
-        self.line.setLineWidth(2)
+        self.line.setLineWidth(1)
         self.line.setFrameShape(QFrame.HLine)
         self.line.setFrameShadow(QFrame.Sunken)
         self.line.setObjectName("line")
 
         ### Network subtitle
         self.label_2 = QLabel(self)
-        self.label_2.setGeometry(QRect(20, 120, 281, 16))
+        self.label_2.setGeometry(QRect(20, 120, 281, 20))
         font = QFont()
         font.setPointSize(11)
-        font.setBold(True)
-        font.setWeight(75)
+        font.setLetterSpacing(QFont.AbsoluteSpacing,2)
+        font.setWeight(0)
         self.label_2.setFont(font)
         self.label_2.setAlignment(Qt.AlignCenter)
         self.label_2.setObjectName("label_2")

@@ -10,7 +10,13 @@ RuntimeBroker.exe,network,0,1516714375.6036918,,False
 SocketHeciServer.exe,network,0,1516714693.043658,,False
 GitHubDesktop.exe,security,0,1517393929.292409
 utorrentie.exe,security,0,1517394700.7886913
-group1,security,0,1517413807.0512767
-uTorrent.exe,security,0,1517421977.136721
-MicrosoftEdgeCP.exe,security,0,1517436938.7565331
-MicrosoftEdge.exe,security,0,1517436963.326495
+firefox.exe,security,0,1517396561.7768593
+pycharm64.exe,security,0,1517409431.3976326
+chrome.exe,security,0,1517412094.7358968
+NetworkManager.exe,network,0,1517533023.0351524,,False
+group3,network,0,1517533876.8334353,,False
+System,network,0,1517534447.4934,,False
+System Idle Process,security,0,1517535382.2483082
+System,security,0,1517535431.8151784
+group1,security,0,1517535447.2141848
+>>>>>>> 27ecd7aed0282d21a537fe784d02e306265b2ad1
