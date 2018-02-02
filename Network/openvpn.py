@@ -69,7 +69,7 @@ def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
             break
         if line is b'':
             break
-        time.sleep(0.5)
+        time.sleep(0.2)
 
     while getattr(t, "do_run", True):
         prog.poll()
