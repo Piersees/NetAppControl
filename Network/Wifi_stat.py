@@ -39,6 +39,7 @@ def wifi_info():
                 
                 elif actual is not None:
                     ssid_dic[actual][res[0]] = res[1]
+    print(ssid_dic)
     return ssid_dic
 
 if __name__ == "__main__":
