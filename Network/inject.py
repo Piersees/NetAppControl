@@ -87,16 +87,27 @@ kernel32.CloseHandle.argtypes = (
 def injectdll(pid, dllpath):
     size = (len(dllpath) + 1) * WCHAR_SIZE
     hproc = hthrd = addr = None
+    print(size)
     try:
         hproc = kernel32.OpenProcess(
+<<<<<<< Updated upstream
             win32con.PROCESS_ALL_ACCESS, False, pid)
+=======
+            PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION |
+            PROCESS_VM_WRITE, False, pid)
+        print("Openprocess Done: "+str(hproc))
+>>>>>>> Stashed changes
         addr = kernel32.VirtualAllocEx(
             hproc, None, size, MEM_COMMIT, PAGE_READWRITE)
+        print("VirtualAllocEx Done: "+str(addr))
         kernel32.WriteProcessMemory(
             hproc, addr, dllpath, size, None)
+        print("WriteProcessMemory Done: "+str(addr))
         hthrd = kernel32.CreateRemoteThread(
             hproc, None, 0, kernel32.LoadLibraryW, addr, 0, None)
+        print("CreateRemoteThread Done: "+str(hthrd))
         kernel32.WaitForSingleObject(hthrd, 1000)
+        print("WaitForSingleObject Done: "+str(hthrd))
     finally:
         if addr is not None:
             kernel32.VirtualFreeEx(hproc, addr, 0, MEM_RELEASE)
@@ -106,8 +117,12 @@ def injectdll(pid, dllpath):
             kernel32.CloseHandle(hproc)
     return addr
 
+<<<<<<< Updated upstream
 
 def NPServer(id, ip, addr):
+=======
+def NPServer(id, ip):
+>>>>>>> Stashed changes
     hNP = win32pipe.CreateNamedPipe("\\\\.\\pipe\\"+str(id),
                                       win32pipe.PIPE_ACCESS_DUPLEX,
                                       win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_WAIT,
@@ -149,7 +164,7 @@ def ChangeProcessIp(pidlist,processName,card):
             if pname == processName:
                 print(os.path.abspath(os.getcwd()+'\\..\\Network\\netHook.dll'))
                 addr = injectdll(process.pid,os.path.abspath(os.getcwd()+'\\..\\Network\\netHook.dll'))
-                d[process.pid] = Thread(target=NPServer, args=(process.pid,ip,addr,))
+                d[process.pid] = Thread(target=NPServer, args=(process.pid,ip,))
                 d[process.pid].start()
         except:
             pass
