@@ -20,16 +20,22 @@ def getPing():
 #try to call subprocess
     try:
         response = subprocess.check_output(
-        ['ping', '-n', '1', hostname],
-            stderr=subprocess.STDOUT,  # get all output
-            universal_newlines=True  # return string not bytes
-            )
+                ['ping', '-n', '1', hostname],
+                shell=True,
+                stderr=subprocess.STDOUT,  # get error output
+                universal_newlines=True  # return string not bytes
+                )
         
         ping_stats = re.findall(r'=(.*)$', response) # retrieve last line of the stats after the '='
 
         ping_timestr= re.sub(r'ms.*','',ping_stats[0]) #keep only numbers
-        ping_time= int(ping_timestr) #get the ping time as an int
-        return ping_time
+        try:
+            ping_time= int(ping_timestr) #get the ping time as an int
+            print(ping_time)
+            return ping_time
+    
+        except :
+            ping_time= "lost"
     
 #handle subprocess error
     except subprocess.CalledProcessError:
