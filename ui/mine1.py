@@ -21,6 +21,7 @@ import psutil
 from wapp import WappWidget
 from gapp import GappWidget
 from speedtestwidget import SpeedTestWidget
+from VPNstatusWidget import VPNstatusWidget
 import sys
 import time
 sys.path.append("../Network")
@@ -309,7 +310,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### Network groupbox
         self.NetworkLayoutWidget = QtWidgets.QWidget(self.home_tab)
-        self.NetworkLayoutWidget.setGeometry(QtCore.QRect(600, 10, 200, 100))
+        self.NetworkLayoutWidget.setGeometry(QtCore.QRect(600, 0, 200, 150))
         self.NetworkLayout = QtWidgets.QVBoxLayout(self.NetworkLayoutWidget)
 
         ### Ip label
@@ -322,24 +323,34 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.threadDisplayIP = threading.Thread(target=self.displayIP)
         self.threadDisplayIP.start()
 
+        ### Ping layout
+        self.PingLayout = QtWidgets.QVBoxLayout()
+        self.NetworkLayout.addLayout(self.PingLayout)
+
         ### Ping label
         self.Pinglabel = QtWidgets.QLabel()
         self.Pinglabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.Pinglabel.setObjectName("PingLabel")
         self.Pinglabel.setText("Pinging...")
-        self.NetworkLayout.addWidget(self.Pinglabel)
+        self.PingLayout.addWidget(self.Pinglabel)
 
-        ### Ping label
+        ### Ping loss label
         self.PingLosslabel = QtWidgets.QLabel()
         self.PingLosslabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.PingLosslabel.setObjectName("PingLabel")
         self.PingLosslabel.setText("")
-        self.NetworkLayout.addWidget(self.PingLosslabel)
+        self.PingLayout.addWidget(self.PingLosslabel)
 
         self.pingLossSig.connect(self.PingLosslabel.setText)
         self.pingSig.connect(self.Pinglabel.setText)
         self.threadPing = threading.Thread(target=self.pingUpdate)
         self.threadPing.start()
+
+        ### VPN status
+        self.vpnStatus = VPNstatusWidget(self.home_tab)
+        self.NetworkLayout.addWidget(self.vpnStatus)
+        self.vpnStatusThread = threading.Thread(target=self.toggleVPNstatusDisplay)
+        self.vpnStatusThread.start()
 
 
         ### Create the application list
@@ -1062,6 +1073,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.OpenVpnThread.join()
         except:
             pass
+
+    def toggleVPNstatusDisplay(self):
+        while(self.appExit is False):
+            if (self.vpnStatus.getStatus() is False and self.openVpnThread != None):
+                self.vpnStatus.setActive()
+            if (self.vpnStatus.getStatus() is True and self.openVpnThread == None):
+                self.vpnStatus.setInactive()
+            time.sleep(1)
 
     def closeEvent(self, event):
         if(True):

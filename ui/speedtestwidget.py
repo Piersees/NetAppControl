@@ -145,8 +145,6 @@ class SpeedTestWidget(QWidget):
         if (last != None):
             self.displaySpeedTest(last)
 
-        self.show()
-
     def setDownload(self, value):
         self.downloadRateValue.setText(value)
 
