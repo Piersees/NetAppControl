@@ -20,6 +20,8 @@ import threading
 import psutil
 from wapp import WappWidget
 from gapp import GappWidget
+from speedtestwidget import SpeedTestWidget
+from VPNstatusWidget import VPNstatusWidget
 import sys
 import time
 sys.path.append("../Network")
@@ -31,7 +33,6 @@ from BandWidth import getBandWidth
 import openvpn
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
-    speedTestSig = QtCore.pyqtSignal(str)
     bandWidthSig = QtCore.pyqtSignal(int,int)
     pingSig = QtCore.pyqtSignal(str)
     pingLossSig = QtCore.pyqtSignal(str)
@@ -192,12 +193,15 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.bwTabMonitoring = pg.GraphicsLayoutWidget()
         self.bwTabConnections = QtWidgets.QWidget()
+        self.bwTabSpeedtest = QtWidgets.QWidget()
 
         self.bwTabMonitoring.setObjectName("bwTabMonitoring")
         self.bwTabConnections.setObjectName("bwTabConnections")
+        self.bwTabSpeedtest.setObjectName("bwTabSpeedtest")
 
         self.tabWidgetMonitoring.addTab(self.bwTabMonitoring, "Bandwidth")
         self.tabWidgetMonitoring.addTab(self.bwTabConnections, "Connections")
+        self.tabWidgetMonitoring.addTab(self.bwTabSpeedtest, "Speedtest")
 
         ## BandWidth graph
         self.BWplot = self.bwTabMonitoring.addPlot(title="Bandwidth over time")
@@ -235,6 +239,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.threadIncomingConnections.start()
 
         self.incomingConnectionSig.connect(self.resetConnectionsList)
+
+        ## Speedtest tab
+        self.speedtestLayout = QtWidgets.QVBoxLayout()
+        self.bwTabSpeedtest.setLayout(self.speedtestLayout)
+        self.speedtestWidget = SpeedTestWidget()
+        self.speedtestLayout.addWidget(self.speedtestWidget)
 
 
         ### Setting up tab icons
@@ -287,41 +297,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.textBrowserHomeInfo.setText("[ INFORMATIONS ]")
         self.horizontalLayoutHome.addWidget(self.textBrowserHomeInfo)
 
-        ### Buttons for the home page
-        self.groupBoxHomeButtons = QtWidgets.QGroupBox(self.groupBoxHome)
-        self.groupBoxHomeButtons.setObjectName("groupBoxHomeButtons")
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.groupBoxHomeButtons.sizePolicy().hasHeightForWidth())
-        self.groupBoxHomeButtons.setSizePolicy(sizePolicy)
-        self.groupBoxHomeButtons.setMaximumSize(QtCore.QSize(250, 16777215))
-        self.verticalLayoutHome = QtWidgets.QVBoxLayout(self.groupBoxHomeButtons)
-        self.verticalLayoutHome.setObjectName("verticalLayoutHome")
-
-        self.textBrowserSpeedtest = QtWidgets.QTextBrowser(self.groupBoxHome)
-        self.textBrowserSpeedtest.setObjectName("textBrowserSpeedtest")
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.textBrowserSpeedtest.sizePolicy().hasHeightForWidth())
-        self.textBrowserSpeedtest.setSizePolicy(sizePolicy)
-        self.textBrowserSpeedtest.setText(self.readLastSpeedTest())
-        self.verticalLayoutHome.addWidget(self.textBrowserSpeedtest)
-
-        self.speedTestSig.connect(self.textBrowserSpeedtest.setText)
-        self.bandWidthSig.connect(self.setBandWidthChart)
-
-        self.pushButtonScan = QtWidgets.QPushButton(self.groupBoxHomeButtons)
-        self.pushButtonScan.setObjectName("pushButtonScan")
-        self.verticalLayoutHome.addWidget(self.pushButtonScan)
-        self.pushButtonSpeed = QtWidgets.QPushButton(self.groupBoxHomeButtons)
-        self.pushButtonSpeed.setObjectName("pushButtonSpeed")
-        self.verticalLayoutHome.addWidget(self.pushButtonSpeed)
-        self.horizontalLayoutHome.addWidget(self.groupBoxHomeButtons)
-
-        self.pushButtonSpeed.clicked.connect(self.displaySpeedTest)
-
         ### Logo for the home page
         self.labelLogo = QtWidgets.QLabel(self.home_tab)
         self.labelLogo.setGeometry(QtCore.QRect(330, 130, 55, 16))
@@ -335,7 +310,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### Network groupbox
         self.NetworkLayoutWidget = QtWidgets.QWidget(self.home_tab)
-        self.NetworkLayoutWidget.setGeometry(QtCore.QRect(600, 10, 200, 100))
+        self.NetworkLayoutWidget.setGeometry(QtCore.QRect(600, 0, 200, 150))
         self.NetworkLayout = QtWidgets.QVBoxLayout(self.NetworkLayoutWidget)
 
         ### Ip label
@@ -348,24 +323,34 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.threadDisplayIP = threading.Thread(target=self.displayIP)
         self.threadDisplayIP.start()
 
+        ### Ping layout
+        self.PingLayout = QtWidgets.QVBoxLayout()
+        self.NetworkLayout.addLayout(self.PingLayout)
+
         ### Ping label
         self.Pinglabel = QtWidgets.QLabel()
         self.Pinglabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.Pinglabel.setObjectName("PingLabel")
         self.Pinglabel.setText("Pinging...")
-        self.NetworkLayout.addWidget(self.Pinglabel)
+        self.PingLayout.addWidget(self.Pinglabel)
 
-        ### Ping label
+        ### Ping loss label
         self.PingLosslabel = QtWidgets.QLabel()
         self.PingLosslabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.PingLosslabel.setObjectName("PingLabel")
         self.PingLosslabel.setText("")
-        self.NetworkLayout.addWidget(self.PingLosslabel)
+        self.PingLayout.addWidget(self.PingLosslabel)
 
         self.pingLossSig.connect(self.PingLosslabel.setText)
         self.pingSig.connect(self.Pinglabel.setText)
         self.threadPing = threading.Thread(target=self.pingUpdate)
         self.threadPing.start()
+
+        ### VPN status
+        self.vpnStatus = VPNstatusWidget(self.home_tab)
+        self.NetworkLayout.addWidget(self.vpnStatus)
+        self.vpnStatusThread = threading.Thread(target=self.toggleVPNstatusDisplay)
+        self.vpnStatusThread.start()
 
 
         ### Create the application list
@@ -608,10 +593,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.groupBoxHome.setTitle(_translate("MainWindow", ""))
-        self.groupBoxHomeButtons.setTitle(_translate("MainWindow", ""))
-        self.pushButtonScan.setText(_translate("MainWindow", "Scan"))
-        self.pushButtonSpeed.setText(_translate("MainWindow", "Speed Test"))
 
         self.labelLogo.setText(_translate("MainWindow", "Logo"))
 
@@ -661,12 +642,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 else:
                     app.setHidden(True)
 
-    def displaySpeedTest(self):
-        self.pushButtonSpeed.setEnabled(False)
-        self.textBrowserSpeedtest.setText("Loading...")
-        thread = threading.Thread(target=self.runSpeedTest)
-        thread.start()
-
     def bwChartDisplay(self):
         self.threadBW = threading.Thread(target=self.bwChartGetValues)
         self.threadBW.daemaon = True
@@ -708,28 +683,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         #dataDL[-1] = download
         #curveDL.setData(dataDL)
 
-    def runSpeedTest(self):
-        speedTestResult = SpeedTest.returnSpeedTestResult()
 
-        strST = "Download rate: " + str(float("{0:.2f}".format(speedTestResult["download"] / 1000000))) + "Mb/s\n"
-        strST += "Upload rate: " + str(float("{0:.2f}".format(speedTestResult["upload"] / 1000000))) + "Mb/s\n"
-        strST += "Ping: " + str(int(speedTestResult["ping"])) + "\n"
-        strST += "Server: " + str(speedTestResult["server"]["name"]) + " | " + str(speedTestResult["server"]["country"]) + " | " + str(speedTestResult["server"]["sponsor"]) + "\n"
-        strST += str(speedTestResult["timestamp"])
 
-        fh = open("../data/lastSpeedTest.data", "w")
-        fh.write(strST)
-        fh.close()
-
-        self.pushButtonSpeed.setEnabled(True)
-
-        self.speedTestSig.emit(strST)
-
-    def readLastSpeedTest(self):
-        fr = open("../data/lastSpeedTest.data", "r")
-        strST = fr.read()
-        fr.close()
-        return strST
 
     def selectVPNcertificate(self):
         options = QtWidgets.QFileDialog.Options()
@@ -896,7 +851,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         while(self.appExit is not True):
             pingResult = ping.getPing()
 
-            if ( pingResult != "lost" and pingResult != None):
+            if ( pingResult != "lost" and pingResult != None and pingResult != "error"):
                 self.pingSig.emit("Ping: " + str(pingResult) + " ms")
                 packetsSent += 1
                 packetsReceived += 1
@@ -1073,7 +1028,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def manageConnectionsList(self):
         while(self.appExit is False):
             time.sleep(3)
-            self.incomingConnectionSig.emit(NetworkScan.GetHostLan())
+            try :
+                self.incomingConnectionSig.emit(NetworkScan.GetHostLan())
+            except (TypeError):
+                pass
 
     def getActionsList(self):
         fr = open('../data/appsActions.data', 'r')
@@ -1115,6 +1073,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.OpenVpnThread.join()
         except:
             pass
+
+    def toggleVPNstatusDisplay(self):
+        while(self.appExit is False):
+            if (self.vpnStatus.getStatus() is False and self.openVpnThread != None):
+                self.vpnStatus.setActive()
+            if (self.vpnStatus.getStatus() is True and self.openVpnThread == None):
+                self.vpnStatus.setInactive()
+            time.sleep(1)
 
     def closeEvent(self, event):
         if(True):
