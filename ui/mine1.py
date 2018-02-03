@@ -40,7 +40,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     autoRefreshListSig = QtCore.pyqtSignal(dict)
     deleteGroupSig = QtCore.pyqtSignal(str)
     displayIpSig = QtCore.pyqtSignal(str)
-    openVpnThread = None
+    OpenVpnThread = None
     IP, HOSTNAME, STATUS = range(3)
     nic = None
 
@@ -568,7 +568,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             print(certificate)
             try:
                 (self.OpenVpnThread,self.nic) = openvpn.mainVPN(certificate)
-
                 fw = open("../data/openVPNcertificates.data", "w")
                 fw.write(certificate + "\n")
                 if( self.openVPNcertificate2Changed is not False ):
@@ -1076,9 +1075,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def toggleVPNstatusDisplay(self):
         while(self.appExit is False):
-            if (self.vpnStatus.getStatus() is False and self.openVpnThread != None):
+            if (self.vpnStatus.getStatus() is False and self.OpenVpnThread != None):
                 self.vpnStatus.setActive()
-            if (self.vpnStatus.getStatus() is True and self.openVpnThread == None):
+            if (self.vpnStatus.getStatus() is True and self.OpenVpnThread == None):
                 self.vpnStatus.setInactive()
             time.sleep(1)
 
