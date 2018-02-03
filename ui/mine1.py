@@ -840,7 +840,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         while(self.appExit is not True):
             pingResult = ping.getPing()
 
-            if ( pingResult != "lost" and pingResult != None):
+            if ( pingResult != "lost" and pingResult != None and pingResult != "error"):
                 self.pingSig.emit("Ping: " + str(pingResult) + " ms")
                 packetsSent += 1
                 packetsReceived += 1
@@ -1017,7 +1017,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def manageConnectionsList(self):
         while(self.appExit is False):
             time.sleep(3)
-            self.incomingConnectionSig.emit(NetworkScan.GetHostLan())
+            try :
+                self.incomingConnectionSig.emit(NetworkScan.GetHostLan())
+            except (TypeError):
+                pass
 
     def getActionsList(self):
         fr = open('../data/appsActions.data', 'r')
