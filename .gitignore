@@ -1,3 +1,6 @@
 Network/__pycache__/*
 ui/__pycache__/*
 data/appsAction.data
+.idea/workspace.xml
+venv
+venv1
