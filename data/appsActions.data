@@ -2,12 +2,4 @@ Test 3,security,0,0
 Test 2,security,0,0
 Test 1,network,1,1516233928.0579288,8,True
 Test 1,security,0,1516283122.7372024
-app1,network,0,1516285501.535899,,False
-app1,security,0,1516285510.2738054
-app3,security,0,1516285831.3089983
-Test 8,security,0,1516285902.9808612
-RuntimeBroker.exe,network,0,1516714375.6036918,,False
-SocketHeciServer.exe,network,0,1516714693.043658,,False
-MicrosoftEdge.exe,security,0,1517407220.076018
-MicrosoftEdgeCP.exe,security,0,1517407236.448792
-firefox.exe,security,0,1517586971.4037406
+chrome.exe,security,1,1517785136.2277777
