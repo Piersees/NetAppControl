@@ -360,9 +360,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.fillAppList()
         self.list.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 
-        ### Secure the needed apps in the list
-        self.secureForeverSecuredApps()
-
         ### Arrange the app list layout
         self.appListLayoutWidget = QtWidgets.QWidget(self.tab)
         self.appListLayoutWidget.setGeometry(QtCore.QRect(20, 60, 411, 481))
@@ -1039,6 +1036,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         list = []
 
         for action in actions:
+            action = action.rstrip()
             try:
                 line = action.split(',')
                 list.append({'processName':line[0], 'actionType':line[1], 'durationType':line[2], 'durationTime':line[3]})
@@ -1047,29 +1045,83 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         return list
 
+    def getGroups(self):
+        fr = open('../data/appGroups.data', 'r')
+        groups = fr.readlines()
+        fr.close()
+        dic = {}
+
+        for group in groups:
+            group = group.rstrip()
+            try:
+                line = group.split('|')
+                if(line[0] not in dic):
+                    dic[line[0]] = [line[1]]
+                else:
+                    dic[line[0]].append(line[1])
+            except:
+                pass
+
+        return dic
+
     def secureForeverSecuredApps(self):
         actions = self.getActionsList()
+        appList=[]
+        # keep a list of running processes
+        for i in range(self.list.count()):
+            wapp = self.list.item(i)
+            app = self.list.itemWidget(wapp)
+            appList.append(app)
+
+        groups = self.getGroups()
 
         for action in actions:
+
+            if action["processName"] in groups:
+                for app in appList:
+                    if app.getProcessName() in groups[action["processName"]] and app.getSecured() is False:
+                        app.manageVPN(action['durationType'], action['durationTime'])
+
             if ( (action['actionType'] == "security") and (int(action['durationType']) == 2) ):
-                for i in range(self.list.count()):
-                    wapp = self.list.item(i)
-                    app = self.list.itemWidget(wapp)
+                for app in appList:
                     try:
                         if(app.getProcessName() == action['processName'] and app.getSecured() is False):
                             app.manageVPN(action['durationType'], action['durationTime'])
+                    except(AttributeError):
+                        pass
+            if ( (action['actionType'] == "security") and (int(action['durationType']) == 1) ):
+                for app in appList:
+                    try:
+                        if(app.getProcessName() == action['processName'] and app.getSecured() is False):
+                            if(self.inTime(action["durationTime"])):
+                                app.manageVPN(action['durationType'], action['durationTime'])
+                            else:
+                                #TO DO: remove from list
+                                pass
+
                     except(AttributeError):
                         pass
 
     def displayIP(self):
         while(self.appExit is False):
             time.sleep(5)
-            self.displayIpSig.emit("Public IP adress: " + External_IP.Get_IP())
+            self.displayIpSig.emit("Public IP address: " + External_IP.Get_IP())
+
+    def inTime(self, durationTime):
+        if time.time() > float(durationTime):
+            return False
+        else:
+            return True
+
 
     def stopVPN(self):
         try:
             self.OpenVpnThread.do_run = False
             self.OpenVpnThread.join()
+            # Stop the apps' injection
+            for i in range(self.list.count()):
+                wapp = self.list.item(i)
+                self.list.itemWidget(wapp).clean()
         except:
             pass
 
@@ -1077,6 +1129,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         while(self.appExit is False):
             if (self.vpnStatus.getStatus() is False and self.OpenVpnThread != None):
                 self.vpnStatus.setActive()
+                ### Secure the needed apps in the list
+                self.secureForeverSecuredApps()
             if (self.vpnStatus.getStatus() is True and self.OpenVpnThread == None):
                 self.vpnStatus.setInactive()
             time.sleep(1)
