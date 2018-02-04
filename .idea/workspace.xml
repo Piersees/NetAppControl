@@ -18,11 +18,31 @@
       <file leaf-file-name="mine1.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ui/mine1.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="411">
-              <caret line="1081" column="44" lean-forward="false" selection-start-line="1081" selection-start-column="44" selection-end-line="1081" selection-end-column="44" />
+            <state relative-caret-position="844">
+              <caret line="1082" column="85" lean-forward="false" selection-start-line="1082" selection-start-column="85" selection-end-line="1082" selection-end-column="85" />
               <folding>
                 <element signature="e#194#249#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="group.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Network/group.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="378">
+              <caret line="18" column="17" lean-forward="false" selection-start-line="18" selection-start-column="17" selection-end-line="18" selection-end-column="17" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="appGroups.data" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/data/appGroups.data">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -82,8 +102,8 @@
       <file leaf-file-name="appsActions.data" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/data/appsActions.data">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="84">
-              <caret line="4" column="40" lean-forward="false" selection-start-line="4" selection-start-column="40" selection-end-line="4" selection-end-column="40" />
+            <state relative-caret-position="105">
+              <caret line="5" column="0" lean-forward="true" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -101,16 +121,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="openvpn.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Network/openvpn.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="860">
-              <caret line="116" column="19" lean-forward="false" selection-start-line="116" selection-start-column="12" selection-end-line="116" selection-end-column="19" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
@@ -122,7 +132,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>bwChartGetValues</find>
       <find>bwChartDisplay</find>
       <find>sleep</find>
       <find>autoRefreshList</find>
@@ -148,10 +157,11 @@
       <find>appsActions</find>
       <find>openVpnT</find>
       <find>duration</find>
-      <find>getActionsList</find>
       <find>manageVPN</find>
       <find>value</find>
       <find>secureForeverSecuredApps</find>
+      <find>getActionsList</find>
+      <find>Groups</find>
     </findStrings>
     <replaceStrings>
       <replace>../data/</replace>
@@ -184,6 +194,7 @@
         <option value="$PROJECT_DIR$/azertyu.py" />
         <option value="$PROJECT_DIR$/ui/app.py" />
         <option value="$PROJECT_DIR$/data/appsActions.data" />
+        <option value="$PROJECT_DIR$/Network/group.py" />
         <option value="$PROJECT_DIR$/ui/mine1.py" />
       </list>
     </option>
@@ -309,24 +320,6 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <method />
     </configuration>
-    <configuration default="false" name="restrifru" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Network" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="NetAppControl" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Network/restrifru.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
     <configuration default="false" name="pin" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -376,6 +369,24 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="NetAppControl" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ui/app.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="group" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Network" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="NetAppControl" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Network/group.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -447,18 +458,18 @@
     </configuration>
     <list size="5">
       <item index="0" class="java.lang.String" itemvalue="Python.mine1" />
-      <item index="1" class="java.lang.String" itemvalue="Python.restrifru" />
-      <item index="2" class="java.lang.String" itemvalue="Python.pin" />
-      <item index="3" class="java.lang.String" itemvalue="Python.azertyu" />
-      <item index="4" class="java.lang.String" itemvalue="Python.app" />
+      <item index="1" class="java.lang.String" itemvalue="Python.pin" />
+      <item index="2" class="java.lang.String" itemvalue="Python.azertyu" />
+      <item index="3" class="java.lang.String" itemvalue="Python.app" />
+      <item index="4" class="java.lang.String" itemvalue="Python.group" />
     </list>
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="Python.mine1" />
-        <item index="1" class="java.lang.String" itemvalue="Python.app" />
-        <item index="2" class="java.lang.String" itemvalue="Python.azertyu" />
-        <item index="3" class="java.lang.String" itemvalue="Python.pin" />
-        <item index="4" class="java.lang.String" itemvalue="Python.restrifru" />
+        <item index="1" class="java.lang.String" itemvalue="Python.group" />
+        <item index="2" class="java.lang.String" itemvalue="Python.app" />
+        <item index="3" class="java.lang.String" itemvalue="Python.azertyu" />
+        <item index="4" class="java.lang.String" itemvalue="Python.pin" />
       </list>
     </recent_temporary>
   </component>
@@ -527,20 +538,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Network/BandWidth.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="588">
-          <caret line="29" column="0" lean-forward="true" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Network/External_IP.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Network/SpeedTest.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="63">
@@ -780,18 +777,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/data/appGroups.data">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/data/appsActions.data">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="4" column="40" lean-forward="false" selection-start-line="4" selection-start-column="40" selection-end-line="4" selection-end-column="40" />
+        <state relative-caret-position="105">
+          <caret line="5" column="0" lean-forward="true" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Network/group.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="378">
+          <caret line="18" column="17" lean-forward="false" selection-start-line="18" selection-start-column="17" selection-end-line="18" selection-end-column="17" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ui/mine1.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="411">
-          <caret line="1081" column="44" lean-forward="false" selection-start-line="1081" selection-start-column="44" selection-end-line="1081" selection-end-column="44" />
+        <state relative-caret-position="844">
+          <caret line="1082" column="85" lean-forward="false" selection-start-line="1082" selection-start-column="85" selection-end-line="1082" selection-end-column="85" />
           <folding>
             <element signature="e#194#249#0" expanded="true" />
           </folding>

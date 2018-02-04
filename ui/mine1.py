@@ -1036,6 +1036,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         list = []
 
         for action in actions:
+            action = action.rstrip()
             try:
                 line = action.split(',')
                 list.append({'processName':line[0], 'actionType':line[1], 'durationType':line[2], 'durationTime':line[3]})
@@ -1043,6 +1044,25 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 pass
 
         return list
+
+    def getGroups(self):
+        fr = open('../data/appGroups.data', 'r')
+        groups = fr.readlines()
+        fr.close()
+        dic = {}
+
+        for group in groups:
+            group = group.rstrip()
+            try:
+                line = group.split('|')
+                if(line[0] not in dic):
+                    dic[line[0]] = [line[1]]
+                else:
+                    dic[line[0]].append(line[1])
+            except:
+                pass
+
+        return dic
 
     def secureForeverSecuredApps(self):
         actions = self.getActionsList()
@@ -1052,7 +1072,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             wapp = self.list.item(i)
             app = self.list.itemWidget(wapp)
             appList.append(app)
+
+        groups = self.getGroups()
+
         for action in actions:
+
+            if action["processName"] in groups:
+                for app in appList:
+                    if app.getProcessName() in groups[action["processName"]] and app.getSecured() is False:
+                        app.manageVPN(action['durationType'], action['durationTime'])
+
             if ( (action['actionType'] == "security") and (int(action['durationType']) == 2) ):
                 for app in appList:
                     try:
