@@ -96,7 +96,7 @@ def GetPacketStats(nic):
     pkt = sniff(count=10, prn=packet_cpt_callback, timeout=20)
 
 
-    print("ALL:", packet_type_cpt["ALL"],"    TCP:", packet_type_cpt["TCP"],"     UDP:", packet_type_cpt["UDP"], "     ARP:", packet_type_cpt["ARP"], "     ICMP:", packet_type_cpt["ICMP"], "     HTTP:", packet_type_cpt["HTTP"], "     HTTPS:",      packet_type_cpt["HTTPS"],"     LLMNR:", packet_type_cpt["LLMNR"], "     DNS:", packet_type_cpt["DNS"],"     NBNS:", packet_type_cpt["NBNS"], "Autres:", packet_type_cpt["OTHER"])
+    #print("ALL:", packet_type_cpt["ALL"],"    TCP:", packet_type_cpt["TCP"],"     UDP:", packet_type_cpt["UDP"], "     ARP:", packet_type_cpt["ARP"], "     ICMP:", packet_type_cpt["ICMP"], "     HTTP:", packet_type_cpt["HTTP"], "     HTTPS:",      packet_type_cpt["HTTPS"],"     LLMNR:", packet_type_cpt["LLMNR"], "     DNS:", packet_type_cpt["DNS"],"     NBNS:", packet_type_cpt["NBNS"], "Autres:", packet_type_cpt["OTHER"])
 
     return packet_type_cpt
 
