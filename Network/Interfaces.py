@@ -1,7 +1,6 @@
 
 import winreg as reg
 import psutil
-import os
 
 
 def GetInterfaces(nic):

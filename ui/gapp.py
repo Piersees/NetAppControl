@@ -3,8 +3,6 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from appAbstract import appAbstract
 from appsInGroupWidget import appsInGroupWidget
-import time
-from wapp import WappWidget
 
 class GappWidget(appAbstract):
     delInGroupSig = pyqtSignal(list)
@@ -58,7 +56,7 @@ class GappWidget(appAbstract):
         self.linkApps(self.names)
 
     def returnGroupNameList(self):
-        fr = open('../data/appGroups.data')
+        fr = open('data/appGroups.data')
         names = []
         for app in fr.readlines():
             line = app.split("|")
@@ -90,7 +88,7 @@ class GappWidget(appAbstract):
         self.signalDel.emit(self.name)
 
     def delInGroup(self, appsToDelete):
-        fr = open('../data/appGroups.data', 'r')
+        fr = open('data/appGroups.data', 'r')
         apps = fr.readlines()
         fr.close()
         print(apps)
@@ -108,7 +106,7 @@ class GappWidget(appAbstract):
 
         self.listPopUp.fillList(self.names)
 
-        fw = open('../data/appGroups.data', 'w')
+        fw = open('data/appGroups.data', 'w')
         fw.writelines(insertData)
         fw.close()
 

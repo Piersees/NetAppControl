@@ -9,11 +9,9 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from appPopUpSecurity import appPopUpSecurity
-from appPopUpNetwork import appPopUpNetwork
 import sys
 sys.path.append("../Network")
-import SpeedTest
+import SpeedTestFunctions as SpeedTest
 import threading
 
 class SpeedTestWidget(QWidget):
@@ -185,7 +183,7 @@ class SpeedTestWidget(QWidget):
         strST += str(speedTestResult["server"]["name"]) + "|" + str(speedTestResult["server"]["country"]) + "|" + str(speedTestResult["server"]["sponsor"]) + "|"
         strST += str(speedTestResult["timestamp"])
 
-        fh = open("../data/lastSpeedTest.data", "w")
+        fh = open("data/lastSpeedTest.data", "w")
         fh.write(strST)
         fh.close()
 
@@ -202,7 +200,7 @@ class SpeedTestWidget(QWidget):
         self.serverProviderValue.setText(value)
 
     def readLastSpeedTest(self):
-        fr = open("../data/lastSpeedTest.data", "r")
+        fr = open("data/lastSpeedTest.data", "r")
         strST = fr.read()
         fr.close()
 

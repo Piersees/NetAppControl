@@ -1,10 +1,7 @@
 from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
 from appAbstract import appAbstract
-import time
 import sys
-sys.path.append("../Network")
+sys.path.append("Network")
 import inject
 
 class WappWidget(appAbstract):
@@ -63,7 +60,7 @@ class WappWidget(appAbstract):
                     pass
 
     def deleteAction(self, actionType):
-            fr = open('../data/appsActions.data', 'r')
+            fr = open('data/appsActions.data', 'r')
             actions = fr.readlines()
             fr.close()
 
@@ -76,7 +73,7 @@ class WappWidget(appAbstract):
                 if ( not (dic['processName'] == self.processName and dic['actionType'] == actionType ) ):
                     insertData.append(action)
 
-                fw = open('../data/appsActions.data', 'w')
+                fw = open('data/appsActions.data', 'w')
                 fw.writelines(insertData)
                 fw.close()
 

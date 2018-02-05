@@ -6,9 +6,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import Qt, QtCore, QtGui, QtWidgets, QtQuick
-from PyQt5.QtGui import QPolygonF, QPainter
-from PyQt5.Qt import Qt
+from PyQt5 import Qt, QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -18,24 +16,21 @@ import pyqtgraph as pg
 import os
 import threading
 import psutil
-import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+import sys
+sys.path.append("ui")
 from wapp import WappWidget
 from gapp import GappWidget
 from speedtestwidget import SpeedTestWidget
 from VPNstatusWidget import VPNstatusWidget
-import sys
 import time
 sys.path.append("../Network")
-import SpeedTest
 import External_IP
 import ping
 import NetworkScan
-from BandWidth import getBandWidth
 import openvpn
 from Stats import GetPacketStats
-from Wifi_stat import wifi_info
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     bandWidthSig = QtCore.pyqtSignal(int,int)
@@ -612,12 +607,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def autoStartVPN(self):
         try:
-            fh = open("../data/openVPNcertificates.data", "r").read().splitlines()
+            fh = open("data/openVPNcertificates.data", "r").read().splitlines()
             certificate = fh[0]
             print(certificate)
             try:
                 (self.OpenVpnThread,self.nic) = openvpn.mainVPN(certificate)
-                fw = open("../data/openVPNcertificates.data", "w")
+                fw = open("data/openVPNcertificates.data", "w")
                 fw.write(certificate + "\n")
                 if( self.openVPNcertificate2Changed is not False ):
                     certificate2 = self.openVPNfilenameLabel2.text().replace("/",r'\\')
@@ -794,7 +789,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         try:
             (self.OpenVpnThread,self.nic) = openvpn.mainVPN(certificate)
 
-            fw = open("../data/openVPNcertificates.data", "w")
+            fw = open("data/openVPNcertificates.data", "w")
             fw.write(certificate + "\n")
             if( self.openVPNcertificate2Changed is not False ):
                 certificate2 = self.openVPNfilenameLabel2.text().replace("/",r'\\')
@@ -908,7 +903,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 
     def submitOpenVPNid(self):
-        fh = open("../data/openVPNid.data", "w")
+        fh = open("data/openVPNid.data", "w")
         fh.write(self.OpenVPNidLoginInput.text() + "\n" + self.OpenVPNidPasswordInput.text())
         fh.close()
         msg = QtWidgets.QMessageBox()
@@ -986,7 +981,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.groupList.setItemWidget(gapp, gapp_widget)
 
     def addGroups(self):
-        fr = open('../data/groups.data', 'r')
+        fr = open('data/groups.data', 'r')
         names = []
 
         for name in fr.readlines():
@@ -994,7 +989,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 
     def createNewGroup(self):
-        fr = open('../data/groups.data', 'r')
+        fr = open('data/groups.data', 'r')
         groups = fr.readlines()
         fr.close()
 
@@ -1007,7 +1002,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     alreadyExists = True
 
             if alreadyExists is False:
-                fw = open('../data/groups.data', "a")
+                fw = open('data/groups.data', "a")
                 fw.write(groupName + "\n")
                 self.createNewGroupWidget(groupName)
                 fw.close()
@@ -1026,8 +1021,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         selectedGroup = self.groupList.itemWidget( self.groupList.selectedItems()[0] )
         name = selectedGroup.getName()
 
-        fw = open('../data/appGroups.data', 'a')
-        fr = open('../data/appGroups.data', 'r')
+        fw = open('data/appGroups.data', 'a')
+        fr = open('data/appGroups.data', 'r')
         existingProcesses = fr.readlines()
         fr.close()
 
@@ -1052,10 +1047,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.buttonGroupAppAdd.setEnabled(False)
 
     def deleteGroup(self, groupName):
-        fg = open('../data/groups.data' , 'r')
+        fg = open('data/groups.data' , 'r')
         group_list = fg.readlines()
         fg.close()
-        fg = open('../data/appGroups.data', 'r')
+        fg = open('data/appGroups.data', 'r')
         groupApps_list = fg.readlines()
         fg.close()
 
@@ -1069,10 +1064,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             if ( groupName != groupApp.split("|")[0] ):
                 insertGroupApps.append(groupApp)
 
-        fw = open('../data/groups.data' , 'w')
+        fw = open('data/groups.data' , 'w')
         fw.writelines(insertGroups)
         fw.close()
-        fw = open('../data/appGroups.data', 'w')
+        fw = open('data/appGroups.data', 'w')
         fw.writelines(insertGroupApps)
         fw.close()
 
@@ -1118,7 +1113,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 pass
 
     def getActionsList(self):
-        fr = open('../data/appsActions.data', 'r')
+        fr = open('data/appsActions.data', 'r')
         actions = fr.readlines()
         fr.close()
         list = []
@@ -1134,7 +1129,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         return list
 
     def getGroups(self):
-        fr = open('../data/appGroups.data', 'r')
+        fr = open('data/appGroups.data', 'r')
         groups = fr.readlines()
         fr.close()
         dic = {}

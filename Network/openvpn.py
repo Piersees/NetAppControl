@@ -45,7 +45,7 @@ def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
 
     try:
         # Get the credentials
-        fh = open("../data/openVPNid.data", "r").read().splitlines()
+        fh = open("data/openVPNid.data", "r").read().splitlines()
         login = fh[0]
         password = fh[1]
     except:
