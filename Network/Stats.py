@@ -40,7 +40,7 @@ def GetPacketStats(nic):
 
 
     def packet_cpt_callback(pkt):
-        pkt.show()
+        #pkt.show()
         packet_type_cpt["ALL"] = packet_type_cpt["ALL"] + 1
 
         if (TCP in pkt):
@@ -103,4 +103,3 @@ def GetPacketStats(nic):
 
 if __name__ =="__main__":
     GetPacketStats("Ethernet 3")
-

@@ -18,6 +18,9 @@ import pyqtgraph as pg
 import os
 import threading
 import psutil
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 from wapp import WappWidget
 from gapp import GappWidget
 from speedtestwidget import SpeedTestWidget
@@ -31,10 +34,13 @@ import ping
 import NetworkScan
 from BandWidth import getBandWidth
 import openvpn
+from Stats import GetPacketStats
+from Wifi_stat import wifi_info
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     bandWidthSig = QtCore.pyqtSignal(int,int)
     pingSig = QtCore.pyqtSignal(str)
+    packetsSig = QtCore.pyqtSignal(dict)
     pingLossSig = QtCore.pyqtSignal(str)
     incomingConnectionSig = QtCore.pyqtSignal(dict)
     autoRefreshListSig = QtCore.pyqtSignal(dict)
@@ -194,14 +200,21 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.bwTabMonitoring = pg.GraphicsLayoutWidget()
         self.bwTabConnections = QtWidgets.QWidget()
         self.bwTabSpeedtest = QtWidgets.QWidget()
+        self.pkTabMonitoring = pg.GraphicsLayoutWidget()
+        self.chTabMonitoring = QtWidgets.QWidget()
 
         self.bwTabMonitoring.setObjectName("bwTabMonitoring")
         self.bwTabConnections.setObjectName("bwTabConnections")
         self.bwTabSpeedtest.setObjectName("bwTabSpeedtest")
+        self.pkTabMonitoring.setObjectName("pkTabMonitoring")
+        self.chTabMonitoring.setObjectName("chTabMonitoring")
 
         self.tabWidgetMonitoring.addTab(self.bwTabMonitoring, "Bandwidth")
         self.tabWidgetMonitoring.addTab(self.bwTabConnections, "Connections")
         self.tabWidgetMonitoring.addTab(self.bwTabSpeedtest, "Speedtest")
+        self.tabWidgetMonitoring.addTab(self.pkTabMonitoring, "Packets")
+        self.tabWidgetMonitoring.addTab(self.chTabMonitoring, "Channels")
+
 
         ## BandWidth graph
         self.BWplot = self.bwTabMonitoring.addPlot(title="Bandwidth over time")
@@ -246,6 +259,33 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.speedtestWidget = SpeedTestWidget()
         self.speedtestLayout.addWidget(self.speedtestWidget)
 
+        ### Packets bar graph
+        self.pkplot = self.pkTabMonitoring.addPlot(title="Packets")
+        self.dpacketsData = {"ALL": 0, "TCP": 0, "UDP": 0, "ARP": 0, "ICMP": 0, "HTTP": 0, "HTTPS": 0, "LLMNR": 0, "DNS": 0, "NBNS": 0, "OTHER": 0}
+        self.packetsAxis = [1,2,3,4,5,6,7,8,9,10,11]
+        self.packetsData = self.dicToArrayPacketData()
+        self.bgALL = pg.BarGraphItem(x=self.packetsAxis ,height=self.packetsData, width=0.2, brush='r')
+        self.pkplot.addItem(self.bgALL)
+
+
+        ### Channels pie chart
+
+        self.channelLayout = QtWidgets.QVBoxLayout()
+        self.chTabMonitoring.setLayout(self.channelLayout)
+
+        self.chFigure = Figure()
+        self.chCanvas = FigureCanvas(self.chFigure)
+        self.channelLayout.addWidget(self.chCanvas)
+
+        self.labelsla = 'Channel 1', 'Channel 2', 'Channel 3'
+        self.chSizes = [15, 48, 37]
+        self.chExplode = (0 ,0 ,0.1)
+
+        self.chAxis = self.chFigure.add_subplot(111)
+        self.chAxis.pie(self.chSizes, explode=self.chExplode, labels=self.labelsla, autopct='%1.1f%%')
+
+        self.chCanvas.draw()
+
 
         ### Setting up tab icons
         self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
@@ -261,7 +301,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.tabWidget.tabBar().setTabToolTip(3, "Settings")
 
 
-        # self.tabWidget.iconSize(QtCore.QSize(40,40))
+        #self.tabWidget.iconSize(QSize(40,40))
+
+
+
+        self.bandWidthSig.connect(self.setBandWidthChart)
+        self.packetsSig.connect(self.setPacketsChart)
+
 
         ### Menu bar
         self.menubar = QtWidgets.QMenuBar(self)
@@ -599,6 +645,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.labelLogo.setText(_translate("MainWindow", "Logo"))
 
         self.bwChartDisplay()
+        self.pktChartDisplay()
 
         #self.arrr = getBandWidth(self)
         #print(self.arrr[0])
@@ -646,9 +693,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def bwChartDisplay(self):
         self.threadBW = threading.Thread(target=self.bwChartGetValues)
-        self.threadBW.daemaon = True
+        self.threadBW.daemon = True
         self.threadBW.start()
-
+    def pktChartDisplay(self):
+        self.threadPkt = threading.Thread(target=self.pktChartGetValues)
+        self.threadPkt.daemon = True
+        self.threadPkt.start()
     def bwChartGetValues(self):
         self.i = 0
         iostat = psutil.net_io_counters(pernic=False, nowrap=True)
@@ -664,6 +714,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             up = arrayResult[0]
             down = arrayResult[1]
             self.bandWidthSig.emit(up, down)
+            time.sleep(1)
+    def pktChartGetValues(self):
+        while(self.appExit is not True):
+            currentPacketResults = GetPacketStats(self.nic)
+            self.packetsSig.emit(currentPacketResults)
             time.sleep(1)
 
     def setBandWidthChart(self, up, down):
@@ -685,8 +740,37 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         #dataDL[-1] = download
         #curveDL.setData(dataDL)
 
+    def setPacketsChart(self, packets):
+        self.dpacketsData["ALL"] = self.dpacketsData["ALL"] + packets["ALL"]
+        self.dpacketsData["TCP"] = self.dpacketsData["TCP"] + packets["TCP"]
+        self.dpacketsData["UDP"] = self.dpacketsData["UDP"] + packets["UDP"]
+        self.dpacketsData["ARP"] = self.dpacketsData["ARP"] + packets["ARP"]
+        self.dpacketsData["ICMP"] = self.dpacketsData["ICMP"] + packets["ICMP"]
+        self.dpacketsData["HTTP"] = self.dpacketsData["HTTP"] + packets["HTTP"]
+        self.dpacketsData["HTTPS"] = self.dpacketsData["HTTPS"] + packets["HTTPS"]
+        self.dpacketsData["LLMNR"] = self.dpacketsData["LLMNR"] + packets["LLMNR"]
+        self.dpacketsData["DNS"] = self.dpacketsData["DNS"] + packets["DNS"]
+        self.dpacketsData["NBNS"] = self.dpacketsData["NBNS"] + packets["NBNS"]
+        self.dpacketsData["OTHER"] = self.dpacketsData["OTHER"] + packets["OTHER"]
 
+        self.packetsData = self.dicToArrayPacketData()
+        self.bgALL.setOpts(y=self.packetsData)
+        # self.bgTCP.setOpts(y=self.packetsData["TCP"])
+        # self.bgUDP.setOpts(y=self.packetsData["UDP"])
+        # self.bgARP.setOpts(y=self.packetsData["ARP"])
+        # self.bgICMP.setOpts(y=self.packetsData["ICMP"])
+        # self.bgHTTP.setOpts(y=self.packetsData["HTTP"])
+        # self.bgHTTPS.setOpts(y=self.packetsData["HTTPS"])
+        # self.bgLLMNR.setOpts(y=self.packetsData["LLMNR"])
+        # self.bgDNS.setOpts(y=self.packetsData["DNS"])
+        # self.bgNBNS.setOpts(y=self.packetsData["NBNS"])
+        # self.bgOTHER.setOpts(y=self.packetsData["OTHER"])
 
+    def dicToArrayPacketData(self):
+        dic = []
+        for key in self.dpacketsData:
+            dic.append(self.dpacketsData[key])
+        return dic
 
     def selectVPNcertificate(self):
         options = QtWidgets.QFileDialog.Options()
@@ -913,8 +997,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         fr = open('../data/groups.data', 'r')
         groups = fr.readlines()
         fr.close()
-
-        dialog = QtWidgets.QInputDialog()
 
         groupName, okPressed = QtWidgets.QInputDialog.getText(self, "New group","New group name:", QtWidgets.QLineEdit.Normal, "")
 
