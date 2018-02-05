@@ -24,7 +24,6 @@ class appPopUpSecurity(QDialog):
         ### Title
         self.labelTitle = QLabel(self)
         self.labelTitle.setWordWrap(True)
-        #self.labelTitle.setGeometry(QRect(50, 5, 221, 71))
         self.labelTitle.setGeometry(QRect(0, 0, 329, 71))
         font = QFont()
         font.setPointSize(18)

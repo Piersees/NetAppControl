@@ -9,8 +9,6 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from appPopUpSecurity import appPopUpSecurity
-from appPopUpNetwork import appPopUpNetwork
 import time
 
 class appsInGroupWidget(QDialog):
@@ -49,7 +47,6 @@ class appsInGroupWidget(QDialog):
         self.appListLayout.addWidget(self.list)
 
         self.buttonDelete = QPushButton()
-        #self.buttonDelete.setText("Delete")
         self.buttonDelete.setIcon(QIcon('./images/deletewhite.png'))
         self.buttonDelete.setToolTip("Remove application(s) from group")
         self.mainLayout.addWidget(self.buttonDelete)
