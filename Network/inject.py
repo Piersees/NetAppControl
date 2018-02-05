@@ -146,7 +146,7 @@ def ChangeProcessIp(pidlist,processName,card):
             print(pname)
             ### Only if the pid hasn't changed
             if pname == processName:
-                injectdll(process.pid,os.path.abspath(os.getcwd()+'\\..\\Network\\netHook.dll'))
+                injectdll(process.pid,os.path.abspath(os.getcwd()+'\\Network\\netHook.dll'))
                 d[process.pid] = Thread(target=NPServer, args=(process.pid, ip))
                 d[process.pid].start()
         except:

@@ -1,7 +1,6 @@
 
 import winreg as reg
 import psutil
-import os
 
 
 def GetInterfaces(nic):
@@ -11,12 +10,14 @@ def GetInterfaces(nic):
     else:
         OpenVpnCard = "Not_Defined"
 
+    print(OpenVpnCard)
     iostat = psutil.net_io_counters(pernic=True, nowrap=True)
 
     for item in iostat.items():
+        print(item)
         if item[1][0]!= 0 and item[0] != OpenVpnCard:
             card = item[0]
-
+    print(card)
     ADAPTER_KEY = r'SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002BE10318}'
 
     ConnectionKey = "SYSTEM\\CurrentControlSet\\Control\\Network\\{4D36E972-E325-11CE-BFC1-08002BE10318}"
@@ -65,5 +66,3 @@ if __name__ =="__main__":
   interfaces= GetInterfaces("Ethernet 3")
 
   print(interfaces)
-
-
