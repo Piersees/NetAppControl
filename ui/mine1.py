@@ -6,9 +6,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import Qt, QtCore, QtGui, QtWidgets, QtQuick
-from PyQt5.QtGui import QPolygonF, QPainter
-from PyQt5.Qt import Qt
+from PyQt5 import Qt, QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
