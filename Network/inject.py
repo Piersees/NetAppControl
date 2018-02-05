@@ -9,9 +9,6 @@ import time
 
 kernel32 = ctypes.WinDLL('kernel32.dll', use_last_error=True)
 
-PROCESS_VM_OPERATION = 0x0008
-PROCESS_VM_WRITE = 0x0020
-PROCESS_CREATE_THREAD = 0x0002
 MEM_COMMIT = 0x1000
 MEM_RELEASE = 0x8000
 PAGE_READWRITE = 0x0004
@@ -87,21 +84,16 @@ kernel32.CloseHandle.argtypes = (
 def injectdll(pid, dllpath):
     size = (len(dllpath) + 1) * WCHAR_SIZE
     hproc = hthrd = addr = None
-    print(size)
     try:
         hproc = kernel32.OpenProcess(
-        win32con.PROCESS_ALL_ACCESS, False, pid)
+            win32con.PROCESS_ALL_ACCESS, False, pid)
         addr = kernel32.VirtualAllocEx(
             hproc, None, size, MEM_COMMIT, PAGE_READWRITE)
-        print("VirtualAllocEx Done: "+str(addr))
         kernel32.WriteProcessMemory(
             hproc, addr, dllpath, size, None)
-        print("WriteProcessMemory Done: "+str(addr))
         hthrd = kernel32.CreateRemoteThread(
             hproc, None, 0, kernel32.LoadLibraryW, addr, 0, None)
-        print("CreateRemoteThread Done: "+str(hthrd))
         kernel32.WaitForSingleObject(hthrd, 1000)
-        print("WaitForSingleObject Done: "+str(hthrd))
     finally:
         if addr is not None:
             kernel32.VirtualFreeEx(hproc, addr, 0, MEM_RELEASE)
@@ -109,26 +101,28 @@ def injectdll(pid, dllpath):
             kernel32.CloseHandle(hthrd)
         if hproc is not None:
             kernel32.CloseHandle(hproc)
-    return addr
 
-def NPServer(id, ip, addr):
+def NPServer(id, ip):
     hNP = win32pipe.CreateNamedPipe("\\\\.\\pipe\\"+str(id),
                                       win32pipe.PIPE_ACCESS_DUPLEX,
-                                      win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_WAIT,
+                                      win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_NOWAIT,
                                       1, len(ip), len(ip), 300, None)
+    time.sleep(2)
+    try:
+        # Start connection
+        win32pipe.ConnectNamedPipe(hNP, None)
+        print("connected")
+        win32file.WriteFile(hNP, ip.encode("utf-8"))
 
-    # Start connection
-    win32pipe.ConnectNamedPipe(hNP, None)
-    print("connected")
-    win32file.WriteFile(hNP, ip.encode("utf-8"))
+        t = currentThread()
+        # while not closed
+        while getattr(t, "do_run", True):
+            time.sleep(0.2)
 
-    t = currentThread()
-    # while not closed
-    while getattr(t, "do_run", True):
-        time.sleep(0.2)
-
-    # close connection
-    win32pipe.DisconnectNamedPipe(hNP)
+        # close connection
+        win32pipe.DisconnectNamedPipe(hNP)
+    except:
+        pass
 
 def getIpAddress(family,name):
     for interface, snics in psutil.net_if_addrs().items():
@@ -151,9 +145,8 @@ def ChangeProcessIp(pidlist,processName,card):
             print(pname)
             ### Only if the pid hasn't changed
             if pname == processName:
-                print(os.path.abspath(os.getcwd()+'\\..\\Network\\netHook.dll'))
-                addr = injectdll(process.pid,os.path.abspath(os.getcwd()+'\\..\\Network\\netHook.dll'))
-                d[process.pid] = Thread(target=NPServer, args=(process.pid,ip,))
+                injectdll(process.pid,os.path.abspath(os.getcwd()+'\\..\\Network\\netHook.dll'))
+                d[process.pid] = Thread(target=NPServer, args=(process.pid, ip))
                 d[process.pid].start()
         except:
             pass
