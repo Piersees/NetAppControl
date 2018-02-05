@@ -14,6 +14,7 @@ from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg
 import os
+import webbrowser
 import threading
 import psutil
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -29,6 +30,7 @@ sys.path.append("../Network")
 import External_IP
 import ping
 import NetworkScan
+from BandWidth import getBandWidth, getBandWidthDiff
 import openvpn
 from Stats import GetPacketStats
 
@@ -226,6 +228,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.BWplot.showGrid(x=True, y=True)
         self.ptrBW = 0
 
+        self.BWtextUL = pg.TextItem("test", color=(41, 107, 116), anchor=(1,-0.5))
+        self.BWplot.addItem(self.BWtextUL)
+        self.BWtextDL = pg.TextItem("test", color=(41, 107, 116), anchor=(1,-1.5))
+        self.BWplot.addItem(self.BWtextDL)
+        self.BWpercentageVPN = pg.TextItem("test", color=(41, 107, 116), anchor=(1,-2.5))
+        self.BWplot.addItem(self.BWpercentageVPN)
         ## Incoming connections tab
         self.incomingConnectionsMainLayout = QVBoxLayout()
         self.bwTabConnections.setLayout(self.incomingConnectionsMainLayout)
@@ -255,13 +263,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.speedtestLayout.addWidget(self.speedtestWidget)
 
         ### Packets bar graph
-        self.pkplot = self.pkTabMonitoring.addPlot(title="Packets")
+
         self.dpacketsData = {"ALL": 0, "TCP": 0, "UDP": 0, "ARP": 0, "ICMP": 0, "HTTP": 0, "HTTPS": 0, "LLMNR": 0, "DNS": 0, "NBNS": 0, "OTHER": 0}
         self.packetsAxis = [1,2,3,4,5,6,7,8,9,10,11]
+        self.pktxdict = {0:' ', 1:'ALL', 2:'TCP', 3:'UDP', 4:'ARP', 5:'ICMP', 6: 'HTTP', 7: 'HTTPS', 8: 'LLMNR', 9: 'DNS', 10: 'NBNS', 11: 'OTHER'}
+        self.pktstringaxis = pg.AxisItem(orientation='bottom')
+        self.pktstringaxis.setTicks([self.pktxdict.items()])
+        self.pkplot = self.pkTabMonitoring.addPlot(title="Packets",axisItems={'bottom': self.pktstringaxis})
         self.packetsData = self.dicToArrayPacketData()
-        self.bgALL = pg.BarGraphItem(x=self.packetsAxis ,height=self.packetsData, width=0.2, brush='r')
+        self.bgALL = pg.BarGraphItem(x=self.packetsAxis ,height=self.packetsData, width=0.3, brush=(41, 107, 116))
         self.pkplot.addItem(self.bgALL)
-
+        self.pkplot.showGrid(x=True, y=True)
 
         ### Channels pie chart
 
@@ -272,6 +284,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.chCanvas = FigureCanvas(self.chFigure)
         self.channelLayout.addWidget(self.chCanvas)
 
+        # self.datapie = wifi_info()
+        #
+        # for keys, values in self.datapie.items():
+        #     print(keys)
+        #     print(values)
         self.labelsla = 'Channel 1', 'Channel 2', 'Channel 3'
         self.chSizes = [15, 48, 37]
         self.chExplode = (0 ,0 ,0.1)
@@ -382,13 +399,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### About us button
         self.aboutButton = QtWidgets.QPushButton()
         self.aboutButton.setText("About us")
-        #self.aboutButton.clicked.connect(self.)
+        self.aboutButton.clicked.connect(self.openAbout)
         self.aboutLayout.addWidget(self.aboutButton)
 
         ### Help button
         self.HelpButton = QtWidgets.QPushButton()
         self.HelpButton.setText("Help")
-        #self.HelpButton.clicked.connect(self.)
+        self.HelpButton.clicked.connect(self.openHelp)
         self.aboutLayout.addWidget(self.HelpButton)
 
         ### Create the application list
@@ -689,7 +706,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         while(self.appExit is not True):
             currentPacketResults = GetPacketStats(self.nic)
             self.packetsSig.emit(currentPacketResults)
-            time.sleep(1)
 
     def setBandWidthChart(self, up, down):
         if self.ptrBW == 600:
@@ -698,6 +714,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.ptrBW = 599
         self.dataUL[self.ptrBW] = up
         self.dataDL[self.ptrBW] = down
+
+        self.BWtextUL.setText('Current UL speed: %0.1f kB/s' % up)
+        self.BWtextDL.setText('Current DL speed: %0.1f kB/s' % down)
+        percentage = getBandWidthDiff(self.nic)
+        self.BWpercentageVPN.setText('Bandwidth used by VPN:'+ percentage)
+
         self.ptrBW += 1
         self.curveUL.setData(self.dataUL[:self.ptrBW])
         self.curveUL.setPos(-self.ptrBW, 0)
@@ -724,7 +746,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.dpacketsData["OTHER"] = self.dpacketsData["OTHER"] + packets["OTHER"]
 
         self.packetsData = self.dicToArrayPacketData()
-        self.bgALL.setOpts(y=self.packetsData)
+        self.bgALL.setOpts(y=self.packetsData, brush=(41, 107, 116))
         # self.bgTCP.setOpts(y=self.packetsData["TCP"])
         # self.bgUDP.setOpts(y=self.packetsData["UDP"])
         # self.bgARP.setOpts(y=self.packetsData["ARP"])
@@ -1230,6 +1252,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.stopVPN()
         if self.vpnStatus.getStatus() is False and (self.OpenVpnThread == None or not self.OpenVpnThread.is_alive()):
             self.autoStartVPN()
+
+    def openAbout(self):
+        webbrowser.open('https://github.com/Piersees/NetAppControl')
+
+    def openHelp(self):
+        webbrowser.open('https://github.com/Piersees/NetAppControl/blob/master/README.md')
 
     def closeEvent(self, event):
         if(True):
