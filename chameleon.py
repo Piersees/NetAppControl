@@ -14,6 +14,7 @@ from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg
 import os
+import webbrowser
 import threading
 import psutil
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -398,13 +399,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### About us button
         self.aboutButton = QtWidgets.QPushButton()
         self.aboutButton.setText("About us")
-        #self.aboutButton.clicked.connect(self.)
+        self.aboutButton.clicked.connect(self.openAbout)
         self.aboutLayout.addWidget(self.aboutButton)
 
         ### Help button
         self.HelpButton = QtWidgets.QPushButton()
         self.HelpButton.setText("Help")
-        #self.HelpButton.clicked.connect(self.)
+        self.HelpButton.clicked.connect(self.openHelp)
         self.aboutLayout.addWidget(self.HelpButton)
 
         ### Create the application list
@@ -1234,6 +1235,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.stopVPN()
         if (self.vpnStatus.getStatus() is True and self.OpenVpnThread == None):
             self.autoStartVPN()
+
+    def openAbout(self):
+        webbrowser.open('https://github.com/Piersees/NetAppControl')
+
+    def openHelp(self):
+        webbrowser.open('https://github.com/Piersees/NetAppControl/blob/master/README.md')
 
     def closeEvent(self, event):
         if(True):
