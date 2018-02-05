@@ -9,7 +9,6 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from duration import Duration
 
 class appPopUpNetwork(QDialog):
     def __init__(self):
@@ -17,7 +16,7 @@ class appPopUpNetwork(QDialog):
 
         ### Set up the form window
         self.setObjectName("self")
-        self.resize(329, 349)
+        self.setFixedSize(329, 349)
 
         self.setStyleSheet("QDialog{background-color:white;}QLabel#label,QLabel#labelNetwork{color:rgba(41, 107, 116, 1);}")
 
@@ -152,7 +151,7 @@ class appPopUpNetwork(QDialog):
     ### Enable or disable the time input if it is needed or not
     @pyqtSlot()
     def activateTimeInput(self):
-        if (self.durationBox.currentIndex() == Duration.SetPeriod):
+        if (self.durationBox.currentIndex() == 1):
             self.timeInput.setEnabled(True)
         else:
             self.timeInput.setEnabled(False)
@@ -219,7 +218,7 @@ class appPopUpNetwork(QDialog):
         super(appPopUpNetwork, self).exec_()
         if (self.cancel is True) :
             return None
-        if( self.durationBox.currentIndex() == Duration.SetPeriod ):
+        if( self.durationBox.currentIndex() == 1 ):
             return { 'duration' : self.durationBox.currentIndex(), 'time' : int(self.timeInput.text()), 'bandwidth' : self.bandwidthInput.text(), 'percentage' : self.radioButtonPercent.isChecked() }
         else:
             return { 'duration' : self.durationBox.currentIndex(), 'time' : 0, 'bandwidth' : self.bandwidthInput.text(), 'percentage' : self.radioButtonPercent.isChecked() }

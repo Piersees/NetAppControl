@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import *
 from appAbstract import appAbstract
 from appsInGroupWidget import appsInGroupWidget
 import time
+from wapp import WappWidget
 
 class GappWidget(appAbstract):
     delInGroupSig = pyqtSignal(list)
@@ -22,11 +23,9 @@ class GappWidget(appAbstract):
         self.layout.addWidget(self.buttonDelete)
 
         self.setStyleSheet("QPushButton{border-radius: 5px;width:40px; height:40px; border: 1px solid rgba(41, 107, 116,1); background-color: rgba(41, 107, 116,0);}QPushButton:hover{background-color: rgba(41, 107, 116,0.25);}")
-        self.buttonNetwork.setIconSize(QSize(30,30))
         self.buttonSecurity.setIconSize(QSize(30,30))
         self.buttonNames.setIconSize(QSize(30,30))
 
-        self.buttonNetwork.setToolTip("Network configuration")
         self.buttonSecurity.setToolTip("Security configuration")
         self.buttonDelete.setToolTip("Delete group")
         self.buttonNames.setToolTip("Applications")
@@ -38,6 +37,8 @@ class GappWidget(appAbstract):
         self.buttonDelete.clicked.connect(self.deleteElement)
 
         self.delInGroupSig.connect(self.delInGroup)
+
+        self.securedAppList = []
 
     @pyqtSlot(str)
     def setName(self, value):
@@ -80,6 +81,8 @@ class GappWidget(appAbstract):
         self.listPopUp.setDeleteSignal(self.delInGroupSig)
         self.listPopUp.show()
 
+        print(self.apps)
+
     def setSignal(self, signal):
         self.signalDel = signal
 
@@ -109,13 +112,21 @@ class GappWidget(appAbstract):
         fw.writelines(insertData)
         fw.close()
 
-    def manageNetwork(self, durationType, durationTime, bandwidth, bandwidthType):
-        ### TODO: regulate network
+    def manageNetwork(self, durationType, durationTime):
         pass
 
-    def manageVPN(self, durationType, durationTime):
-        ### TODO: link with VPN
-        pass
+    def groupManageVPN(self, durationType, durationTime, wapps):
+        for app in wapps:
+            if app.getSecured() is False:
+                app.manageVPN(durationType, durationTime)
+                self.securedAppList.append(app)
+
+    def stopVPN(self):
+        try:
+            for app in self.securedAppList:
+                app.stopVPN()
+        except:
+            pass
 
 if __name__ == "__main__":
     import sys

@@ -84,7 +84,6 @@ kernel32.CloseHandle.argtypes = (
 def injectdll(pid, dllpath):
     size = (len(dllpath) + 1) * WCHAR_SIZE
     hproc = hthrd = addr = None
-    print(size)
     try:
         hproc = kernel32.OpenProcess(
             win32con.PROCESS_ALL_ACCESS, False, pid)
@@ -102,26 +101,28 @@ def injectdll(pid, dllpath):
             kernel32.CloseHandle(hthrd)
         if hproc is not None:
             kernel32.CloseHandle(hproc)
-    return addr
 
-def NPServer(id, ip, addr):
+def NPServer(id, ip):
     hNP = win32pipe.CreateNamedPipe("\\\\.\\pipe\\"+str(id),
                                       win32pipe.PIPE_ACCESS_DUPLEX,
-                                      win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_WAIT,
+                                      win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_NOWAIT,
                                       1, len(ip), len(ip), 300, None)
+    time.sleep(2)
+    try:
+        # Start connection
+        win32pipe.ConnectNamedPipe(hNP, None)
+        print("connected")
+        win32file.WriteFile(hNP, ip.encode("utf-8"))
 
-    # Start connection
-    win32pipe.ConnectNamedPipe(hNP, None)
-    print("connected")
-    win32file.WriteFile(hNP, ip.encode("utf-8"))
+        t = currentThread()
+        # while not closed
+        while getattr(t, "do_run", True):
+            time.sleep(0.2)
 
-    t = currentThread()
-    # while not closed
-    while getattr(t, "do_run", True):
-        time.sleep(0.2)
-
-    # close connection
-    win32pipe.DisconnectNamedPipe(hNP)
+        # close connection
+        win32pipe.DisconnectNamedPipe(hNP)
+    except:
+        pass
 
 def getIpAddress(family,name):
     for interface, snics in psutil.net_if_addrs().items():
@@ -135,6 +136,7 @@ def ChangeProcessIp(pidlist,processName,card):
     d = {}
     # get ip of the card
     ip = getIpAddress(socket.AF_INET,card)
+    print(ip)
 
     print(pidlist)
     for pid in pidlist:
@@ -144,9 +146,8 @@ def ChangeProcessIp(pidlist,processName,card):
             print(pname)
             ### Only if the pid hasn't changed
             if pname == processName:
-                print(os.path.abspath(os.getcwd()+'\\..\\Network\\netHook.dll'))
-                addr = injectdll(process.pid,os.path.abspath(os.getcwd()+'\\..\\Network\\netHook.dll'))
-                d[process.pid] = Thread(target=NPServer, args=(process.pid, ip,addr))
+                injectdll(process.pid,os.path.abspath(os.getcwd()+'\\..\\Network\\netHook.dll'))
+                d[process.pid] = Thread(target=NPServer, args=(process.pid, ip))
                 d[process.pid].start()
         except:
             pass
