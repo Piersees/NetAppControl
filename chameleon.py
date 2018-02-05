@@ -647,11 +647,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.bwChartDisplay()
         self.pktChartDisplay()
 
-    @QtCore.pyqtSlot()
-    def addAppClick(self):
-        for i in range(self.list.count()):
-            app_name = self.list.item(i).data(QtCore.Qt.UserRole)
-
     ### Add a new app item to the application list
     def createNewAppItem(self, processName, PID_list):
         wapp = QtWidgets.QListWidgetItem(self.list)
@@ -764,6 +759,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             dic.append(self.dpacketsData[key])
         return dic
 
+    ### Opens a file select dialog to select an open VPN certificate
     def selectVPNcertificate(self):
         options = QtWidgets.QFileDialog.Options()
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"Select VPN certificate:", "","OpenVPN files (*.ovpn)", options=options)
@@ -772,6 +768,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.openVPNfilenameLabel.setText(fileName)
             self.openVPNsubmitButton.setEnabled(True)
 
+    ### Opens a file select dialog to select a second open VPN certficate
     def selectVPNoptionalCertificate(self):
         options = QtWidgets.QFileDialog.Options()
         fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"Select second VPN certficate:", "","OpenVPN files (*.ovpn)", options=options)
@@ -780,6 +777,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.openVPNfilenameLabel2.setText(fileName)
             self.openVPNcertificate2Changed = True
 
+    ### Sets the VPN as the one input in the dialog
     def openVPNsubmit(self):
         certificate = self.openVPNfilenameLabel.text().replace("/",r'\\')
 
@@ -810,7 +808,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             msg.exec_()
 
 
-
+    ### Returns a dictionary of the apps running in the computer using internet
+    ## The dictionary is as such:
+    ##      key = [name of the app]
+    ##      value = list of the app's PID
     def getAppListWithInternet(self):
         dic = {}
         for proc in psutil.process_iter():
@@ -826,17 +827,24 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 pass
         return dic
 
+    ### Fills up the list of running apps using internet
     def fillAppList(self):
         self.listApp = self.getAppListWithInternet()
         for app in self.listApp:
+            ### Only creates a new item if the app is not already in the list
             if ( self.appInWappList(self.listApp, app) is False ):
                 self.createNewAppItem(app, self.listApp[app])
 
+    ### Fills up the list of running apps using internet, using a dictionary of all the apps as an argument
     def fillAppListWithDict(self, listApp):
         for app in listApp:
             if ( self.appInWappList(listApp, app) is False ):
                 self.createNewAppItem(app, listApp[app])
 
+    ### Compares two wapps
+    ## Takes a first wapp, the dictionary of running processes, and a second wapp as arguments
+    ## Returns True if the two wapps are the same
+    ## Returns false otherwise
     def compareWapp(self, wapp, apps, app):
         if(wapp.getProcessName() != app):
             return False
@@ -845,6 +853,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 return False
             return True
 
+    ### Checks if a wapp is already in the wapp list
+    ## Takes the dictionary of running processes and the wapp as arguments
+    ## Returns True is the wapp is in the list
+    ## Returns False otherwise
     def appInWappList(self, apps, app):
         for i in range(self.list.count()):
             wapp = self.list.item(i)
@@ -852,6 +864,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 return True
         return False
 
+    ### Clears the list of wapps, but only deletes an item if it is not a currently running process
     def clearList(self):
         apps = self.getAppListWithInternet()
         itemsToRemove = []
@@ -866,6 +879,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         for item in itemsToRemove:
             self.list.takeItem(self.list.row(item))
 
+    ### Clears the list of wapps, but only deletes an item if it is not a currently running process
+    ## Takes the dictionary of running processes as an argument
     def clearListWithList(self, apps):
         itemsToRemove = []
         for i in range(self.list.count()):
@@ -879,18 +894,21 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         for item in itemsToRemove:
             self.list.takeItem(self.list.row(item))
 
-
+    ### Resets the app list
     def resetAppList(self):
         self.secureForeverSecuredApps()
-        # self.clearList()
-        # self.fillAppList()
-        # self.appSearchBarTextChanged()
+        self.clearList()
+        self.fillAppList()
+        self.appSearchBarTextChanged()
 
+    ### Resets the app list
+    ## Takes the dictionary of running processes as an argument
     def resetAppListWithDict(self, listApp):
         self.clearListWithList(listApp)
         self.fillAppListWithDict(listApp)
         self.appSearchBarTextChanged()
 
+    ### Refresh the app list every 5 seconds, after an 8 second startup
     def autoRefreshList(self):
         time.sleep(8)
         while(self.appExit is False):
@@ -898,7 +916,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.secureForeverSecuredApps()
             time.sleep(5)
 
-
+    ### Submits the openVPN logins
     def submitOpenVPNid(self):
         fh = open("data/openVPNid.data", "w")
         fh.write(self.OpenVPNidLoginInput.text() + "\n" + self.OpenVPNidPasswordInput.text())
@@ -907,12 +925,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         msg.setText("Logins saved")
         msg.exec_()
 
+    ### Checks if the entered openVPN logins are valid
+    ## Returns true if they are
+    ## Returns false otherwise
     def checkIfValidOpenVPNLogins(self):
         if(self.OpenVPNidLoginInput.text() != "" and self.OpenVPNidPasswordInput.text() != ""):
             return True
         else:
             return False
 
+    ### Enables the openVPN logins submit button if the logins are valid
     def enableOpenVPNidSubmit(self):
         if(self.checkIfValidOpenVPNLogins() == True):
             self.OpenVPNidSubmitButton.setEnabled(True)
@@ -920,8 +942,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         else:
             self.OpenVPNidSubmitButton.setEnabled(False)
 
-
-
+    ### Do a ping and display the results
     def pingUpdate(self):
         packetsSent = 0
         packetsReceived = 0
@@ -966,6 +987,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.tabWidget.setTabIcon(2, QtGui.QIcon('./images/tabMonitoringColored.png'))
             self.tabWidget.setTabIcon(1, QtGui.QIcon('./images/tabAppsColored.png'))
 
+    ### Creates a new gapp item
+    ## Takes the name of the gapp as an argument
     def createNewGroupWidget(self, name):
         gapp = QtWidgets.QListWidgetItem(self.groupList)
         gapp_widget = GappWidget()
@@ -977,6 +1000,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.groupList.addItem(gapp)
         self.groupList.setItemWidget(gapp, gapp_widget)
 
+    ### Reads the groups file and add them to the list
     def addGroups(self):
         fr = open('data/groups.data', 'r')
         names = []
@@ -984,7 +1008,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         for name in fr.readlines():
             self.createNewGroupWidget(name.split("\n")[0])
 
-
+    ### Opens a dialog to create a new group
     def createNewGroup(self):
         fr = open('data/groups.data', 'r')
         groups = fr.readlines()
@@ -1008,6 +1032,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 msg.setText("Group already exists")
                 msg.exec_()
 
+    ### Adds the selected process(es) to the selected group
     def addToGroup(self):
         processes = []
         data_list = []
@@ -1037,12 +1062,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         selectedGroup.fillGroup()
 
+    ### Enables the add to group button if one or more processes and a group are selected
     def enableAddToGroupButton(self):
         if(self.list.selectedItems() and self.groupList.selectedItems()):
             self.buttonGroupAppAdd.setEnabled(True)
         else:
             self.buttonGroupAppAdd.setEnabled(False)
 
+    ### Deletes a group for the list and the files
     def deleteGroup(self, groupName):
         fg = open('data/groups.data' , 'r')
         group_list = fg.readlines()
@@ -1075,6 +1102,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.groupList.takeItem(indexToDelete)
 
+    ### Creates a model for the incoming connections table
     def createConnectionModel(self):
         model = QStandardItemModel(0, 3, self)
         model.setHeaderData(self.IP, Qt.Horizontal, "IP address")
@@ -1082,25 +1110,31 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         model.setHeaderData(self.STATUS, Qt.Horizontal, "Status")
         return model
 
+    ### Add a connection to the incoming connections table
+    ## Takes the model, the IP adress, the hostname and the status as arguments
     def addConnection(self,model, ip, hostname, status):
         self.incomingConnectionsModel.insertRow(0)
         self.incomingConnectionsModel.setData(self.incomingConnectionsModel.index(0, self.IP), ip)
         self.incomingConnectionsModel.setData(self.incomingConnectionsModel.index(0, self.HOSTNAME), hostname)
         self.incomingConnectionsModel.setData(self.incomingConnectionsModel.index(0, self.STATUS), status)
 
+    ### Adds all the connections from a list of connections entered as an argument
     def addAllConnections(self, incomingConnections):
         for incomingConnection in incomingConnections:
             self.addConnection(self.incomingConnectionsModel, incomingConnection, incomingConnections[incomingConnection]['Hostname'], incomingConnections[incomingConnection]['Status'])
 
+    ### Deletes all the connections from the table
     def deleteAllConnections(self):
         rangeModel = range(self.incomingConnectionsModel.rowCount())
         for i in rangeModel:
             self.incomingConnectionsModel.removeRow(self.incomingConnectionsList.indexAt(QtCore.QPoint(i,0)).row())
 
+    ### Deletes all the connections from the table and fill the list with a list of connections entered as an argument
     def resetConnectionsList(self, incomingConnections):
         self.deleteAllConnections()
         self.addAllConnections(incomingConnections)
 
+    ### Retrieves all the connections in the network, and refresh the table
     def manageConnectionsList(self):
         while(self.appExit is False):
             time.sleep(3)
@@ -1109,6 +1143,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             except (TypeError):
                 pass
 
+    ### Returns a list of dictionary of all the currently being performed security actions
+    ## Each element of the list is a dictionary as such:
+    ##  'processName' : [the process name of the affected app ]
+    ##  'actionType' : [the type of the action, always set to security in the current version of the software]
+    ##  'durationType' : [the type of duration of the action: 0: until the application closes; 1: for a set period of time; 2: forever]
+    ##  'durationTime' : [the duration if the action is of type 1 : "for a set period of time"]
     def getActionsList(self):
         fr = open('data/appsActions.data', 'r')
         actions = fr.readlines()
@@ -1125,6 +1165,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         return list
 
+    ### Returns a dictionary of all the groups
     def getGroups(self):
         fr = open('data/appGroups.data', 'r')
         groups = fr.readlines()
@@ -1195,6 +1236,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     except(AttributeError):
                         pass
 
+    ### Display the public IP of the network used, and refresh it every five seconds
     def displayIP(self):
         while(self.appExit is False):
             time.sleep(5)
@@ -1218,6 +1260,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         except:
             pass
 
+    ### Toggles the VPN status display automatically when needed
     def toggleVPNstatusDisplay(self):
         while(self.appExit is False):
             print(self.OpenVpnThread)
@@ -1230,18 +1273,22 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 self.vpnStatus.setInactive()
             time.sleep(1)
 
+    ### Starts or stop the VPN
     def toggleVPN(self):
         if (self.vpnStatus.getStatus() is False and self.OpenVpnThread != None):
             self.stopVPN()
         if (self.vpnStatus.getStatus() is True and self.OpenVpnThread == None):
             self.autoStartVPN()
 
+    ### Opens a browser page to the software's repository
     def openAbout(self):
         webbrowser.open('https://github.com/Piersees/NetAppControl')
 
+    ### Opens a browser page to the software's repository's readme
     def openHelp(self):
         webbrowser.open('https://github.com/Piersees/NetAppControl/blob/master/README.md')
 
+    ### Called when the application is closed
     def closeEvent(self, event):
         if(True):
             self.stopVPN()

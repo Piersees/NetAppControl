@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import *
 from appPopUpSecurity import appPopUpSecurity
 import time
 
+### This an abstract class for a group or app item, used to secure them
 class appAbstract(QWidget):
     def __init__(self, parent=None):
 
@@ -73,6 +74,7 @@ class appAbstract(QWidget):
     ### Triggers when the security button is clicked
     @pyqtSlot()
     def buttonSecurityClick(self):
+        ### If the app is not secured
         if self.secured is False:
             ### Open the form
             dialog = appPopUpSecurity()
@@ -81,6 +83,7 @@ class appAbstract(QWidget):
             ### Get the values entered
             value = dialog.exec_()
 
+            ### If the dialog was completed correctly
             if (value != None):
                 self.secured = True
 
@@ -110,17 +113,24 @@ class appAbstract(QWidget):
                     self.manageVPN(value["duration"], value["time"])
                 except (RuntimeError):
                     print("App PID has changed, aborting action")
+        ### If the app is secured
         else:
+            ### Remove the VPN
             self.secured = False
             self.buttonSecurity.setIcon(QIcon('./images/unlock.png'))
             self.stopVPN()
 
+    ### Virtual function to stop running the app through openVPN
     def stopVPN(self):
         pass
 
+    ### Virtual function to start running the app through openVPN
     def manageVPN(self, durationType, durationTime):
         pass
 
+    ### Checks if an openVPN certificate was registered
+    ## Returns true is so
+    ## Returns false otherwise
     @pyqtSlot()
     def hasRegisteredOpenVPNCertificate(self):
         fr = open('data/openVPNcertificates.data', "r")
