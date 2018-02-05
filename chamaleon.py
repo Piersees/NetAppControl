@@ -54,7 +54,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.setObjectName("self")
 
         ### Change the window's size
-        self.setFixedSize(1000, 600)
+        self.setFixedSize(985, 560)
 
         self.setStyleSheet("QInputDialog {background-color: white;} QInputDialog QLabel{color: rgb(41, 107, 116);font-size: 20px; border-bottom: 1px solid rgb(41, 107, 116); }"
         "QInputDialog QLineEdit {"
@@ -303,60 +303,31 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.bandWidthSig.connect(self.setBandWidthChart)
         self.packetsSig.connect(self.setPacketsChart)
 
-
-        ### Menu bar
-        self.menubar = QtWidgets.QMenuBar(self)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 813, 20))
-        self.menubar.setObjectName("menubar")
-        self.setMenuBar(self.menubar)
-
-        ### Status bar
-        self.statusbar = QtWidgets.QStatusBar(self)
-        self.statusbar.setObjectName("statusbar")
-        self.setStatusBar(self.statusbar)
-
-        ### Central widget
+        ### Central widget
         self.setCentralWidget(self.centralwidget)
 
         ### Layout for the home page
         self.groupBoxHome = QtWidgets.QGroupBox(self.home_tab)
-        self.groupBoxHome.setGeometry(QtCore.QRect(0, 290, 778, 260))
+        self.groupBoxHome.setGeometry(QtCore.QRect(-1, 424, 800, 150))
         self.groupBoxHome.setObjectName("groupBoxHome")
 
         self.horizontalLayoutHome = QtWidgets.QHBoxLayout(self.groupBoxHome)
         self.horizontalLayoutHome.setObjectName("horizontalLayoutHome")
 
-        ### Text browser
-        self.textBrowserHomeInfo = QtWidgets.QTextBrowser(self.groupBoxHome)
-        self.textBrowserHomeInfo.setObjectName("textBrowserHomeInfo")
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.textBrowserHomeInfo.sizePolicy().hasHeightForWidth())
-        self.textBrowserHomeInfo.setSizePolicy(sizePolicy)
-        self.textBrowserHomeInfo.setMaximumSize(QtCore.QSize(250, 16777215))
-        self.textBrowserHomeInfo.setText("[ INFORMATIONS ]")
-        self.horizontalLayoutHome.addWidget(self.textBrowserHomeInfo)
-
         ### Logo for the home page
         self.labelLogo = QtWidgets.QLabel(self.home_tab)
-        self.labelLogo.setGeometry(QtCore.QRect(330, 130, 55, 16))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.labelLogo.sizePolicy().hasHeightForWidth())
-        self.labelLogo.setSizePolicy(sizePolicy)
-        self.labelLogo.setBaseSize(QtCore.QSize(250, 250))
+        self.labelLogo.setGeometry(QtCore.QRect(200, 0, 400, 400))
+        pixmapLogo = QtGui.QPixmap('./images/logo.png')
+        self.labelLogo.setPixmap(pixmapLogo)
         self.labelLogo.setObjectName("labelLogo")
 
         ### Network groupbox
-        self.NetworkLayoutWidget = QtWidgets.QWidget(self.home_tab)
-        self.NetworkLayoutWidget.setGeometry(QtCore.QRect(600, 0, 200, 210))
-        self.NetworkLayout = QtWidgets.QVBoxLayout(self.NetworkLayoutWidget)
+        self.NetworkLayout = QtWidgets.QVBoxLayout()
+        self.horizontalLayoutHome.addLayout(self.NetworkLayout)
 
         ### Ip label
         self.Iplabel = QtWidgets.QLabel()
-        self.Iplabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.Iplabel.setAlignment(QtCore.Qt.AlignCenter)
         self.Iplabel.setObjectName("Iplabel")
         self.Iplabel.setText("Public IP adress: " + External_IP.Get_IP())
         self.NetworkLayout.addWidget(self.Iplabel)
@@ -370,14 +341,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### Ping label
         self.Pinglabel = QtWidgets.QLabel()
-        self.Pinglabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.Pinglabel.setAlignment(QtCore.Qt.AlignCenter)
         self.Pinglabel.setObjectName("PingLabel")
         self.Pinglabel.setText("Pinging...")
         self.PingLayout.addWidget(self.Pinglabel)
 
         ### Ping loss label
         self.PingLosslabel = QtWidgets.QLabel()
-        self.PingLosslabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.PingLosslabel.setAlignment(QtCore.Qt.AlignCenter)
         self.PingLosslabel.setObjectName("PingLabel")
         self.PingLosslabel.setText("")
         self.PingLayout.addWidget(self.PingLosslabel)
@@ -387,18 +358,38 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.threadPing = threading.Thread(target=self.pingUpdate)
         self.threadPing.start()
 
+        ### VPN layout
+        self.vpnLayout = QtWidgets.QVBoxLayout()
+        self.horizontalLayoutHome.addLayout(self.vpnLayout)
+
         ### VPN status
         self.vpnStatus = VPNstatusWidget()
-        self.NetworkLayout.addWidget(self.vpnStatus)
+        self.vpnLayout.addWidget(self.vpnStatus)
         self.vpnStatusThread = threading.Thread(target=self.toggleVPNstatusDisplay)
         self.vpnStatusThread.start()
 
         ### Stop VPN button
         self.vpnToggleButton1 = QPushButton()
-        self.NetworkLayout.addWidget(self.vpnToggleButton1)
+        self.vpnLayout.addWidget(self.vpnToggleButton1)
         self.vpnToggleButton1.clicked.connect(self.toggleVPN)
         self.vpnToggleButton1.setText("Toggle VPN")
 
+
+        ### About layout
+        self.aboutLayout = QtWidgets.QVBoxLayout()
+        self.horizontalLayoutHome.addLayout(self.aboutLayout)
+
+        ### About us button
+        self.aboutButton = QtWidgets.QPushButton()
+        self.aboutButton.setText("About us")
+        #self.aboutButton.clicked.connect(self.)
+        self.aboutLayout.addWidget(self.aboutButton)
+
+        ### Help button
+        self.HelpButton = QtWidgets.QPushButton()
+        self.HelpButton.setText("Help")
+        #self.HelpButton.clicked.connect(self.)
+        self.aboutLayout.addWidget(self.HelpButton)
 
         ### Create the application list
         self.list = QtWidgets.QListWidget()
@@ -636,24 +627,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "AppVPN"))
-
-        self.labelLogo.setText(_translate("MainWindow", "Logo"))
-
         self.bwChartDisplay()
         self.pktChartDisplay()
-
-        #self.arrr = getBandWidth(self)
-        #print(self.arrr[0])
-        #print(self.arrr[1])
-
-        self.pixmap = QtGui.QPixmap(os.getcwd() + 'logo.jpg')
-        self.myScaledPixmap = self.pixmap.scaled(self.labelLogo.size(), Qt.KeepAspectRatio)
-        self.labelLogo.setPixmap(self.myScaledPixmap)
-
-        self.textBrowserHomeInfo.append("\n\tVitesse: " + "1000000000 km/h");
-        self.textBrowserHomeInfo.append("\n\tNombre d'applications actives sur le réseau: "+"1000000000");
-
-        self.appSearchBar.setPlaceholderText(_translate("MainWindow", "Search"))
 
     @QtCore.pyqtSlot()
     def addAppClick(self):
