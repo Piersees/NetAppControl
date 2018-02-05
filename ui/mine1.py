@@ -59,7 +59,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.setObjectName("self")
 
         ### Change the window's size
-        self.resize(1000, 600)
+        self.setFixedSize(1000, 600)
 
         self.setStyleSheet("QInputDialog {background-color: white;} QInputDialog QLabel{color: rgb(41, 107, 116);font-size: 20px; border-bottom: 1px solid rgb(41, 107, 116); }"
         "QInputDialog QLineEdit {"
@@ -356,7 +356,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### Network groupbox
         self.NetworkLayoutWidget = QtWidgets.QWidget(self.home_tab)
-        self.NetworkLayoutWidget.setGeometry(QtCore.QRect(600, 0, 200, 150))
+        self.NetworkLayoutWidget.setGeometry(QtCore.QRect(600, 0, 200, 180))
         self.NetworkLayout = QtWidgets.QVBoxLayout(self.NetworkLayoutWidget)
 
         ### Ip label
@@ -634,7 +634,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.setWindowTitle(_translate("MainWindow", "AppVPN"))
 
         self.labelLogo.setText(_translate("MainWindow", "Logo"))
 
@@ -768,7 +768,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def selectVPNcertificate(self):
         options = QtWidgets.QFileDialog.Options()
-        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"QFileDialog.getOpenFileName()", "","OpenVPN files (*.ovpn)", options=options)
+        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"Select VPN certificate:", "","OpenVPN files (*.ovpn)", options=options)
 
         if(fileName != None):
             self.openVPNfilenameLabel.setText(fileName)
@@ -776,7 +776,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def selectVPNoptionalCertificate(self):
         options = QtWidgets.QFileDialog.Options()
-        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"QFileDialog.getOpenFileName()", "","OpenVPN files (*.ovpn)", options=options)
+        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(None,"Select second VPN certficate:", "","OpenVPN files (*.ovpn)", options=options)
 
         if(fileName != None):
             self.openVPNfilenameLabel2.setText(fileName)
@@ -1000,15 +1000,15 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 if (groupName == group.split("\n")[0]):
                     alreadyExists = True
 
-        if alreadyExists is False:
-            fw = open('../data/groups.data', "a")
-            fw.write(groupName + "\n")
-            self.createNewGroupWidget(groupName)
-            fw.close()
-        else:
-            msg = QtWidgets.QMessageBox()
-            msg.setText("Group already exists")
-            msg.exec_()
+            if alreadyExists is False:
+                fw = open('../data/groups.data', "a")
+                fw.write(groupName + "\n")
+                self.createNewGroupWidget(groupName)
+                fw.close()
+            else:
+                msg = QtWidgets.QMessageBox()
+                msg.setText("Group already exists")
+                msg.exec_()
 
     def addToGroup(self):
         processes = []
@@ -1155,14 +1155,27 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             app = self.list.itemWidget(wapp)
             appList.append(app)
 
-        groups = self.getGroups()
+        groups = []
+        for i in range(self.groupList.count()):
+            gapp = self.groupList.item(i)
+            group = self.groupList.itemWidget(gapp)
+            groups.append(group)
 
         for action in actions:
+            if ( (action['actionType'] == "security") and (int(action['durationType']) == 2) ):
+                for gapp in groups:
+                    try:
+                        if(gapp.getName() == action['processName'] and gapp.getSecured() is False):
+                            wapps = []
+                            for i in range(self.list.count()):
+                                wapp = self.list.item(i)
+                                app = self.list.itemWidget(wapp)
+                                if(app.getProcessName() in gapp.returnGroupNameList()):
+                                    wapps.append(app)
+                            gapp.groupManageVPN(action['durationType'], action['durationTime'], wapps)
+                    except(AttributeError):
+                        pass
 
-            if action["processName"] in groups:
-                for app in appList:
-                    if app.getProcessName() in groups[action["processName"]] and app.getSecured() is False:
-                        app.manageVPN(action['durationType'], action['durationTime'])
 
             if ( (action['actionType'] == "security") and (int(action['durationType']) == 2) ):
                 for app in appList:

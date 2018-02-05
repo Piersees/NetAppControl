@@ -21,31 +21,31 @@ class appAbstract(QWidget):
 
         ### Create the sub widgets
         self.label = QLabel("")
-        self.buttonNetwork = QPushButton()
+        #self.buttonNetwork = QPushButton()
         self.buttonSecurity = QPushButton()
 
         ### Resize the self.buttons
         self.sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.sizePolicy.setHorizontalStretch(0)
         self.sizePolicy.setVerticalStretch(0)
-        self.buttonNetwork.setSizePolicy(self.sizePolicy)
+        #self.buttonNetwork.setSizePolicy(self.sizePolicy)
         self.buttonSecurity.setSizePolicy(self.sizePolicy)
 
         ### Add the sub widgets to a layout
         self.layout = QHBoxLayout()
         self.layout.addWidget(self.label)
-        self.layout.addWidget(self.buttonNetwork)
+        #self.layout.addWidget(self.buttonNetwork)
         self.layout.addWidget(self.buttonSecurity)
 
         ### Add an image to the buttons
-        self.buttonNetwork.setIcon(QIcon('./images/wifi.png'))
-        self.buttonSecurity.setIcon(QIcon('./images/lock.png'))
+        #self.buttonNetwork.setIcon(QIcon('./images/wifi.png'))
+        self.buttonSecurity.setIcon(QIcon('./images/unlock.png'))
 
         ### Set the layout to the widget
         self.setLayout(self.layout)
 
         ### Connect the buttons to functions
-        self.buttonNetwork.clicked.connect(self.buttonNetworkClick)
+        #self.buttonNetwork.clicked.connect(self.buttonNetworkClick)
         self.buttonSecurity.clicked.connect(self.buttonSecurityClick)
 
         ### Enables de security button if an OpenVPN certificate is present
@@ -137,6 +137,8 @@ class appAbstract(QWidget):
             value = dialog.exec_()
 
             if (value != None):
+                self.secured = True
+
                 ### Read the current actions file
                 filename = "../data/appsActions.data"
                 fr = open(filename, "r")
@@ -159,10 +161,13 @@ class appAbstract(QWidget):
                     fh.writelines(data_list)
                     fh.close()
 
+                    self.buttonSecurity.setIcon(QIcon('./images/lock.png'))
                     self.manageVPN(value["duration"], value["time"])
                 except (RuntimeError):
                     print("App PID has changed, aborting action")
         else:
+            self.secured = False
+            self.buttonSecurity.setIcon(QIcon('./images/unlock.png'))
             self.stopVPN()
 
     def stopVPN(self):
