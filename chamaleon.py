@@ -243,8 +243,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.incomingConnectionsModel = self.createConnectionModel()
         self.incomingConnectionsList.setModel(self.incomingConnectionsModel)
 
-        self.threadIncomingConnections = threading.Thread(target=self.manageConnectionsList)
-        self.threadIncomingConnections.start()
+        #self.threadIncomingConnections = threading.Thread(target=self.manageConnectionsList)
+        #self.threadIncomingConnections.start()
 
         self.incomingConnectionSig.connect(self.resetConnectionsList)
 
@@ -1198,11 +1198,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def toggleVPNstatusDisplay(self):
         while(self.appExit is False):
+            print(self.OpenVpnThread)
             if (self.vpnStatus.getStatus() is False and self.OpenVpnThread != None):
                 self.vpnStatus.setActive()
                 ### Secure the needed apps in the list
                 self.secureForeverSecuredApps()
             if (self.vpnStatus.getStatus() is True and self.OpenVpnThread == None):
+                print("Out")
                 self.vpnStatus.setInactive()
             time.sleep(1)
 
