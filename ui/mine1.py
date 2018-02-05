@@ -6,7 +6,9 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-from PyQt5 import Qt, QtWidgets
+from PyQt5 import Qt, QtCore, QtGui, QtWidgets, QtQuick
+from PyQt5.QtGui import QPolygonF, QPainter
+from PyQt5.Qt import Qt
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -14,25 +16,26 @@ from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg
 import os
-import webbrowser
 import threading
 import psutil
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-import sys
-sys.path.append("ui")
 from wapp import WappWidget
 from gapp import GappWidget
 from speedtestwidget import SpeedTestWidget
 from VPNstatusWidget import VPNstatusWidget
+import sys
 import time
 sys.path.append("../Network")
+import SpeedTest
 import External_IP
 import ping
 import NetworkScan
 from BandWidth import getBandWidth, getBandWidthDiff
 import openvpn
 from Stats import GetPacketStats
+from Wifi_stat import wifi_info
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     bandWidthSig = QtCore.pyqtSignal(int,int)
@@ -56,7 +59,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.setObjectName("self")
 
         ### Change the window's size
-        self.setFixedSize(985, 560)
+        self.setFixedSize(1000, 600)
 
         self.setStyleSheet("QInputDialog {background-color: white;} QInputDialog QLabel{color: rgb(41, 107, 116);font-size: 20px; border-bottom: 1px solid rgb(41, 107, 116); }"
         "QInputDialog QLineEdit {"
@@ -234,6 +237,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.BWplot.addItem(self.BWtextDL)
         self.BWpercentageVPN = pg.TextItem("test", color=(41, 107, 116), anchor=(1,-2.5))
         self.BWplot.addItem(self.BWpercentageVPN)
+
         ## Incoming connections tab
         self.incomingConnectionsMainLayout = QVBoxLayout()
         self.bwTabConnections.setLayout(self.incomingConnectionsMainLayout)
@@ -251,8 +255,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.incomingConnectionsModel = self.createConnectionModel()
         self.incomingConnectionsList.setModel(self.incomingConnectionsModel)
 
-        #self.threadIncomingConnections = threading.Thread(target=self.manageConnectionsList)
-        #self.threadIncomingConnections.start()
+        self.threadIncomingConnections = threading.Thread(target=self.manageConnectionsList)
+        self.threadIncomingConnections.start()
 
         self.incomingConnectionSig.connect(self.resetConnectionsList)
 
@@ -320,31 +324,60 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.bandWidthSig.connect(self.setBandWidthChart)
         self.packetsSig.connect(self.setPacketsChart)
 
-        ### Central widget
+
+        ### Menu bar
+        self.menubar = QtWidgets.QMenuBar(self)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 813, 20))
+        self.menubar.setObjectName("menubar")
+        self.setMenuBar(self.menubar)
+
+        ### Status bar
+        self.statusbar = QtWidgets.QStatusBar(self)
+        self.statusbar.setObjectName("statusbar")
+        self.setStatusBar(self.statusbar)
+
+        ### Central widget
         self.setCentralWidget(self.centralwidget)
 
         ### Layout for the home page
         self.groupBoxHome = QtWidgets.QGroupBox(self.home_tab)
-        self.groupBoxHome.setGeometry(QtCore.QRect(-1, 424, 800, 150))
+        self.groupBoxHome.setGeometry(QtCore.QRect(0, 290, 778, 260))
         self.groupBoxHome.setObjectName("groupBoxHome")
 
         self.horizontalLayoutHome = QtWidgets.QHBoxLayout(self.groupBoxHome)
         self.horizontalLayoutHome.setObjectName("horizontalLayoutHome")
 
+        ### Text browser
+        self.textBrowserHomeInfo = QtWidgets.QTextBrowser(self.groupBoxHome)
+        self.textBrowserHomeInfo.setObjectName("textBrowserHomeInfo")
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.textBrowserHomeInfo.sizePolicy().hasHeightForWidth())
+        self.textBrowserHomeInfo.setSizePolicy(sizePolicy)
+        self.textBrowserHomeInfo.setMaximumSize(QtCore.QSize(250, 16777215))
+        self.textBrowserHomeInfo.setText("[ INFORMATIONS ]")
+        self.horizontalLayoutHome.addWidget(self.textBrowserHomeInfo)
+
         ### Logo for the home page
         self.labelLogo = QtWidgets.QLabel(self.home_tab)
-        self.labelLogo.setGeometry(QtCore.QRect(200, 0, 400, 400))
-        pixmapLogo = QtGui.QPixmap('./images/logo.png')
-        self.labelLogo.setPixmap(pixmapLogo)
+        self.labelLogo.setGeometry(QtCore.QRect(330, 130, 55, 16))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.labelLogo.sizePolicy().hasHeightForWidth())
+        self.labelLogo.setSizePolicy(sizePolicy)
+        self.labelLogo.setBaseSize(QtCore.QSize(250, 250))
         self.labelLogo.setObjectName("labelLogo")
 
         ### Network groupbox
-        self.NetworkLayout = QtWidgets.QVBoxLayout()
-        self.horizontalLayoutHome.addLayout(self.NetworkLayout)
+        self.NetworkLayoutWidget = QtWidgets.QWidget(self.home_tab)
+        self.NetworkLayoutWidget.setGeometry(QtCore.QRect(600, 0, 200, 180))
+        self.NetworkLayout = QtWidgets.QVBoxLayout(self.NetworkLayoutWidget)
 
         ### Ip label
         self.Iplabel = QtWidgets.QLabel()
-        self.Iplabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.Iplabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.Iplabel.setObjectName("Iplabel")
         self.Iplabel.setText("Public IP adress: " + External_IP.Get_IP())
         self.NetworkLayout.addWidget(self.Iplabel)
@@ -358,14 +391,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### Ping label
         self.Pinglabel = QtWidgets.QLabel()
-        self.Pinglabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.Pinglabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.Pinglabel.setObjectName("PingLabel")
         self.Pinglabel.setText("Pinging...")
         self.PingLayout.addWidget(self.Pinglabel)
 
         ### Ping loss label
         self.PingLosslabel = QtWidgets.QLabel()
-        self.PingLosslabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.PingLosslabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.PingLosslabel.setObjectName("PingLabel")
         self.PingLosslabel.setText("")
         self.PingLayout.addWidget(self.PingLosslabel)
@@ -375,38 +408,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.threadPing = threading.Thread(target=self.pingUpdate)
         self.threadPing.start()
 
-        ### VPN layout
-        self.vpnLayout = QtWidgets.QVBoxLayout()
-        self.horizontalLayoutHome.addLayout(self.vpnLayout)
-
         ### VPN status
-        self.vpnStatus = VPNstatusWidget()
-        self.vpnLayout.addWidget(self.vpnStatus)
+        self.vpnStatus = VPNstatusWidget(self.home_tab)
+        self.NetworkLayout.addWidget(self.vpnStatus)
         self.vpnStatusThread = threading.Thread(target=self.toggleVPNstatusDisplay)
         self.vpnStatusThread.start()
 
-        ### Stop VPN button
-        self.vpnToggleButton1 = QPushButton()
-        self.vpnLayout.addWidget(self.vpnToggleButton1)
-        self.vpnToggleButton1.clicked.connect(self.toggleVPN)
-        self.vpnToggleButton1.setText("Toggle VPN")
-
-
-        ### About layout
-        self.aboutLayout = QtWidgets.QVBoxLayout()
-        self.horizontalLayoutHome.addLayout(self.aboutLayout)
-
-        ### About us button
-        self.aboutButton = QtWidgets.QPushButton()
-        self.aboutButton.setText("About us")
-        self.aboutButton.clicked.connect(self.openAbout)
-        self.aboutLayout.addWidget(self.aboutButton)
-
-        ### Help button
-        self.HelpButton = QtWidgets.QPushButton()
-        self.HelpButton.setText("Help")
-        self.HelpButton.clicked.connect(self.openHelp)
-        self.aboutLayout.addWidget(self.HelpButton)
 
         ### Create the application list
         self.list = QtWidgets.QListWidget()
@@ -615,12 +622,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def autoStartVPN(self):
         try:
-            fh = open("data/openVPNcertificates.data", "r").read().splitlines()
+            fh = open("../data/openVPNcertificates.data", "r").read().splitlines()
             certificate = fh[0]
             print(certificate)
             try:
                 (self.OpenVpnThread,self.nic) = openvpn.mainVPN(certificate)
-                fw = open("data/openVPNcertificates.data", "w")
+                fw = open("../data/openVPNcertificates.data", "w")
                 fw.write(certificate + "\n")
                 if( self.openVPNcertificate2Changed is not False ):
                     certificate2 = self.openVPNfilenameLabel2.text().replace("/",r'\\')
@@ -644,8 +651,24 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("MainWindow", "AppVPN"))
+
+        self.labelLogo.setText(_translate("MainWindow", "Logo"))
+
         self.bwChartDisplay()
         self.pktChartDisplay()
+
+        #self.arrr = getBandWidth(self)
+        #print(self.arrr[0])
+        #print(self.arrr[1])
+
+        self.pixmap = QtGui.QPixmap(os.getcwd() + 'logo.jpg')
+        self.myScaledPixmap = self.pixmap.scaled(self.labelLogo.size(), Qt.KeepAspectRatio)
+        self.labelLogo.setPixmap(self.myScaledPixmap)
+
+        self.textBrowserHomeInfo.append("\n\tVitesse: " + "1000000000 km/h");
+        self.textBrowserHomeInfo.append("\n\tNombre d'applications actives sur le réseau: "+"1000000000");
+
+        self.appSearchBar.setPlaceholderText(_translate("MainWindow", "Search"))
 
     @QtCore.pyqtSlot()
     def addAppClick(self):
@@ -718,7 +741,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.BWtextUL.setText('Current UL speed: %0.1f kB/s' % up)
         self.BWtextDL.setText('Current DL speed: %0.1f kB/s' % down)
         percentage = getBandWidthDiff(self.nic)
-        self.BWpercentageVPN.setText('Bandwidth used by VPN:'+ percentage)
+        self.BWpercentageVPN.setText('Bandwidth used by VPN: %0.1f %%' % percentage)
 
         self.ptrBW += 1
         self.curveUL.setData(self.dataUL[:self.ptrBW])
@@ -786,7 +809,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         try:
             (self.OpenVpnThread,self.nic) = openvpn.mainVPN(certificate)
 
-            fw = open("data/openVPNcertificates.data", "w")
+            fw = open("../data/openVPNcertificates.data", "w")
             fw.write(certificate + "\n")
             if( self.openVPNcertificate2Changed is not False ):
                 certificate2 = self.openVPNfilenameLabel2.text().replace("/",r'\\')
@@ -900,7 +923,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 
     def submitOpenVPNid(self):
-        fh = open("data/openVPNid.data", "w")
+        fh = open("../data/openVPNid.data", "w")
         fh.write(self.OpenVPNidLoginInput.text() + "\n" + self.OpenVPNidPasswordInput.text())
         fh.close()
         msg = QtWidgets.QMessageBox()
@@ -978,7 +1001,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.groupList.setItemWidget(gapp, gapp_widget)
 
     def addGroups(self):
-        fr = open('data/groups.data', 'r')
+        fr = open('../data/groups.data', 'r')
         names = []
 
         for name in fr.readlines():
@@ -986,7 +1009,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 
     def createNewGroup(self):
-        fr = open('data/groups.data', 'r')
+        fr = open('../data/groups.data', 'r')
         groups = fr.readlines()
         fr.close()
 
@@ -999,7 +1022,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     alreadyExists = True
 
             if alreadyExists is False:
-                fw = open('data/groups.data', "a")
+                fw = open('../data/groups.data', "a")
                 fw.write(groupName + "\n")
                 self.createNewGroupWidget(groupName)
                 fw.close()
@@ -1018,8 +1041,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         selectedGroup = self.groupList.itemWidget( self.groupList.selectedItems()[0] )
         name = selectedGroup.getName()
 
-        fw = open('data/appGroups.data', 'a')
-        fr = open('data/appGroups.data', 'r')
+        fw = open('../data/appGroups.data', 'a')
+        fr = open('../data/appGroups.data', 'r')
         existingProcesses = fr.readlines()
         fr.close()
 
@@ -1044,10 +1067,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.buttonGroupAppAdd.setEnabled(False)
 
     def deleteGroup(self, groupName):
-        fg = open('data/groups.data' , 'r')
+        fg = open('../data/groups.data' , 'r')
         group_list = fg.readlines()
         fg.close()
-        fg = open('data/appGroups.data', 'r')
+        fg = open('../data/appGroups.data', 'r')
         groupApps_list = fg.readlines()
         fg.close()
 
@@ -1061,10 +1084,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             if ( groupName != groupApp.split("|")[0] ):
                 insertGroupApps.append(groupApp)
 
-        fw = open('data/groups.data' , 'w')
+        fw = open('../data/groups.data' , 'w')
         fw.writelines(insertGroups)
         fw.close()
-        fw = open('data/appGroups.data', 'w')
+        fw = open('../data/appGroups.data', 'w')
         fw.writelines(insertGroupApps)
         fw.close()
 
@@ -1110,7 +1133,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 pass
 
     def getActionsList(self):
-        fr = open('data/appsActions.data', 'r')
+        fr = open('../data/appsActions.data', 'r')
         actions = fr.readlines()
         fr.close()
         list = []
@@ -1126,7 +1149,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         return list
 
     def getGroups(self):
-        fr = open('data/appGroups.data', 'r')
+        fr = open('../data/appGroups.data', 'r')
         groups = fr.readlines()
         fr.close()
         dic = {}
@@ -1220,27 +1243,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def toggleVPNstatusDisplay(self):
         while(self.appExit is False):
-            print(self.OpenVpnThread)
             if (self.vpnStatus.getStatus() is False and self.OpenVpnThread != None):
                 self.vpnStatus.setActive()
                 ### Secure the needed apps in the list
                 self.secureForeverSecuredApps()
             if (self.vpnStatus.getStatus() is True and self.OpenVpnThread == None):
-                print("Out")
                 self.vpnStatus.setInactive()
             time.sleep(1)
-
-    def toggleVPN(self):
-        if (self.vpnStatus.getStatus() is False and self.OpenVpnThread != None):
-            self.stopVPN()
-        if (self.vpnStatus.getStatus() is True and self.OpenVpnThread == None):
-            self.autoStartVPN()
-
-    def openAbout(self):
-        webbrowser.open('https://github.com/Piersees/NetAppControl')
-
-    def openHelp(self):
-        webbrowser.open('https://github.com/Piersees/NetAppControl/blob/master/README.md')
 
     def closeEvent(self, event):
         if(True):
