@@ -29,6 +29,7 @@ sys.path.append("../Network")
 import External_IP
 import ping
 import NetworkScan
+from BandWidth import getBandWidth, getBandWidthDiff
 import openvpn
 from Stats import GetPacketStats
 
@@ -715,7 +716,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.BWtextUL.setText('Current UL speed: %0.1f kB/s' % up)
         self.BWtextDL.setText('Current DL speed: %0.1f kB/s' % down)
-        self.BWpercentageVPN.setText('Bandwidth used by VPN: %0.1f %%' % down)
+        percentage = getBandWidthDiff(self.nic)
+        self.BWpercentageVPN.setText('Bandwidth used by VPN:'+ percentage)
 
         self.ptrBW += 1
         self.curveUL.setData(self.dataUL[:self.ptrBW])
