@@ -1090,7 +1090,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                 app = self.list.itemWidget(wapp)
                                 if(app.getProcessName() in gapp.returnGroupNameList()):
                                     wapps.append(app)
-                            gapp.manageVPN(wapps,action['durationType'], action['durationTime'])
+                            gapp.groupManageVPN(action['durationType'], action['durationTime'], wapps)
                     except(AttributeError):
                         pass
 

@@ -115,7 +115,7 @@ class GappWidget(appAbstract):
     def manageNetwork(self, durationType, durationTime):
         pass
 
-    def manageVPN(self, wapps, durationType, durationTime):
+    def groupManageVPN(self, durationType, durationTime, wapps):
         for app in wapps:
             if app.getSecured() is False:
                 app.manageVPN(durationType, durationTime)

@@ -39,7 +39,7 @@ class appAbstract(QWidget):
 
         ### Add an image to the buttons
         #self.buttonNetwork.setIcon(QIcon('./images/wifi.png'))
-        self.buttonSecurity.setIcon(QIcon('./images/lock.png'))
+        self.buttonSecurity.setIcon(QIcon('./images/unlock.png'))
 
         ### Set the layout to the widget
         self.setLayout(self.layout)
@@ -137,6 +137,8 @@ class appAbstract(QWidget):
             value = dialog.exec_()
 
             if (value != None):
+                self.secured = True
+
                 ### Read the current actions file
                 filename = "../data/appsActions.data"
                 fr = open(filename, "r")
@@ -159,10 +161,13 @@ class appAbstract(QWidget):
                     fh.writelines(data_list)
                     fh.close()
 
+                    self.buttonSecurity.setIcon(QIcon('./images/lock.png'))
                     self.manageVPN(value["duration"], value["time"])
                 except (RuntimeError):
                     print("App PID has changed, aborting action")
         else:
+            self.secured = False
+            self.buttonSecurity.setIcon(QIcon('./images/unlock.png'))
             self.stopVPN()
 
     def stopVPN(self):
