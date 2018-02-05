@@ -1073,17 +1073,28 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             app = self.list.itemWidget(wapp)
             appList.append(app)
 
-        groups = self.getGroups()
+        groups = []
+        for i in range(self.groupList.count()):
+            gapp = self.groupList.item(i)
+            group = self.groupList.itemWidget(gapp)
+            groups.append(group)
 
         for action in actions:
-
-            if action["processName"] in groups:
-                for app in appList:
+            if ( (action['actionType'] == "security") and (int(action['durationType']) == 2) ):
+                for gapp in groups:
                     try:
-                        if app.getProcessName() in groups[action["processName"]] and app.getSecured() is False:
-                            app.manageVPN(action['durationType'], action['durationTime'])
+                        if(gapp.getName() == action['processName'] and gapp.getSecured() is False):
+                            wapps = []
+                            for i in range(self.list.count()):
+                                wapp = self.list.item(i)
+                                app = self.list.itemWidget(wapp)
+                                if(app.getProcessName() in gapp.returnGroupNameList()):
+                                    wapps.append(app)
+                            gapp.manageVPN(wapps,action['durationType'], action['durationTime'])
                     except(AttributeError):
                         pass
+
+
             if ( (action['actionType'] == "security") and (int(action['durationType']) == 2) ):
                 for app in appList:
                     try:
