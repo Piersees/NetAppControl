@@ -310,7 +310,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### Network groupbox
         self.NetworkLayoutWidget = QtWidgets.QWidget(self.home_tab)
-        self.NetworkLayoutWidget.setGeometry(QtCore.QRect(600, 0, 200, 180))
+        self.NetworkLayoutWidget.setGeometry(QtCore.QRect(600, 0, 200, 210))
         self.NetworkLayout = QtWidgets.QVBoxLayout(self.NetworkLayoutWidget)
 
         ### Ip label
@@ -347,10 +347,16 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.threadPing.start()
 
         ### VPN status
-        self.vpnStatus = VPNstatusWidget(self.home_tab)
+        self.vpnStatus = VPNstatusWidget()
         self.NetworkLayout.addWidget(self.vpnStatus)
         self.vpnStatusThread = threading.Thread(target=self.toggleVPNstatusDisplay)
         self.vpnStatusThread.start()
+
+        ### Stop VPN button
+        self.vpnToggleButton1 = QPushButton()
+        self.NetworkLayout.addWidget(self.vpnToggleButton1)
+        self.vpnToggleButton1.clicked.connect(self.toggleVPN)
+        self.vpnToggleButton1.setText("Toggle VPN")
 
 
         ### Create the application list
@@ -1147,6 +1153,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             if (self.vpnStatus.getStatus() is True and self.OpenVpnThread == None):
                 self.vpnStatus.setInactive()
             time.sleep(1)
+
+    def toggleVPN(self):
+        if (self.vpnStatus.getStatus() is False and self.OpenVpnThread != None):
+            self.stopVPN()
+        if (self.vpnStatus.getStatus() is True and self.OpenVpnThread == None):
+            self.autoStartVPN()
 
     def closeEvent(self, event):
         if(True):
