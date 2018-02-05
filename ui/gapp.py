@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import *
 from appAbstract import appAbstract
 from appsInGroupWidget import appsInGroupWidget
 import time
+from wapp import WappWidget
 
 class GappWidget(appAbstract):
     delInGroupSig = pyqtSignal(list)
@@ -38,6 +39,8 @@ class GappWidget(appAbstract):
         self.buttonDelete.clicked.connect(self.deleteElement)
 
         self.delInGroupSig.connect(self.delInGroup)
+
+        self.securedAppList = []
 
     @pyqtSlot(str)
     def setName(self, value):
@@ -109,13 +112,21 @@ class GappWidget(appAbstract):
         fw.writelines(insertData)
         fw.close()
 
-    def manageNetwork(self, durationType, durationTime, bandwidth, bandwidthType):
-        ### TODO: regulate network
+    def manageNetwork(self, durationType, durationTime):
         pass
 
-    def manageVPN(self, durationType, durationTime):
-        ### TODO: link with VPN
-        pass
+    def manageVPN(self, wapps, durationType, durationTime):
+        for app in wapps:
+            if app.getSecured() is False:
+                app.manageVPN(durationType, durationTime)
+                self.securedAppList.append(app)
+
+    def stopVPN(self):
+        try:
+            for app in self.securedAppList:
+                app.stopVPN()
+        except:
+            pass
 
 if __name__ == "__main__":
     import sys
