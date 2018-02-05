@@ -310,7 +310,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### Network groupbox
         self.NetworkLayoutWidget = QtWidgets.QWidget(self.home_tab)
-        self.NetworkLayoutWidget.setGeometry(QtCore.QRect(600, 0, 200, 150))
+        self.NetworkLayoutWidget.setGeometry(QtCore.QRect(600, 0, 200, 180))
         self.NetworkLayout = QtWidgets.QVBoxLayout(self.NetworkLayoutWidget)
 
         ### Ip label
@@ -1079,9 +1079,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
             if action["processName"] in groups:
                 for app in appList:
-                    if app.getProcessName() in groups[action["processName"]] and app.getSecured() is False:
-                        app.manageVPN(action['durationType'], action['durationTime'])
-
+                    try:
+                        if app.getProcessName() in groups[action["processName"]] and app.getSecured() is False:
+                            app.manageVPN(action['durationType'], action['durationTime'])
+                    except(AttributeError):
+                        pass
             if ( (action['actionType'] == "security") and (int(action['durationType']) == 2) ):
                 for app in appList:
                     try:

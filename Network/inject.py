@@ -136,6 +136,7 @@ def ChangeProcessIp(pidlist,processName,card):
     d = {}
     # get ip of the card
     ip = getIpAddress(socket.AF_INET,card)
+    print(ip)
 
     print(pidlist)
     for pid in pidlist:
