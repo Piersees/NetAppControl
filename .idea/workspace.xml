@@ -15,11 +15,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
-      <file leaf-file-name="mine1.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="mine1.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/mine1.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="268">
-              <caret line="293" column="56" lean-forward="false" selection-start-line="293" selection-start-column="56" selection-end-line="293" selection-end-column="56" />
+            <state relative-caret-position="237">
+              <caret line="1225" column="36" lean-forward="false" selection-start-line="1225" selection-start-column="36" selection-end-line="1225" selection-end-column="36" />
               <folding>
                 <element signature="e#194#225#0" expanded="true" />
               </folding>
@@ -27,14 +27,12 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Interfaces.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Network/Interfaces.py">
+      <file leaf-file-name="NetworkScan.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Network/NetworkScan.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="42">
-              <caret line="2" column="13" lean-forward="false" selection-start-line="2" selection-start-column="13" selection-end-line="2" selection-end-column="13" />
-              <folding>
-                <element signature="e#1#21#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="441">
+              <caret line="34" column="10" lean-forward="false" selection-start-line="34" selection-start-column="10" selection-end-line="34" selection-end-column="10" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -51,7 +49,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="setup.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="setup.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ui/setup.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="189">
@@ -66,7 +64,7 @@
       <file leaf-file-name="speedtestwidget.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ui/speedtestwidget.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="544">
+            <state relative-caret-position="458">
               <caret line="202" column="19" lean-forward="false" selection-start-line="202" selection-start-column="19" selection-end-line="202" selection-end-column="19" />
               <folding>
                 <element signature="e#197#223#0" expanded="true" />
@@ -122,9 +120,11 @@
       <file leaf-file-name="openvpn.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Network/openvpn.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="387">
-              <caret line="47" column="26" lean-forward="false" selection-start-line="47" selection-start-column="26" selection-end-line="47" selection-end-column="26" />
-              <folding />
+            <state relative-caret-position="525">
+              <caret line="25" column="12" lean-forward="false" selection-start-line="25" selection-start-column="12" selection-end-line="25" selection-end-column="12" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -140,11 +140,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>print</find>
-      <find>OpenVpnThread</find>
-      <find>applistwi</find>
-      <find>desc</find>
-      <find>deleteAction</find>
       <find>clean</find>
       <find>appsActions</find>
       <find>openVpnT</find>
@@ -165,11 +160,16 @@
       <find>injec</find>
       <find>Sp</find>
       <find>../</find>
-      <find>../d</find>
       <find>./images</find>
       <find>ima</find>
       <find>ui/im</find>
       <find>../data</find>
+      <find>Netwo</find>
+      <find>NetworkSca</find>
+      <find>manageConnectionsList</find>
+      <find>../d</find>
+      <find>openVPNThrea</find>
+      <find>toggleVPNstatusDisplay</find>
     </findStrings>
     <replaceStrings>
       <replace>../data/</replace>
@@ -212,11 +212,11 @@
         <option value="$PROJECT_DIR$/ui/speedtestwidget.py" />
         <option value="$PROJECT_DIR$/ui/appAbstract.py" />
         <option value="$PROJECT_DIR$/ui/gapp.py" />
-        <option value="$PROJECT_DIR$/Network/openvpn.py" />
         <option value="$PROJECT_DIR$/Network/inject.py" />
-        <option value="$PROJECT_DIR$/mine1.py" />
         <option value="$PROJECT_DIR$/ui/setup.py" />
         <option value="$PROJECT_DIR$/ui/wapp.py" />
+        <option value="$PROJECT_DIR$/Network/openvpn.py" />
+        <option value="$PROJECT_DIR$/mine1.py" />
       </list>
     </option>
   </component>
@@ -312,7 +312,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.setup">
+  <component name="RunManager" selected="Python.mine1 (1)">
     <configuration default="false" name="mine1" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -476,9 +476,9 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.setup" />
-        <item index="1" class="java.lang.String" itemvalue="Python.setup (1)" />
-        <item index="2" class="java.lang.String" itemvalue="Python.mine1 (1)" />
+        <item index="0" class="java.lang.String" itemvalue="Python.mine1 (1)" />
+        <item index="1" class="java.lang.String" itemvalue="Python.setup" />
+        <item index="2" class="java.lang.String" itemvalue="Python.setup (1)" />
         <item index="3" class="java.lang.String" itemvalue="Python.mine1" />
         <item index="4" class="java.lang.String" itemvalue="Python.Interfaces" />
       </list>
@@ -517,14 +517,14 @@
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13265306" sideWeight="0.83235294" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295583" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22989808" sideWeight="0.5064447" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22197056" sideWeight="0.5085929" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298969" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22197056" sideWeight="0.4935553" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22197056" sideWeight="0.4914071" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.10955961" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.13319013" sideWeight="0.16764706" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38391846" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19818799" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -631,13 +631,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Network/NetworkScan.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="525">
-          <caret line="26" column="27" lean-forward="false" selection-start-line="26" selection-start-column="27" selection-end-line="26" selection-end-column="27" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Network/App.py" />
     <entry file="file://$PROJECT_DIR$/Network/External_IP.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -724,16 +717,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ui/speedtestwidget.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="544">
-          <caret line="202" column="19" lean-forward="false" selection-start-line="202" selection-start-column="19" selection-end-line="202" selection-end-column="19" />
-          <folding>
-            <element signature="e#197#223#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Network/inject.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="437">
@@ -749,24 +732,6 @@
         <state relative-caret-position="261">
           <caret line="39" column="22" lean-forward="false" selection-start-line="39" selection-start-column="19" selection-end-line="39" selection-end-column="22" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Network/openvpn.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="387">
-          <caret line="47" column="26" lean-forward="false" selection-start-line="47" selection-start-column="26" selection-end-line="47" selection-end-column="26" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mine1.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="268">
-          <caret line="293" column="56" lean-forward="false" selection-start-line="293" selection-start-column="56" selection-end-line="293" selection-end-column="56" />
-          <folding>
-            <element signature="e#194#225#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -798,12 +763,50 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Network/NetworkScan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="441">
+          <caret line="34" column="10" lean-forward="false" selection-start-line="34" selection-start-column="10" selection-end-line="34" selection-end-column="10" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ui/setup.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="189">
           <caret line="9" column="81" lean-forward="false" selection-start-line="9" selection-start-column="81" selection-end-line="9" selection-end-column="81" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ui/speedtestwidget.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="458">
+          <caret line="202" column="19" lean-forward="false" selection-start-line="202" selection-start-column="19" selection-end-line="202" selection-end-column="19" />
+          <folding>
+            <element signature="e#197#223#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Network/openvpn.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="525">
+          <caret line="25" column="12" lean-forward="false" selection-start-line="25" selection-start-column="12" selection-end-line="25" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mine1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="237">
+          <caret line="1225" column="36" lean-forward="false" selection-start-line="1225" selection-start-column="36" selection-end-line="1225" selection-end-column="36" />
+          <folding>
+            <element signature="e#194#225#0" expanded="true" />
           </folding>
         </state>
       </provider>
