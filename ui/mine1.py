@@ -192,12 +192,18 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.bwTabMonitoring = pg.GraphicsLayoutWidget()
         self.bwTabConnections = QtWidgets.QWidget()
+        self.pkTabMonitoring = pg.GraphicsLayoutWidget()
+        self.chTabMonitoring = QtWidgets.QWidget()
 
         self.bwTabMonitoring.setObjectName("bwTabMonitoring")
         self.bwTabConnections.setObjectName("bwTabConnections")
+        self.pkTabMonitoring.setObjectName("pkTabMonitoring")
+        self.chTabMonitoring.setObjectName("chTabMonitoring")
 
         self.tabWidgetMonitoring.addTab(self.bwTabMonitoring, "Bandwidth")
         self.tabWidgetMonitoring.addTab(self.bwTabConnections, "Connections")
+        self.tabWidgetMonitoring.addTab(self.pkTabMonitoring, "Packets")
+        self.tabWidgetMonitoring.addTab(self.chTabMonitoring, "Channels")
 
         ## BandWidth graph
         self.BWplot = self.bwTabMonitoring.addPlot(title="Bandwidth over time")
@@ -236,6 +242,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.incomingConnectionSig.connect(self.resetConnectionsList)
 
+        ### Packets bar graph
+        self.pkplot = self.pkTabMonitoring.addPlot(title="Packets")
 
         ### Setting up tab icons
         self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
@@ -925,8 +933,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         fr = open('../data/groups.data', 'r')
         groups = fr.readlines()
         fr.close()
-
-        dialog = QtWidgets.QInputDialog()
 
         groupName, okPressed = QtWidgets.QInputDialog.getText(self, "New group","New group name:", QtWidgets.QLineEdit.Normal, "")
 
