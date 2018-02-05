@@ -53,7 +53,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.setObjectName("self")
 
         ### Change the window's size
-        self.resize(1000, 600)
+        self.setFixedSize(1000, 600)
 
         self.setStyleSheet("QInputDialog {background-color: white;} QInputDialog QLabel{color: rgb(41, 107, 116);font-size: 20px; border-bottom: 1px solid rgb(41, 107, 116); }"
         "QInputDialog QLineEdit {"
