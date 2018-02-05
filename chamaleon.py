@@ -1152,6 +1152,24 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                     except(AttributeError):
                         pass
 
+            if ( (action['actionType'] == "security") and (int(action['durationType']) == 1) ):
+                for gapp in groups:
+                    try:
+                        if(gapp.getName() == action['processName'] and gapp.getSecured() is False):
+                            wapps = []
+                            for i in range(self.list.count()):
+                                wapp = self.list.item(i)
+                                app = self.list.itemWidget(wapp)
+                                if(app.getProcessName() in gapp.returnGroupNameList()):
+                                    wapps.append(app)
+                            if(self.inTime(action["durationTime"])):
+                                gapp.manageVPN(action['durationType'], action['durationTime'],wapps)
+                            else:
+                                #TO DO: remove from list
+                                pass
+                    except(AttributeError):
+                        pass
+
 
             if ( (action['actionType'] == "security") and (int(action['durationType']) == 2) ):
                 for app in appList:
@@ -1198,20 +1216,19 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def toggleVPNstatusDisplay(self):
         while(self.appExit is False):
-            print(self.OpenVpnThread)
             if (self.vpnStatus.getStatus() is False and self.OpenVpnThread != None):
                 self.vpnStatus.setActive()
                 ### Secure the needed apps in the list
                 self.secureForeverSecuredApps()
-            if (self.vpnStatus.getStatus() is True and self.OpenVpnThread == None):
-                print("Out")
+            if (self.vpnStatus.getStatus() is True and (self.OpenVpnThread == None or not self.OpenVpnThread.is_alive())):
+                self.OpenVpnThread == None
                 self.vpnStatus.setInactive()
             time.sleep(1)
 
     def toggleVPN(self):
-        if (self.vpnStatus.getStatus() is False and self.OpenVpnThread != None):
+        if (self.vpnStatus.getStatus() is True and self.OpenVpnThread != None):
             self.stopVPN()
-        if (self.vpnStatus.getStatus() is True and self.OpenVpnThread == None):
+        if self.vpnStatus.getStatus() is False and (self.OpenVpnThread == None or not self.OpenVpnThread.is_alive()):
             self.autoStartVPN()
 
     def closeEvent(self, event):

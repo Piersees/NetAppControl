@@ -74,7 +74,6 @@ def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
         if line is b'':
             break
         if b'Restart' in line:
-            kill(prog.pid)
             t.do_run = False
             break
         time.sleep(0.2)
@@ -129,7 +128,5 @@ def mainVPN(ConfTcp,ConfUdp = None):
         else:
             thVPN = Thread(target=VPNConnect, args=(OpenVpnPath, componentId, ConfTcp,))
             thVPN.start()
-    else:
-        pass
 
     return (thVPN,componentId)
