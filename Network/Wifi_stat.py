@@ -18,27 +18,28 @@ def wifi_info():
                                         shell=True)
 
     except subprocess.CalledProcessError:
-        return "Wifi disabled check" #return an error messag
+        print ("error")
+    #return "Wifi disabled check" #return an error messag
     
     res = []
     res= available.split("\n")
+    print (res)
 
     ssid_dic = {}
-
-
+    resoc=[]
     actual = None
-    for line in res:
-        if ":" in line:
-            res = line.split(" : ")
-            for i in range(len(res)):
-                res[i] = res[i].strip()
+    for lined in res:
+        if ":" in lined:
+            resoc = lined.split(" : ")
+            for i in range(len(resoc)):
+                resoc[i] = resoc[i].strip()
             
-                if "SSID" in res[i] and "BSSID" not in res[i]:
-                    actual = res[i]
+                if "SSID" in resoc[i] and "BSSID" not in resoc[i]:
+                    actual = resoc[i]
                     ssid_dic[actual] = {}
                 
                 elif actual is not None:
-                    ssid_dic[actual][res[0]] = res[1]
+                    ssid_dic[actual][resoc[0]] = resoc[1]
     return ssid_dic
 
 if __name__ == "__main__":
