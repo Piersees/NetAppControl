@@ -17,7 +17,7 @@ class appsInGroupWidget(QDialog):
     def __init__(self, parent=None):
 
         super(appsInGroupWidget, self).__init__(parent)
-        self.resize(200, 400)
+        self.setFixedSize(200, 400)
         self.setWindowTitle("Apps in group")
         self.mainLayout = QVBoxLayout()
         self.setLayout(self.mainLayout)

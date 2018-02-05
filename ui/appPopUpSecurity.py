@@ -16,7 +16,7 @@ class appPopUpSecurity(QDialog):
 
         ### Set up the form window
         self.setObjectName("appPopUpSecurity")
-        self.resize(329, 290)
+        self.setFixedSize(329, 290)
 
         self.setStyleSheet("QDialog{background-color:white;}QLabel#label,QLabel#label_2{color:rgba(41, 107, 116, 1);}")
 

@@ -39,7 +39,7 @@ class appAbstract(QWidget):
 
         ### Add an image to the buttons
         #self.buttonNetwork.setIcon(QIcon('./images/wifi.png'))
-        self.buttonSecurity.setIcon(QIcon('./images/lock.png'))
+        self.buttonSecurity.setIcon(QIcon('./images/unlock.png'))
 
         ### Set the layout to the widget
         self.setLayout(self.layout)
@@ -91,7 +91,7 @@ class appAbstract(QWidget):
 
             if (value != None):
                 ### Read the current actions file
-                filename = "../data/appsActions.data"
+                filename = "data/appsActions.data"
                 fr = open(filename, "r")
                 data_list = fr.readlines()
                 fr.close()
@@ -137,8 +137,10 @@ class appAbstract(QWidget):
             value = dialog.exec_()
 
             if (value != None):
+                self.secured = True
+
                 ### Read the current actions file
-                filename = "../data/appsActions.data"
+                filename = "data/appsActions.data"
                 fr = open(filename, "r")
                 data_list = fr.readlines()
                 fr.close()
@@ -159,10 +161,13 @@ class appAbstract(QWidget):
                     fh.writelines(data_list)
                     fh.close()
 
+                    self.buttonSecurity.setIcon(QIcon('./images/lock.png'))
                     self.manageVPN(value["duration"], value["time"])
                 except (RuntimeError):
                     print("App PID has changed, aborting action")
         else:
+            self.secured = False
+            self.buttonSecurity.setIcon(QIcon('./images/unlock.png'))
             self.stopVPN()
 
     def stopVPN(self):
@@ -173,7 +178,7 @@ class appAbstract(QWidget):
 
     @pyqtSlot()
     def hasRegisteredOpenVPNCertificate(self):
-        fr = open('../data/openVPNcertificates.data', "r")
+        fr = open('data/openVPNcertificates.data', "r")
         if ( fr.read() is not "" ):
             return True
         else:
