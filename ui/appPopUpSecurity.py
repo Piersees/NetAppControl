@@ -120,7 +120,7 @@ class appPopUpSecurity(QDialog):
 
     def retranslateUi(self, Dialog):
         _translate = QCoreApplication.translate
-        self.setWindowTitle(_translate("Dialog", "DialogSecurity"))
+        self.setWindowTitle(_translate("Dialog", "Security options"))
         self.labelTitle.setText(_translate("Dialog", "Appli Name"))
         self.label_2.setText(_translate("Dialog", "Security"))
         self.pushButton.setText(_translate("Dialog", "OK"))

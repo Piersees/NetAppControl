@@ -55,6 +55,8 @@ class appsInGroupWidget(QDialog):
         self.mainLayout.addWidget(self.buttonDelete)
         self.buttonDelete.clicked.connect(self.deleteSelection)
 
+        self.setWindowTitle("Apps in group")
+
     def setTitle(self, title):
         self.labelTitle.setText(title)
 
