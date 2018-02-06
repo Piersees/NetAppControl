@@ -673,7 +673,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         else:
             for i in range(self.list.count()):
                 app = self.list.item(i)
-                if self.appSearchBar.text().lower() in self.list.itemWidget(app).getLabelText().lower():
+                if self.appSearchBar.text().lower() in self.list.itemWidget(app).getProcessName().lower():
                     app.setHidden(False)
                 else:
                     app.setHidden(True)
@@ -1044,7 +1044,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         data_list = []
 
         for process in self.list.selectedItems():
-            processes.append(self.list.itemWidget(process).getLabelText())
+            processes.append(self.list.itemWidget(process).getProcessName())
 
         selectedGroup = self.groupList.itemWidget( self.groupList.selectedItems()[0] )
         name = selectedGroup.getName()
