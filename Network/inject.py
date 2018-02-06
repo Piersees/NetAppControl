@@ -103,6 +103,7 @@ def injectdll(pid, dllpath):
             kernel32.CloseHandle(hproc)
 
 def NPServer(id, ip):
+
     hNP = win32pipe.CreateNamedPipe("\\\\.\\pipe\\"+str(id),
                                       win32pipe.PIPE_ACCESS_DUPLEX,
                                       win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_NOWAIT,

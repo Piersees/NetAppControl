@@ -6,7 +6,7 @@ base = None
 
 executables = [Executable("chameleon.py", base=base)]
 additional_mods = ['numpy.core._methods', 'numpy.lib.format','pyqtgraph.debug','pyqtgraph.ThreadsafeTimer','win32pipe', 'win32file', 'win32con','speedtest','requests',
-                   "nmap","scapy","ctypes"]
+                   "nmap","scapy","scapy.all","ctypes"]
 
 include_file = ["Network/","ui/","data/","images/"]
 packages = ["idna"]
