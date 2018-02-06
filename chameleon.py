@@ -36,7 +36,7 @@ import openvpn
 from Stats import GetPacketStats
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
-    bandWidthSig = QtCore.pyqtSignal(int,int)
+    bandWidthSig = QtCore.pyqtSignal(int,int,str)
     pingSig = QtCore.pyqtSignal(str)
     packetsSig = QtCore.pyqtSignal(dict)
     pingLossSig = QtCore.pyqtSignal(str)
@@ -163,7 +163,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             "}"
             "QLabel#OpenVPNidFormlabel{"
             "color:rgba(41, 107, 116, 1);"
+            "}"
+            "QPushButton#aboutButton, QPushButton#helpButton{"
+            "border: 1px solid rgb(41, 107, 116); padding: 15px; width: 50px; border-radius: 14px; color: rgb(41, 107, 116);"
+            "}"
+            "QPushButton#aboutButton:hover, QPushButton#helpButton:hover{"
+            "background-color: rgba(41, 107, 116,0.15);"
             "}")
+
         self.tabWidget.setTabPosition(QtWidgets.QTabWidget.West)
         self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
         self.tabWidget.setObjectName("tabWidget")
@@ -288,11 +295,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.chCanvas = FigureCanvas(self.chFigure)
         self.channelLayout.addWidget(self.chCanvas)
 
-        #self.datapie = wifi_info()
-        # #
-        # for keys, values in self.datapie.items():
-        #     print(keys)
-        #     print(values)
+        self.datapie = wifi_info()
+
+        for keys, values in self.datapie.items():
+            print(keys)
+            print(values)
+
         self.labelsla = 'Channel 1', 'Channel 2', 'Channel 3'
         self.chSizes = [15, 48, 37]
         self.chExplode = (0 ,0 ,0.1)
@@ -402,12 +410,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### About us button
         self.aboutButton = QtWidgets.QPushButton()
+        self.aboutButton.setObjectName("aboutButton")
         self.aboutButton.setText("About us")
         self.aboutButton.clicked.connect(self.openAbout)
         self.aboutLayout.addWidget(self.aboutButton)
 
         ### Help button
         self.HelpButton = QtWidgets.QPushButton()
+        self.HelpButton.setObjectName("helpButton")
         self.HelpButton.setText("Help")
         self.HelpButton.clicked.connect(self.openHelp)
         self.aboutLayout.addWidget(self.HelpButton)
@@ -695,9 +705,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         while(self.appExit is not True):
             self.i = 1+self.i
             arrayResult = getBandWidth(self.nic)
+            percentage = getBandWidthDiff(self.nic)
             up = arrayResult[1]
             down = arrayResult[0]
-            self.bandWidthSig.emit(up, down)
+            self.bandWidthSig.emit(up, down, percentage)
 
     def pktChartGetValues(self):
         while(self.appExit is not True):
@@ -705,7 +716,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
             self.packetsSig.emit(currentPacketResults)
 
-    def setBandWidthChart(self, up, down):
+    def setBandWidthChart(self, up, down, percentage):
         if self.ptrBW == 600:
             self.dataUL[:-1] = self.dataUL[1:]
             self.dataDL[:-1] = self.dataDL[1:]
@@ -715,7 +726,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.BWtextUL.setText('Current UL speed: %0.1f kB/s' % up)
         self.BWtextDL.setText('Current DL speed: %0.1f kB/s' % down)
-        percentage = getBandWidthDiff(self.nic)
         self.BWpercentageVPN.setText('Bandwidth used by VPN:'+ percentage)
 
         self.ptrBW += 1

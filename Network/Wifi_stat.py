@@ -44,7 +44,6 @@ def wifi_info():
     ssid_dic = {}
     resoc=[]
     actual = None
-    print(res)
     for lined in res:
         if ":" in lined:
             resoc = lined.replace("ÿ","").split(" : ")
