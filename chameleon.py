@@ -638,6 +638,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 msg = QtWidgets.QMessageBox()
                 msg.setText("Invalid openVPN certificate")
                 msg.exec_()
+            except ValueError as e:
+                msg = QtWidgets.QMessageBox()
+                msg.setText(e)
+                msg.exec_()
         except:
             print("no certificate")
 
@@ -807,6 +811,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         except(UnboundLocalError):
             msg = QtWidgets.QMessageBox()
             msg.setText("Invalid openVPN certificate")
+            msg.exec_()
+        except ValueError as e:
+            msg = QtWidgets.QMessageBox()
+            msg.setText(e)
             msg.exec_()
 
 

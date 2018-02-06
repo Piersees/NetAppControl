@@ -2,13 +2,12 @@ from cx_Freeze import setup, Executable
 
 import sys
 base = 'Win32GUI' if sys.platform=='win32' else None
+base = None
 
-executables = [Executable("mine1.py", base=base)]
+executables = [Executable("chameleon.py", base=base)]
 additional_mods = ['numpy.core._methods', 'numpy.lib.format','pyqtgraph.debug','pyqtgraph.ThreadsafeTimer','win32pipe', 'win32file', 'win32con','speedtest','requests',
-                   "nmap","scapy","scapy.all"]
-#include_file = ["Network/inject.py","Network/SpeedTestFunctions.py","Network/External_IP.py","Network/ping.py","Network/NetworkScan.py",
-#                "Network/Wifi_stat.py","Network/Wireshark.py","Network/openvpn.py","Network/Stats.py","Network/BandWidth.py",
-#                "Network/Interfaces.py"]
+                   "nmap","scapy","ctypes"]
+
 include_file = ["Network/","ui/","data/","images/"]
 packages = ["idna"]
 options = {

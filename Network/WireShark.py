@@ -1,18 +1,11 @@
 #from __future__ import print_function
 
-import os
-import time
-import win32file
 import winreg as reg
-import subprocess
-from pathlib import Path
-import shutil
 
 from scapy.all import *
 
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
-import re
 
 
 ADAPTER_KEY = r'SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002BE10318}'

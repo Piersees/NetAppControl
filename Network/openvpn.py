@@ -44,6 +44,7 @@ def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
         cmd = [OpenVpnPath,"--dev-node", componentId, "--config", TcpConf,"--route-nopull"]
     else:
         cmd = [OpenVpnPath,"--dev-node", componentId, "--config", TcpConf,"--config",UdpConf,"--route-nopull"]
+
     prog = subprocess.Popen(cmd,stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
 
     try:
@@ -116,6 +117,16 @@ def mainVPN(ConfTcp,ConfUdp = None):
 
     if key is None:
         raise ValueError("TAP Windows not installed")
+
+    for proc in psutil.process_iter():
+        try:
+            process = psutil.Process(proc.pid)
+            pname = process.name()
+            if pname == "openvpn.exe" and process.parent().parent() == "python.exe":
+                kill(proc.pid)
+        except:
+            pass
+
 
     regConnection = reg.OpenKey(reg.HKEY_LOCAL_MACHINE, ConnectionKey+"\\"+key+"\\Connection")
     componentId = reg.QueryValueEx(regConnection, "name")[0]
