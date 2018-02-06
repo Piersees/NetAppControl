@@ -264,17 +264,20 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.speedtestLayout.addWidget(self.speedtestWidget)
 
         ### Packets bar graph
-
-        self.dpacketsData = {"ALL": 0, "TCP": 0, "UDP": 0, "ARP": 0, "ICMP": 0, "HTTP": 0, "HTTPS": 0, "DNS": 0, "NetBIOS": 0, "LLMNR": 0, "OTHER": 0}
-        self.packetsAxis = [1,2,3,4,5,6,7,8,9,10,11]
-        self.pktxdict = {0:' ', 1:'ALL', 2:'TCP', 3:'UDP', 4:'ARP', 5:'ICMP', 6: 'HTTP', 7: 'HTTPS', 8: 'DNS', 9: 'NetBIOS', 10: 'LLMNR', 11: 'OTHER'}
+        self.allpkts = 0
+        self.dpacketsData = {"TCP": 0, "UDP": 0, "ARP": 0, "ICMP": 0, "HTTP": 0, "HTTPS": 0, "DNS": 0, "NetBIOS": 0, "LLMNR": 0, "OTHER": 0}
+        self.packetsAxis = [1,2,3,4,5,6,7,8,9,10]
+        self.pktxdict = {0:' ', 1:'TCP', 2:'UDP', 3:'ARP', 4:'ICMP', 5: 'HTTP', 6: 'HTTPS', 7: 'DNS', 8: 'NetBIOS', 9: 'LLMNR', 10: 'OTHER'}
         self.pktstringaxis = pg.AxisItem(orientation='bottom')
         self.pktstringaxis.setTicks([self.pktxdict.items()])
         self.pkplot = self.pkTabMonitoring.addPlot(title="Packets",axisItems={'bottom': self.pktstringaxis})
         self.packetsData = self.dicToArrayPacketData()
-        self.bgALL = pg.BarGraphItem(x=self.packetsAxis ,height=self.packetsData, width=0.3, brush=(41, 107, 116))
+        self.bgALL = pg.BarGraphItem(x=self.packetsAxis ,height=self.packetsData, width=0.3, brush=(41, 107, 116), pen=(41, 107, 116))
         self.pkplot.addItem(self.bgALL)
-        self.pkplot.showGrid(x=True, y=True)
+
+        self.pkplot.showGrid(y=True)
+        self.PKTtextALL = pg.TextItem("Total number of packets: 0", color=(41, 107, 116), anchor=(0,-0.5))
+        self.pkplot.addItem(self.PKTtextALL)
 
         ### Channels pie chart
 
@@ -699,6 +702,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def pktChartGetValues(self):
         while(self.appExit is not True):
             currentPacketResults = GetPacketStats(self.nic)
+
             self.packetsSig.emit(currentPacketResults)
 
     def setBandWidthChart(self, up, down):
@@ -727,7 +731,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         #curveDL.setData(dataDL)
 
     def setPacketsChart(self, packets):
-        self.dpacketsData["ALL"] = self.dpacketsData["ALL"] + packets["ALL"]
+        self.allpkts = self.allpkts + packets["ALL"]
         self.dpacketsData["TCP"] = self.dpacketsData["TCP"] + packets["TCP"]
         self.dpacketsData["UDP"] = self.dpacketsData["UDP"] + packets["UDP"]
         self.dpacketsData["ARP"] = self.dpacketsData["ARP"] + packets["ARP"]
@@ -740,7 +744,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.dpacketsData["OTHER"] = self.dpacketsData["OTHER"] + packets["OTHER"]
 
         self.packetsData = self.dicToArrayPacketData()
-        self.bgALL.setOpts(y=self.packetsData, brush=(41, 107, 116))
+        self.bgALL.setOpts(height=self.packetsData)
+        self.PKTtextALL.setText('Total number of packets: %0.1f' % self.allpkts)
         # self.bgTCP.setOpts(y=self.packetsData["TCP"])
         # self.bgUDP.setOpts(y=self.packetsData["UDP"])
         # self.bgARP.setOpts(y=self.packetsData["ARP"])
