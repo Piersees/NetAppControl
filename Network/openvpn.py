@@ -1,13 +1,13 @@
 import os
 import time
-import win32file
 import winreg as reg
 import subprocess
 from pathlib import Path
-import shutil
+import sys
 from threading import Thread, currentThread
 import psutil
 import socket
+
 
 ADAPTER_KEY = r'SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002BE10318}'
 
@@ -19,8 +19,11 @@ ConnectionKey = "SYSTEM\\CurrentControlSet\\Control\\Network\\{4D36E972-E325-11C
 ### kill a process and it's children (Mouhahaha !!)
 def kill(proc_pid):
     process = psutil.Process(proc_pid)
-    for proc in process.children(recursive=True):
-        proc.kill()
+    try:
+        for proc in process.children(recursive=True):
+            proc.kill()
+    except:
+        pass
     process.kill()
 
 ### Get the gateway address of an interface
@@ -45,7 +48,7 @@ def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
 
     try:
         # Get the credentials
-        fh = open("../data/openVPNid.data", "r").read().splitlines()
+        fh = open("data/openVPNid.data", "r").read().splitlines()
         login = fh[0]
         password = fh[1]
     except:
@@ -58,7 +61,8 @@ def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
     prog.stdin.close()
 
     t = currentThread()
-
+    count = 0
+    old = None
     while True:
         line = prog.stdout.readline()
         print(line)
@@ -68,6 +72,10 @@ def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
             makeRoute(componentId)
             break
         if line is b'':
+            break
+        if b'Restart' in line:
+            kill(prog.pid)
+            t.do_run = False
             break
         time.sleep(0.2)
 

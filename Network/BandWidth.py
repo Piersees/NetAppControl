@@ -123,9 +123,12 @@ def getBandWidthDiff(nic):
 
         diff = round(diff,2)
         #print("Pourcentage VPN used: ",diff,"%")
-        return diff
+
+        return diff+'%'
+
 
 
 if __name__ =="__main__":
     getBandWidthDiff("Ethernet")
     #getBandWidth("Ethernet 3")
+

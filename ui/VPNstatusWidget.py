@@ -9,12 +9,8 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from appPopUpSecurity import appPopUpSecurity
-from appPopUpNetwork import appPopUpNetwork
 import sys
 sys.path.append("../Network")
-import SpeedTest
-import threading
 
 class VPNstatusWidget(QWidget):
 

@@ -9,15 +9,15 @@
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from duration import Duration
 
+### The form for the duration of a security action
 class appPopUpSecurity(QDialog):
     def __init__(self):
         super(appPopUpSecurity, self).__init__()
 
         ### Set up the form window
         self.setObjectName("appPopUpSecurity")
-        self.resize(329, 290)
+        self.setFixedSize(329, 290)
 
         self.setStyleSheet("QDialog{background-color:white;}QLabel#label,QLabel#label_2{color:rgba(41, 107, 116, 1);}")
 
@@ -25,7 +25,6 @@ class appPopUpSecurity(QDialog):
         ### Title
         self.labelTitle = QLabel(self)
         self.labelTitle.setWordWrap(True)
-        #self.labelTitle.setGeometry(QRect(50, 5, 221, 71))
         self.labelTitle.setGeometry(QRect(0, 0, 329, 71))
         font = QFont()
         font.setPointSize(18)
@@ -97,6 +96,8 @@ class appPopUpSecurity(QDialog):
         self.pushButton.setObjectName("pushButton")
         self.pushButton.clicked.connect(self.exitDialog)
 
+        self.cancel = False
+
         self.retranslateUi(self)
         QMetaObject.connectSlotsByName(self)
 
@@ -107,7 +108,7 @@ class appPopUpSecurity(QDialog):
     ### Enable or disable the time input if it is needed or not
     @pyqtSlot()
     def activateTimeInput(self):
-        if (self.durationBox.currentIndex() == Duration.SetPeriod):
+        if (self.durationBox.currentIndex() == 1):
             self.inputTime.setEnabled(True)
         else:
             self.inputTime.setEnabled(False)
@@ -119,7 +120,7 @@ class appPopUpSecurity(QDialog):
 
     def retranslateUi(self, Dialog):
         _translate = QCoreApplication.translate
-        self.setWindowTitle(_translate("Dialog", "DialogSecurity"))
+        self.setWindowTitle(_translate("Dialog", "Security options"))
         self.labelTitle.setText(_translate("Dialog", "Appli Name"))
         self.label_2.setText(_translate("Dialog", "Security"))
         self.pushButton.setText(_translate("Dialog", "OK"))
@@ -129,15 +130,21 @@ class appPopUpSecurity(QDialog):
         self.durationBox.setItemText(2, _translate("Dialog", "Forever"))
         self.label_7.setText(_translate("Dialog", "Hours"))
 
+    def closeEvent(self, event):
+        self.cancel = True
+        self.reject()
 
 
     ### Is triggered when the form is the submit.
     ### Returns the following dictionary:
     #### 'duration' : the type of duration; 0: until the application is closed, 1: for a set period of time, 2: forever
     #### 'time' : the entered set period of time
+    ### Returns None if the form is cancelled
     def exec_(self):
         super(appPopUpSecurity, self).exec_()
-        if( self.durationBox.currentIndex() == Duration.SetPeriod ):
+        if(self.cancel is True):
+            return None
+        if( self.durationBox.currentIndex() == 1 ):
             return { 'duration' : self.durationBox.currentIndex(), 'time' : int(self.inputTime.text()) }
         else:
             return { 'duration' : self.durationBox.currentIndex(), 'time' : 0 }
