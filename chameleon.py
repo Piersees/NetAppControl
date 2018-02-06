@@ -265,9 +265,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### Packets bar graph
 
-        self.dpacketsData = {"ALL": 0, "TCP": 0, "UDP": 0, "ARP": 0, "ICMP": 0, "HTTP": 0, "HTTPS": 0, "LLMNR": 0, "DNS": 0, "NBNS": 0, "OTHER": 0}
+        self.dpacketsData = {"ALL": 0, "TCP": 0, "UDP": 0, "ARP": 0, "ICMP": 0, "HTTP": 0, "HTTPS": 0, "DNS": 0, "NetBIOS": 0, "LLMNR": 0, "OTHER": 0}
         self.packetsAxis = [1,2,3,4,5,6,7,8,9,10,11]
-        self.pktxdict = {0:' ', 1:'ALL', 2:'TCP', 3:'UDP', 4:'ARP', 5:'ICMP', 6: 'HTTP', 7: 'HTTPS', 8: 'LLMNR', 9: 'DNS', 10: 'NBNS', 11: 'OTHER'}
+        self.pktxdict = {0:' ', 1:'ALL', 2:'TCP', 3:'UDP', 4:'ARP', 5:'ICMP', 6: 'HTTP', 7: 'HTTPS', 8: 'DNS', 9: 'NetBIOS', 10: 'LLMNR', 11: 'OTHER'}
         self.pktstringaxis = pg.AxisItem(orientation='bottom')
         self.pktstringaxis.setTicks([self.pktxdict.items()])
         self.pkplot = self.pkTabMonitoring.addPlot(title="Packets",axisItems={'bottom': self.pktstringaxis})
@@ -285,7 +285,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.chCanvas = FigureCanvas(self.chFigure)
         self.channelLayout.addWidget(self.chCanvas)
 
-        # self.datapie = wifi_info()
+        #self.datapie = wifi_info()
         # #
         # for keys, values in self.datapie.items():
         #     print(keys)
@@ -688,20 +688,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.threadPkt.start()
     def bwChartGetValues(self):
         self.i = 0
-        iostat = psutil.net_io_counters(pernic=False, nowrap=True)
 
         while(self.appExit is not True):
             self.i = 1+self.i
-            presc_UL=iostat[0]
-            presc_DL=iostat[1]
-            iostat = psutil.net_io_counters(pernic=False, nowrap=True)
-            upload_rate = (iostat[0] - presc_UL)/1000
-            download_rate = (iostat[1] - presc_DL)/1000
-            arrayResult = [upload_rate, download_rate]
-            up = arrayResult[0]
-            down = arrayResult[1]
+            arrayResult = getBandWidth(self.nic)
+            up = arrayResult[1]
+            down = arrayResult[0]
             self.bandWidthSig.emit(up, down)
-            time.sleep(1)
+
     def pktChartGetValues(self):
         while(self.appExit is not True):
             currentPacketResults = GetPacketStats(self.nic)
@@ -717,7 +711,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.BWtextUL.setText('Current UL speed: %0.1f kB/s' % up)
         self.BWtextDL.setText('Current DL speed: %0.1f kB/s' % down)
-        percentage = getBandWidthDiff(self.nic)
+        #percentage = getBandWidthDiff(self.nic)
+        percentage="bite"
         self.BWpercentageVPN.setText('Bandwidth used by VPN:'+ percentage)
 
         self.ptrBW += 1
@@ -733,6 +728,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         #curveDL.setData(dataDL)
 
     def setPacketsChart(self, packets):
+
         self.dpacketsData["ALL"] = self.dpacketsData["ALL"] + packets["ALL"]
         self.dpacketsData["TCP"] = self.dpacketsData["TCP"] + packets["TCP"]
         self.dpacketsData["UDP"] = self.dpacketsData["UDP"] + packets["UDP"]
@@ -742,7 +738,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.dpacketsData["HTTPS"] = self.dpacketsData["HTTPS"] + packets["HTTPS"]
         self.dpacketsData["LLMNR"] = self.dpacketsData["LLMNR"] + packets["LLMNR"]
         self.dpacketsData["DNS"] = self.dpacketsData["DNS"] + packets["DNS"]
-        self.dpacketsData["NBNS"] = self.dpacketsData["NBNS"] + packets["NBNS"]
+        self.dpacketsData["NetBIOS"] = self.dpacketsData["NetBIOS"] + packets["NetBIOS"]
         self.dpacketsData["OTHER"] = self.dpacketsData["OTHER"] + packets["OTHER"]
 
         self.packetsData = self.dicToArrayPacketData()
@@ -757,6 +753,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         # self.bgDNS.setOpts(y=self.packetsData["DNS"])
         # self.bgNBNS.setOpts(y=self.packetsData["NBNS"])
         # self.bgOTHER.setOpts(y=self.packetsData["OTHER"])
+
 
     def dicToArrayPacketData(self):
         dic = []

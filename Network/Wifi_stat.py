@@ -30,21 +30,31 @@ def wifi_info():
     actual = None
     for lined in res:
         if ":" in lined:
-            resoc = lined.split(" : ")
+            resoc = lined.replace("ÿ","").split(" : ")
             for i in range(len(resoc)):
                 resoc[i] = resoc[i].strip()
-            
                 if "SSID" in resoc[i] and "BSSID" not in resoc[i]:
                     actual = resoc[i]
                     ssid_dic[actual] = {}
                 
                 elif actual is not None:
-                    try:
-                        ssid_dic[actual][resoc[0]] = resoc[1]
-                    except IndexError:
-                        ssid_dic[actual][resoc[0]] = 'null'
+
+                    ssid_dic[actual][resoc[0]] = resoc[1]
+
                                              
     return ssid_dic
 
 if __name__ == "__main__":
-    wifi_info()
+    dic = wifi_info()
+    for key in dic:
+        print(dic[key])
+        percent = ""
+        canal = 0
+        for i in dic[key]:
+            if "%" in i:
+                percent = i
+            if i.isdigit():
+                canal = i
+        print("canal: "+ canal)
+        print("percentage: " + percent)
+

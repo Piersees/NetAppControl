@@ -107,7 +107,7 @@ def NPServer(id, ip):
                                       win32pipe.PIPE_ACCESS_DUPLEX,
                                       win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_NOWAIT,
                                       1, len(ip), len(ip), 300, None)
-    time.sleep(2)
+    time.sleep(5)
     try:
         # Start connection
         win32pipe.ConnectNamedPipe(hNP, None)
