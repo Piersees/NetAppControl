@@ -10,16 +10,15 @@ def GetInterfaces(nic):
     else:
         OpenVpnCard = "Not_Defined"
 
-    print(OpenVpnCard)
+    #print(OpenVpnCard)
     iostat = psutil.net_io_counters(pernic=True, nowrap=True)
 
     bytes = []
     for item in iostat.items():
-
         if item[1][0] != 0 and item[0] != OpenVpnCard:
-            bytes.append(item[1][0])
+            bytes.append(item[1][1])
             bytes.sort(reverse=True)
-            if bytes[0]==item[1][0]:
+            if bytes[0]==item[1][1]:
                 card=item[0]
 
     ADAPTER_KEY = r'SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002BE10318}'

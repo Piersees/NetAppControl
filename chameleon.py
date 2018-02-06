@@ -264,17 +264,20 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.speedtestLayout.addWidget(self.speedtestWidget)
 
         ### Packets bar graph
-
-        self.dpacketsData = {"ALL": 0, "TCP": 0, "UDP": 0, "ARP": 0, "ICMP": 0, "HTTP": 0, "HTTPS": 0, "LLMNR": 0, "DNS": 0, "NBNS": 0, "OTHER": 0}
-        self.packetsAxis = [1,2,3,4,5,6,7,8,9,10,11]
-        self.pktxdict = {0:' ', 1:'ALL', 2:'TCP', 3:'UDP', 4:'ARP', 5:'ICMP', 6: 'HTTP', 7: 'HTTPS', 8: 'LLMNR', 9: 'DNS', 10: 'NBNS', 11: 'OTHER'}
+        self.allpkts = 0
+        self.dpacketsData = {"TCP": 0, "UDP": 0, "ARP": 0, "ICMP": 0, "HTTP": 0, "HTTPS": 0, "DNS": 0, "NetBIOS": 0, "LLMNR": 0, "OTHER": 0}
+        self.packetsAxis = [1,2,3,4,5,6,7,8,9,10]
+        self.pktxdict = {0:' ', 1:'TCP', 2:'UDP', 3:'ARP', 4:'ICMP', 5: 'HTTP', 6: 'HTTPS', 7: 'DNS', 8: 'NetBIOS', 9: 'LLMNR', 10: 'OTHER'}
         self.pktstringaxis = pg.AxisItem(orientation='bottom')
         self.pktstringaxis.setTicks([self.pktxdict.items()])
         self.pkplot = self.pkTabMonitoring.addPlot(title="Packets",axisItems={'bottom': self.pktstringaxis})
         self.packetsData = self.dicToArrayPacketData()
-        self.bgALL = pg.BarGraphItem(x=self.packetsAxis ,height=self.packetsData, width=0.3, brush=(41, 107, 116))
+        self.bgALL = pg.BarGraphItem(x=self.packetsAxis ,height=self.packetsData, width=0.3, brush=(41, 107, 116), pen=(41, 107, 116))
         self.pkplot.addItem(self.bgALL)
-        self.pkplot.showGrid(x=True, y=True)
+
+        self.pkplot.showGrid(y=True)
+        self.PKTtextALL = pg.TextItem("Total number of packets: 0", color=(41, 107, 116), anchor=(0,-0.5))
+        self.pkplot.addItem(self.PKTtextALL)
 
         ### Channels pie chart
 
@@ -285,7 +288,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.chCanvas = FigureCanvas(self.chFigure)
         self.channelLayout.addWidget(self.chCanvas)
 
-        # self.datapie = wifi_info()
+        #self.datapie = wifi_info()
         # #
         # for keys, values in self.datapie.items():
         #     print(keys)
@@ -673,7 +676,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         else:
             for i in range(self.list.count()):
                 app = self.list.item(i)
-                if self.appSearchBar.text().lower() in self.list.itemWidget(app).getLabelText().lower():
+                if self.appSearchBar.text().lower() in self.list.itemWidget(app).getProcessName().lower():
                     app.setHidden(False)
                 else:
                     app.setHidden(True)
@@ -688,23 +691,18 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.threadPkt.start()
     def bwChartGetValues(self):
         self.i = 0
-        iostat = psutil.net_io_counters(pernic=False, nowrap=True)
 
         while(self.appExit is not True):
             self.i = 1+self.i
-            presc_UL=iostat[0]
-            presc_DL=iostat[1]
-            iostat = psutil.net_io_counters(pernic=False, nowrap=True)
-            upload_rate = (iostat[0] - presc_UL)/1000
-            download_rate = (iostat[1] - presc_DL)/1000
-            arrayResult = [upload_rate, download_rate]
-            up = arrayResult[0]
-            down = arrayResult[1]
+            arrayResult = getBandWidth(self.nic)
+            up = arrayResult[1]
+            down = arrayResult[0]
             self.bandWidthSig.emit(up, down)
-            time.sleep(1)
+
     def pktChartGetValues(self):
         while(self.appExit is not True):
             currentPacketResults = GetPacketStats(self.nic)
+
             self.packetsSig.emit(currentPacketResults)
 
     def setBandWidthChart(self, up, down):
@@ -717,7 +715,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.BWtextUL.setText('Current UL speed: %0.1f kB/s' % up)
         self.BWtextDL.setText('Current DL speed: %0.1f kB/s' % down)
-        percentage = getBandWidthDiff(self.nic)
+        #percentage = getBandWidthDiff(self.nic)
+        percentage="bite"
         self.BWpercentageVPN.setText('Bandwidth used by VPN:'+ percentage)
 
         self.ptrBW += 1
@@ -733,7 +732,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         #curveDL.setData(dataDL)
 
     def setPacketsChart(self, packets):
-        self.dpacketsData["ALL"] = self.dpacketsData["ALL"] + packets["ALL"]
+
+        self.allpkts = self.allpkts + packets["ALL"]
         self.dpacketsData["TCP"] = self.dpacketsData["TCP"] + packets["TCP"]
         self.dpacketsData["UDP"] = self.dpacketsData["UDP"] + packets["UDP"]
         self.dpacketsData["ARP"] = self.dpacketsData["ARP"] + packets["ARP"]
@@ -742,11 +742,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.dpacketsData["HTTPS"] = self.dpacketsData["HTTPS"] + packets["HTTPS"]
         self.dpacketsData["LLMNR"] = self.dpacketsData["LLMNR"] + packets["LLMNR"]
         self.dpacketsData["DNS"] = self.dpacketsData["DNS"] + packets["DNS"]
-        self.dpacketsData["NBNS"] = self.dpacketsData["NBNS"] + packets["NBNS"]
+        self.dpacketsData["NetBIOS"] = self.dpacketsData["NetBIOS"] + packets["NetBIOS"]
         self.dpacketsData["OTHER"] = self.dpacketsData["OTHER"] + packets["OTHER"]
 
         self.packetsData = self.dicToArrayPacketData()
-        self.bgALL.setOpts(y=self.packetsData, brush=(41, 107, 116))
+        self.bgALL.setOpts(height=self.packetsData)
+        self.PKTtextALL.setText('Total number of packets: %0.1f' % self.allpkts)
         # self.bgTCP.setOpts(y=self.packetsData["TCP"])
         # self.bgUDP.setOpts(y=self.packetsData["UDP"])
         # self.bgARP.setOpts(y=self.packetsData["ARP"])
@@ -757,6 +758,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         # self.bgDNS.setOpts(y=self.packetsData["DNS"])
         # self.bgNBNS.setOpts(y=self.packetsData["NBNS"])
         # self.bgOTHER.setOpts(y=self.packetsData["OTHER"])
+
 
     def dicToArrayPacketData(self):
         dic = []
@@ -1047,7 +1049,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         data_list = []
 
         for process in self.list.selectedItems():
-            processes.append(self.list.itemWidget(process).getLabelText())
+            processes.append(self.list.itemWidget(process).getProcessName())
 
         selectedGroup = self.groupList.itemWidget( self.groupList.selectedItems()[0] )
         name = selectedGroup.getName()
