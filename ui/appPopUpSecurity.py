@@ -10,6 +10,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+### The form for the duration of a security action
 class appPopUpSecurity(QDialog):
     def __init__(self):
         super(appPopUpSecurity, self).__init__()
@@ -24,7 +25,6 @@ class appPopUpSecurity(QDialog):
         ### Title
         self.labelTitle = QLabel(self)
         self.labelTitle.setWordWrap(True)
-        #self.labelTitle.setGeometry(QRect(50, 5, 221, 71))
         self.labelTitle.setGeometry(QRect(0, 0, 329, 71))
         font = QFont()
         font.setPointSize(18)
@@ -139,6 +139,7 @@ class appPopUpSecurity(QDialog):
     ### Returns the following dictionary:
     #### 'duration' : the type of duration; 0: until the application is closed, 1: for a set period of time, 2: forever
     #### 'time' : the entered set period of time
+    ### Returns None if the form is cancelled
     def exec_(self):
         super(appPopUpSecurity, self).exec_()
         if(self.cancel is True):
