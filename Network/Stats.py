@@ -136,32 +136,42 @@ def GetAppStats(nic):
 
         pkt_cpt += 1
 
-        if (TCP in pkt):
-            for app in appPorts:
-                #print("App:",app)
-                for ports in appPorts[app]:
-                    #print("Ports: ", ports)
-                    if (pkt[TCP].dport == ports or pkt[TCP].sport == ports):
-                        #print("App:",app," Ports:",ports," Lengh:",pkt[IP].len)
-                        byte_app_cpt[app] = byte_app_cpt[app] + pkt[IP].len
-                        total_len = total_len + pkt[IP].len
+        try:
+            if (TCP in pkt):
+                for app in appPorts:
+                    #print("App:",app)
+                    for ports in appPorts[app]:
+                        #print("Ports: ", ports)
+                        if (pkt[TCP].dport == ports or pkt[TCP].sport == ports):
+                            #print("App:",app," Ports:",ports," Lengh:",pkt[IP].len)
+                            byte_app_cpt[app] = byte_app_cpt[app] + pkt[IP].len
+                            total_len = total_len + pkt[IP].len
 
-        elif (UDP in pkt):
-            for app in appPorts:
-                #print("App:", app)
-                for ports in appPorts[app]:
-                    #print("Ports: ", ports)
-                    if (pkt[UDP].dport == ports or pkt[UDP].sport == ports):
-                        #print("App:", app, " Ports:", ports, " Lengh:", pkt[IP].len)
-                        byte_app_cpt[app] = byte_app_cpt[app] + pkt[IP].len
-                        total_len = total_len + pkt[IP].len
+            elif (UDP in pkt):
+                for app in appPorts:
+                    #print("App:", app)
+                    for ports in appPorts[app]:
+                        #print("Ports: ", ports)
+                        if (pkt[UDP].dport == ports or pkt[UDP].sport == ports):
+                            #print("App:", app, " Ports:", ports, " Lengh:", pkt[IP].len)
+                            byte_app_cpt[app] = byte_app_cpt[app] + pkt[IP].len
+                            total_len = total_len + pkt[IP].len
+        except:
+            pass
 
     #Sniff fonction: sniff 10 packets and for each call the fonciton packet_cpt_callback if there is no internet connection sniff will timeout after 20sec
-    pkt = sniff(count=10, prn=packet_cpt_callback,timeout=20)
+    pkt = sniff(count=100, prn=packet_cpt_callback,timeout=20)
 
     #print(pkt_cpt)
     #print(total_len)
-    return byte_app_cpt
+
+    byte_app_pourcentage = {}
+
+    for app in byte_app_cpt:
+       byte_app_pourcentage[app] = byte_app_cpt[app]*100/total_len
+       byte_app_pourcentage[app]=round(byte_app_pourcentage[app],2)
+
+    return byte_app_pourcentage
 
 def getPortsAppListWithInternet():
     dic = {}
@@ -192,3 +202,4 @@ if __name__ =="__main__":
     #byte_app_cpt=GetAppStats("Ethernet 3")
     #for app in byte_app_cpt:
     #    print(app," :",byte_app_cpt[app],"  Bytes")
+

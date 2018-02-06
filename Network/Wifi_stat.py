@@ -11,6 +11,23 @@ Created on Tue Jan 30 14:04:55 2018
 
 import subprocess
 
+def orderByChannel(dic):
+    res = {}
+    for key in dic:
+        percent = ""
+        canal = 0
+        for i in dic[key]:
+            if "%" in i:
+                percent = i
+            if i.isdigit():
+                canal = i
+        if "Channel "+str(canal) in res:
+            res["Channel "+str(canal)] = res["Channel "+str(canal)] +1
+        else:
+            res["Channel "+str(canal)] = 1
+
+    return res
+
 def wifi_info():
     try:
         available = subprocess.check_output('netsh wlan show network mode=bssid',
@@ -27,6 +44,7 @@ def wifi_info():
     ssid_dic = {}
     resoc=[]
     actual = None
+    print(res)
     for lined in res:
         if ":" in lined:
             resoc = lined.replace("ÿ","").split(" : ")
@@ -38,18 +56,9 @@ def wifi_info():
                 elif actual is not None and len(resoc)>=2 and resoc[1] not in ssid_dic[actual] and i+1 is len(resoc):
                     ssid_dic[actual].append(resoc[1])
 
-    return ssid_dic
+    return orderByChannel(ssid_dic)
 
 if __name__ == "__main__":
     dic = wifi_info()
-    for key in dic:
-        print(dic[key])
-        percent = ""
-        canal = 0
-        for i in dic[key]:
-            if "%" in i:
-                percent = i
-            if i.isdigit():
-                canal = i
-        print("canal: "+ canal)
-        print("percentage: " + percent)
+    print(dic)
+
