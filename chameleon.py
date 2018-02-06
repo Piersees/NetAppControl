@@ -715,8 +715,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.BWtextUL.setText('Current UL speed: %0.1f kB/s' % up)
         self.BWtextDL.setText('Current DL speed: %0.1f kB/s' % down)
-        #percentage = getBandWidthDiff(self.nic)
-        percentage="bite"
+        percentage = getBandWidthDiff(self.nic)
         self.BWpercentageVPN.setText('Bandwidth used by VPN:'+ percentage)
 
         self.ptrBW += 1
