@@ -12,33 +12,43 @@ def getBandWidth(nic):
 
     iostat = psutil.net_io_counters(pernic=True, nowrap=True)
 
+    presc_UL_total = 0
+    presc_DL_total = 0
+    new_UL_total = 0
+    new_DL_total = 0
+    presc_UL = {}
+    presc_DL = {}
+    new_UL = {}
+    new_DL = {}
 
-    while(mesure):
+    for item in iostat.items():
+        presc_UL[item[0]]=item[1][0]
+        presc_DL[item[0]]=item[1][1]
 
-        presc_UL = 0
-        presc_DL = 0
-        new_UL = 0
-        new_DL = 0
+    time.sleep(1)
 
-        for item in iostat.items():
-            presc_UL=presc_UL+item[1][0]
-            presc_DL=presc_DL+item[1][1]
+    iostat = psutil.net_io_counters(pernic=True, nowrap=True)
 
-        iostat = psutil.net_io_counters(pernic=True, nowrap=True)
+    for item in iostat.items():
 
-        for item in iostat.items():
-            new_UL=new_UL+item[1][0]
-            new_DL=new_DL+item[1][1]
+        new_UL[item[0]]=item[1][0]
+        new_DL[item[0]]=item[1][1]
 
-        upload_rate = (new_UL - presc_UL) / 10000
-        download_rate = (new_DL - presc_DL) / 10000
+        if new_UL[item[0]] != presc_UL[item[0]]:
+            presc_UL_total=presc_UL_total+presc_UL[item[0]]
+            new_UL_total=new_UL_total+new_UL[item[0]]
 
-        time.sleep(10)
-        #print("Download: ",download_rate,"KB/s","   ","Upload: ",upload_rate,"KB/s")
-        return [download_rate, upload_rate]
-        #time.sleep(1)
+        if new_DL[item[0]] != presc_DL[item[0]]:
+            presc_DL_total=presc_DL_total+presc_DL[item[0]]
+            new_DL_total=new_DL_total+new_DL[item[0]]
 
-    #mesure = False     #Put mesure to False to stop the
+    upload_rate = (new_UL_total - presc_UL_total) / 1000
+    download_rate = (new_DL_total - presc_DL_total) / 1000
+
+    #time.sleep(10)
+    #print("Download: ",download_rate,"KB/s","   ","Upload: ",upload_rate,"KB/s")
+    return [download_rate, upload_rate]
+    #time.sleep(1)
 
 
 """
@@ -128,6 +138,6 @@ def getBandWidthDiff(nic):
 
 
 if __name__ =="__main__":
-    getBandWidthDiff("Ethernet")
-    #getBandWidth("Ethernet 3")
-
+    #getBandWidthDiff("Ethernet")
+    while (True):
+        getBandWidth("Ethernet 3")
