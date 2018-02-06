@@ -167,9 +167,13 @@ def GetAppStats(nic):
 
     byte_app_pourcentage = {}
 
+
     for app in byte_app_cpt:
-       byte_app_pourcentage[app] = byte_app_cpt[app]*100/total_len
-       byte_app_pourcentage[app]=round(byte_app_pourcentage[app],2)
+        if total_len == 0:
+            byte_app_pourcentage[app] = 0
+        else :
+            byte_app_pourcentage[app] = byte_app_cpt[app]*100/total_len
+            byte_app_pourcentage[app]=round(byte_app_pourcentage[app],2)
 
     return byte_app_pourcentage
 
@@ -202,4 +206,3 @@ if __name__ =="__main__":
     #byte_app_cpt=GetAppStats("Ethernet 3")
     #for app in byte_app_cpt:
     #    print(app," :",byte_app_cpt[app],"  Bytes")
-

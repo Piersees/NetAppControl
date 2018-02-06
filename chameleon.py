@@ -33,7 +33,7 @@ import ping
 import NetworkScan
 from BandWidth import getBandWidth, getBandWidthDiff
 import openvpn
-from Stats import GetPacketStats
+from Stats import GetPacketStats, GetAppStats
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     bandWidthSig = QtCore.pyqtSignal(int,int,str)
@@ -44,6 +44,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     autoRefreshListSig = QtCore.pyqtSignal(dict)
     deleteGroupSig = QtCore.pyqtSignal(str)
     displayIpSig = QtCore.pyqtSignal(str)
+    packetRatioSig = QtCore.pyqtSignal(WappWidget, float)
     OpenVpnThread = None
     IP, HOSTNAME, STATUS = range(3)
     nic = None
@@ -296,10 +297,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.channelLayout.addWidget(self.chCanvas)
 
         self.datapie = wifi_info()
-        print("WIFI STATS")
-        for keys, values in self.datapie.items():
-            print(keys)
-            print(values)
+
+        # for keys, values in self.datapie.items():
+        #     print(keys)
+        #     print(values)
 
         self.labelsla = 'Channel 1', 'Channel 2', 'Channel 3'
         self.chSizes = [15, 48, 37]
@@ -469,6 +470,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         ### Connect the delete event
         self.deleteGroupSig.connect(self.deleteGroup)
+
+        ### Connet the ratio event
+        self.packetRatioSig.connect(self.displayPacketRatio)
+        self.threadManageRatio = threading.Thread(target=self.manageRatio)
+        self.threadManageRatio.start()
 
         ### Link the selection changed event to a function
         self.groupList.itemSelectionChanged.connect(self.enableAddToGroupButton)
@@ -727,7 +733,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.BWtextUL.setText('Current UL speed: %0.1f kB/s' % up)
         self.BWtextDL.setText('Current DL speed: %0.1f kB/s' % down)
-
         self.BWpercentageVPN.setText('Bandwidth used by VPN:'+ percentage)
 
         self.ptrBW += 1
@@ -1326,6 +1331,29 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     ### Opens a browser page to the software's repository's readme
     def openHelp(self):
         webbrowser.open('https://github.com/Piersees/NetAppControl/blob/master/README.md')
+
+    def displayPacketRatio(self, wapp, ratio):
+        try:
+            wapp.setLabelText(wapp.getProcessName() + " (" + str(ratio) + " %)")
+        except:
+            pass
+
+    def displayAllPacketRatio(self):
+        ratios = GetAppStats(self.nic)
+
+        for i in range(self.list.count()):
+            wapp = self.list.itemWidget(self.list.item(i))
+            for ratio in ratios:
+                if( ratio == wapp.getProcessName() ):
+                    self.packetRatioSig.emit(wapp, ratios[ratio])
+
+    def manageRatio(self):
+        time.sleep(2)
+        while (self.appExit is False):
+            self.displayAllPacketRatio()
+            time.sleep(1)
+
+
 
     ### Called when the application is closed
     def closeEvent(self, event):
