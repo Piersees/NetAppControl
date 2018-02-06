@@ -13,9 +13,13 @@ def GetInterfaces(nic):
 
     iostat = psutil.net_io_counters(pernic=True, nowrap=True)
 
+    bytes = []
     for item in iostat.items():
-        if item[1][0]!= 0 and item[0] != OpenVpnCard:
-            card = item[0]
+        if item[1][0] != 0 and item[0] != OpenVpnCard:
+            bytes.append(item[1][0])
+            bytes.sort(reverse=True)
+            if bytes[0]==item[1][0]:
+                card=item[0]
 
     ADAPTER_KEY = r'SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002BE10318}'
 
@@ -39,7 +43,10 @@ def GetInterfaces(nic):
 
     for index,iface in enumerate(interfaces):
           if iface == card:
-              CardNumber=index
+             CardNumber=index
+
+    if CardNumber is None:
+        return "Fail to select Network Interface"
 
     ADAPTER_KEY = r'SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002BE10318}'
 
