@@ -676,7 +676,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         else:
             for i in range(self.list.count()):
                 app = self.list.item(i)
-                if self.appSearchBar.text().lower() in self.list.itemWidget(app).getLabelText().lower():
+                if self.appSearchBar.text().lower() in self.list.itemWidget(app).getProcessName().lower():
                     app.setHidden(False)
                 else:
                     app.setHidden(True)
@@ -715,7 +715,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.BWtextUL.setText('Current UL speed: %0.1f kB/s' % up)
         self.BWtextDL.setText('Current DL speed: %0.1f kB/s' % down)
-        percentage = getBandWidthDiff(self.nic)
+        #percentage = getBandWidthDiff(self.nic)
+        percentage="bite"
         self.BWpercentageVPN.setText('Bandwidth used by VPN:'+ percentage)
 
         self.ptrBW += 1
@@ -731,7 +732,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         #curveDL.setData(dataDL)
 
     def setPacketsChart(self, packets):
+
         self.allpkts = self.allpkts + packets["ALL"]
+        self.dpacketsData["ALL"] = self.dpacketsData["ALL"] + packets["ALL"]
         self.dpacketsData["TCP"] = self.dpacketsData["TCP"] + packets["TCP"]
         self.dpacketsData["UDP"] = self.dpacketsData["UDP"] + packets["UDP"]
         self.dpacketsData["ARP"] = self.dpacketsData["ARP"] + packets["ARP"]
@@ -756,6 +759,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         # self.bgDNS.setOpts(y=self.packetsData["DNS"])
         # self.bgNBNS.setOpts(y=self.packetsData["NBNS"])
         # self.bgOTHER.setOpts(y=self.packetsData["OTHER"])
+
 
     def dicToArrayPacketData(self):
         dic = []
@@ -1046,7 +1050,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         data_list = []
 
         for process in self.list.selectedItems():
-            processes.append(self.list.itemWidget(process).getLabelText())
+            processes.append(self.list.itemWidget(process).getProcessName())
 
         selectedGroup = self.groupList.itemWidget( self.groupList.selectedItems()[0] )
         name = selectedGroup.getName()

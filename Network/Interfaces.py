@@ -10,7 +10,7 @@ def GetInterfaces(nic):
     else:
         OpenVpnCard = "Not_Defined"
 
-    print(OpenVpnCard)
+    #print(OpenVpnCard)
     iostat = psutil.net_io_counters(pernic=True, nowrap=True)
 
     bytes = []

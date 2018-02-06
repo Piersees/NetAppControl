@@ -38,17 +38,18 @@ def wifi_info():
                 elif actual is not None and len(resoc)>=2 and resoc[1] not in ssid_dic[actual] and i+1 is len(resoc):
                     ssid_dic[actual].append(resoc[1])
 
-
-    print(ssid_dic)
     return ssid_dic
 
 if __name__ == "__main__":
     dic = wifi_info()
     for key in dic:
         print(dic[key])
-        print("canal: " + dic[key][-3])
         percent = ""
+        canal = 0
         for i in dic[key]:
             if "%" in i:
                 percent = i
+            if i.isdigit():
+                canal = i
+        print("canal: "+ canal)
         print("percentage: " + percent)

@@ -134,7 +134,7 @@ def getBandWidthDiff(nic):
         diff = round(diff,2)
         #print("Pourcentage VPN used: ",diff,"%")
         return str(diff)+'%%'
-        #time.sleep(1
+        time.sleep(1)
 
 
 if __name__ =="__main__":
