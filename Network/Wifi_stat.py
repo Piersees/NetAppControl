@@ -39,7 +39,11 @@ def wifi_info():
                     ssid_dic[actual] = {}
                 
                 elif actual is not None:
-                    ssid_dic[actual][resoc[0]] = resoc[1]
+                    try:
+                        ssid_dic[actual][resoc[0]] = resoc[1]
+                    except IndexError:
+                        ssid_dic[actual][resoc[0]] = 'null'
+                                             
     return ssid_dic
 
 if __name__ == "__main__":
