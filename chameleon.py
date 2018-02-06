@@ -298,9 +298,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.datapie = wifi_info()
 
-        for keys, values in self.datapie.items():
-            print(keys)
-            print(values)
+        # for keys, values in self.datapie.items():
+        #     print(keys)
+        #     print(values)
 
         self.labelsla = 'Channel 1', 'Channel 2', 'Channel 3'
         self.chSizes = [15, 48, 37]
@@ -506,6 +506,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.appSearchBar = QtWidgets.QLineEdit(self.tab)
         self.appSearchBar.setGeometry(QtCore.QRect(20, 20, 411, 23))
         self.appSearchBar.setObjectName("appSearchBar")
+        self.appSearchBar.setPlaceholderText("Search")
         self.appSearchBar.textChanged.connect(self.appSearchBarTextChanged)
 
         ### Refresh button
