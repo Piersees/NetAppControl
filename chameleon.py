@@ -25,6 +25,7 @@ from wapp import WappWidget
 from gapp import GappWidget
 from speedtestwidget import SpeedTestWidget
 from VPNstatusWidget import VPNstatusWidget
+from Wifi_stat import wifi_info
 import time
 sys.path.append("../Network")
 import External_IP
@@ -285,7 +286,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.channelLayout.addWidget(self.chCanvas)
 
         # self.datapie = wifi_info()
-        #
+        # #
         # for keys, values in self.datapie.items():
         #     print(keys)
         #     print(values)
