@@ -14,16 +14,15 @@ import subprocess
 def wifi_info():
     try:
         available = subprocess.check_output('netsh wlan show network mode=bssid',
-                                        stderr=subprocess.STDOUT,universal_newlines=True,
+                                        stderr=subprocess.STDOUT, universal_newlines=True,
                                         shell=True)
 
     except subprocess.CalledProcessError:
         print ("error")
-    #return "Wifi disabled check" #return an error messag
+        return "Wifi disabled check" #return an error messag
     
     res = []
     res= available.split("\n")
-    print (res)
 
     ssid_dic = {}
     resoc=[]
@@ -35,13 +34,10 @@ def wifi_info():
                 resoc[i] = resoc[i].strip()
                 if "SSID" in resoc[i] and "BSSID" not in resoc[i]:
                     actual = resoc[i]
-                    ssid_dic[actual] = {}
-                
-                elif actual is not None:
+                    ssid_dic[actual] = []
+                elif actual is not None and len(resoc)>=2 and resoc[1] not in ssid_dic[actual] and i+1 is len(resoc):
+                    ssid_dic[actual].append(resoc[1])
 
-                    ssid_dic[actual][resoc[0]] = resoc[1]
-
-                                             
     return ssid_dic
 
 if __name__ == "__main__":
@@ -57,4 +53,3 @@ if __name__ == "__main__":
                 canal = i
         print("canal: "+ canal)
         print("percentage: " + percent)
-
