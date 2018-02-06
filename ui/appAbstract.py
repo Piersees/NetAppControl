@@ -78,7 +78,10 @@ class appAbstract(QWidget):
         if self.secured is False:
             ### Open the form
             dialog = appPopUpSecurity()
-            dialog.setTitle(self.label.text())
+            if "%)" in self.label.text():
+                dialog.setTitle(self.label.text().split(' (')[0])
+            else:
+                dialog.setTitle(self.label.text())
 
             ### Get the values entered
             value = dialog.exec_()
