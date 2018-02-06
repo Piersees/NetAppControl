@@ -62,8 +62,6 @@ def VPNConnect(OpenVpnPath,componentId,TcpConf,UdpConf=None):
     prog.stdin.close()
 
     t = currentThread()
-    count = 0
-    old = None
     while True:
         line = prog.stdout.readline()
         print(line)

@@ -1343,8 +1343,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         for i in range(self.list.count()):
             wapp = self.list.itemWidget(self.list.item(i))
             for ratio in ratios:
-                if( ratio == wapp.getProcessName() ):
-                    self.packetRatioSig.emit(wapp, ratios[ratio])
+                try:
+                    if( ratio == wapp.getProcessName() ):
+                        self.packetRatioSig.emit(wapp, ratios[ratio])
+                except:
+                    pass
 
     def manageRatio(self):
         time.sleep(2)

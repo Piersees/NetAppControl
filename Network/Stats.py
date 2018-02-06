@@ -160,7 +160,7 @@ def GetAppStats(nic):
             pass
 
     #Sniff fonction: sniff 10 packets and for each call the fonciton packet_cpt_callback if there is no internet connection sniff will timeout after 20sec
-    pkt = sniff(count=100, prn=packet_cpt_callback,timeout=20)
+    pkt = sniff(count=100, prn=packet_cpt_callback,timeout=3)
 
     #print(pkt_cpt)
     #print(total_len)
@@ -188,7 +188,7 @@ def getPortsAppListWithInternet():
                 if processConnections is not None:
                     for item in processConnections:
                         if item[3][1] == 80 or item[3][1] == 443 or item[3][1] == 5355:
-                            print()
+                            pass
                         else:
                             ports.append(item[3][1])
                     dic[proc.name()] = ports
