@@ -734,7 +734,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def setPacketsChart(self, packets):
 
         self.allpkts = self.allpkts + packets["ALL"]
-        self.dpacketsData["ALL"] = self.dpacketsData["ALL"] + packets["ALL"]
         self.dpacketsData["TCP"] = self.dpacketsData["TCP"] + packets["TCP"]
         self.dpacketsData["UDP"] = self.dpacketsData["UDP"] + packets["UDP"]
         self.dpacketsData["ARP"] = self.dpacketsData["ARP"] + packets["ARP"]
