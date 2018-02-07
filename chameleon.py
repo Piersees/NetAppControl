@@ -188,6 +188,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             "}"
             "QWidget#bwTabSpeedtest QLabel{"
             "color: rgb(41, 107, 116);"
+            "}"
+            "QWidget#home_tab QLabel{"
+            "color: rgb(41, 107, 116);"
             "}")
 
         self.tabWidget.setTabPosition(QtWidgets.QTabWidget.West)
