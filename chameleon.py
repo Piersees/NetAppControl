@@ -846,7 +846,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             msg.exec_()
         except ValueError as e:
             msg = QtWidgets.QMessageBox()
-            msg.setText(e)
+            msg.setText(str(e))
             msg.exec_()
 
 
