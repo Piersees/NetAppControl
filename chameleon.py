@@ -178,6 +178,26 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             "}"
             "QPushButton#aboutButton:hover, QPushButton#helpButton:hover{"
             "background-color: rgba(41, 107, 116,0.15);"
+            "}"
+            "QLabel#labelTitle{"
+            "text-align: center;"
+            "border-bottom: 1px solid rgb(41, 107, 116);"
+            "}"
+            "QPushButton#buttonStart{"
+            "border-radius: 5px;"
+            "color: rgb(41, 107, 116);"
+            "padding: 15px;"
+            "border: 1px solid rgba(41, 107, 116,1);"
+            "background-color: rgba(41, 107, 116,0);"
+            "}"
+            "QPushButton#buttonStart:hover{"
+            "background-color: rgba(41, 107, 116,0.25);"
+            "}"
+            "QWidget#bwTabSpeedtest QLabel{"
+            "color: rgb(41, 107, 116);"
+            "}"
+            "QWidget#home_tab QLabel{"
+            "color: rgb(41, 107, 116);"
             "}")
 
         self.tabWidget.setTabPosition(QtWidgets.QTabWidget.West)
@@ -847,7 +867,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             msg.exec_()
         except ValueError as e:
             msg = QtWidgets.QMessageBox()
-            msg.setText(e)
+            msg.setText(str(e))
             msg.exec_()
 
 
@@ -1337,7 +1357,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def toggleVPN(self):
         if (self.vpnStatus.getStatus() is True and self.OpenVpnThread != None):
             self.stopVPN()
-        if self.vpnStatus.getStatus() is False and (self.OpenVpnThread == None or not self.OpenVpnThread.is_alive()):
+        elif self.vpnStatus.getStatus() is False and (self.OpenVpnThread == None or not self.OpenVpnThread.is_alive()):
             self.autoStartVPN()
 
     ### Opens a browser page to the software's repository
