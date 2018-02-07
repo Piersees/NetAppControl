@@ -171,6 +171,23 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             "}"
             "QPushButton#aboutButton:hover, QPushButton#helpButton:hover{"
             "background-color: rgba(41, 107, 116,0.15);"
+            "}"
+            "QLabel#labelTitle{"
+            "text-align: center;"
+            "border-bottom: 1px solid rgb(41, 107, 116);"
+            "}"
+            "QPushButton#buttonStart{"
+            "border-radius: 5px;"
+            "color: rgb(41, 107, 116);"
+            "padding: 15px;"
+            "border: 1px solid rgba(41, 107, 116,1);"
+            "background-color: rgba(41, 107, 116,0);"
+            "}"
+            "QPushButton#buttonStart:hover{"
+            "background-color: rgba(41, 107, 116,0.25);"
+            "}"
+            "QWidget#bwTabSpeedtest QLabel{"
+            "color: rgb(41, 107, 116);"
             "}")
 
         self.tabWidget.setTabPosition(QtWidgets.QTabWidget.West)

@@ -27,94 +27,138 @@ class SpeedTestWidget(QWidget):
         self.mainLayout = QVBoxLayout(self)
         self.mainLayout.setObjectName("mainLayout")
 
+        # font = QFont()
+        # font.setPointSize(20)
+        # font.setBold(True)
+        # font.setWeight(75)
+
         font = QFont()
-        font.setPointSize(20)
-        font.setBold(True)
-        font.setWeight(75)
+        font.setPointSize(25)
+        font.setWeight(0)
+        font.setLetterSpacing(QFont.AbsoluteSpacing,2)
 
         self.labelTitle = QLabel()
         self.mainLayout.addWidget(self.labelTitle)
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.labelTitle.sizePolicy().hasHeightForWidth())
+        #sizePolicy.setHeightForWidth(self.labelTitle.sizePolicy().hasHeightForWidth())
         self.labelTitle.setSizePolicy(sizePolicy)
+        self.labelTitle.setAlignment(Qt.AlignCenter)
         self.labelTitle.setFont(font)
         self.labelTitle.setObjectName("labelTitle")
-
 
         font = QFont()
         font.setBold(True)
         font.setWeight(75)
-        font.setPointSize(13)
 
         self.resultLayout = QFormLayout()
         self.resultLayout.setObjectName("resultLayout")
         self.mainLayout.addLayout(self.resultLayout)
-        self.downloadRateLabel = QLabel()
 
+        line0 = QFrame();
+        line0.setFrameShape(QFrame.HLine);
+        line0.setFrameShadow(QFrame.Sunken);
+        self.resultLayout.setWidget(0, QFormLayout.SpanningRole, line0)
+
+        self.downloadRateLabel = QLabel()
         self.downloadRateLabel.setFont(font)
         self.downloadRateLabel.setObjectName("downloadRateLabel")
-        self.resultLayout.setWidget(0, QFormLayout.LabelRole, self.downloadRateLabel)
+        self.resultLayout.setWidget(1, QFormLayout.LabelRole, self.downloadRateLabel)
+
         self.downloadRateValue = QLabel()
         self.downloadRateValue.setObjectName("downloadRateValue")
-        self.resultLayout.setWidget(0, QFormLayout.FieldRole, self.downloadRateValue)
-        self.uploadRateLabel = QLabel()
+        self.resultLayout.setWidget(1, QFormLayout.FieldRole, self.downloadRateValue)
 
+        line = QFrame();
+        line.setFrameShape(QFrame.HLine);
+        line.setFrameShadow(QFrame.Sunken);
+        self.resultLayout.setWidget(2, QFormLayout.SpanningRole, line)
+
+        self.uploadRateLabel = QLabel()
         self.uploadRateLabel.setFont(font)
         self.uploadRateLabel.setObjectName("uploadRateLabel")
-        self.resultLayout.setWidget(1, QFormLayout.LabelRole, self.uploadRateLabel)
+        self.resultLayout.setWidget(3, QFormLayout.LabelRole, self.uploadRateLabel)
+
         self.uploadRateValue = QLabel()
         self.uploadRateValue.setObjectName("uploadRateValue")
-        self.resultLayout.setWidget(1, QFormLayout.FieldRole, self.uploadRateValue)
-        self.serverLabel = QLabel()
+        self.resultLayout.setWidget(3, QFormLayout.FieldRole, self.uploadRateValue)
+
+        line1 = QFrame();
+        line1.setFrameShape(QFrame.HLine);
+        line1.setFrameShadow(QFrame.Sunken);
+        self.resultLayout.setWidget(4, QFormLayout.SpanningRole, line1)
 
         self.pingLabel = QLabel()
         self.pingLabel.setFont(font)
         self.pingLabel.setObjectName("pingLabel")
-        self.resultLayout.setWidget(2, QFormLayout.LabelRole, self.pingLabel)
+        self.resultLayout.setWidget(5, QFormLayout.LabelRole, self.pingLabel)
+
         self.pingValue = QLabel()
         self.pingValue.setObjectName("pingValue")
-        self.resultLayout.setWidget(2, QFormLayout.FieldRole, self.pingValue)
+        self.resultLayout.setWidget(5, QFormLayout.FieldRole, self.pingValue)
 
+        line2 = QFrame();
+        line2.setFrameShape(QFrame.HLine);
+        line2.setFrameShadow(QFrame.Sunken);
+        self.resultLayout.setWidget(6, QFormLayout.SpanningRole, line2)
+
+        self.serverLabel = QLabel()
         self.serverLabel.setFont(font)
         self.serverLabel.setObjectName("serverLabel")
-        self.resultLayout.setWidget(3, QFormLayout.LabelRole, self.serverLabel)
+        self.resultLayout.setWidget(7, QFormLayout.LabelRole, self.serverLabel)
+
         self.resultServerLayout = QFormLayout()
         self.resultServerLayout.setObjectName("resultServerLayout")
-        self.serverCityLabel = QLabel()
 
-        self.serverCityLabel.setFont(font)
-        self.serverCityLabel.setObjectName("serverCityLabel")
-        self.resultServerLayout.setWidget(1, QFormLayout.LabelRole, self.serverCityLabel)
-        self.serverCityValue = QLabel()
-        self.serverCityValue.setObjectName("serverCityValue")
-        self.resultServerLayout.setWidget(1, QFormLayout.FieldRole, self.serverCityValue)
         self.serverCountryLabel = QLabel()
-
         self.serverCountryLabel.setFont(font)
         self.serverCountryLabel.setObjectName("serverCountryLabel")
         self.resultServerLayout.setWidget(0, QFormLayout.LabelRole, self.serverCountryLabel)
+
         self.serverCountryValue = QLabel()
         self.serverCountryValue.setObjectName("serverCountryValue")
         self.resultServerLayout.setWidget(0, QFormLayout.FieldRole, self.serverCountryValue)
-        self.serverProviderLabel = QLabel()
 
+        self.serverCityLabel = QLabel()
+        self.serverCityLabel.setFont(font)
+        self.serverCityLabel.setObjectName("serverCityLabel")
+        self.resultServerLayout.setWidget(1, QFormLayout.LabelRole, self.serverCityLabel)
+
+        self.serverCityValue = QLabel()
+        self.serverCityValue.setObjectName("serverCityValue")
+        self.resultServerLayout.setWidget(1, QFormLayout.FieldRole, self.serverCityValue)
+
+        self.serverProviderLabel = QLabel()
         self.serverProviderLabel.setFont(font)
         self.serverProviderLabel.setObjectName("serverProviderLabel")
         self.resultServerLayout.setWidget(2, QFormLayout.LabelRole, self.serverProviderLabel)
+
         self.serverProviderValue = QLabel()
         self.serverProviderValue.setObjectName("serverProviderValue")
         self.resultServerLayout.setWidget(2, QFormLayout.FieldRole, self.serverProviderValue)
-        self.resultLayout.setLayout(3, QFormLayout.FieldRole, self.resultServerLayout)
+
+        self.resultLayout.setLayout(7, QFormLayout.FieldRole, self.resultServerLayout)
+
+        line3 = QFrame();
+        line3.setFrameShape(QFrame.HLine);
+        line3.setFrameShadow(QFrame.Sunken);
+        self.resultLayout.setWidget(8, QFormLayout.SpanningRole, line3)
 
         self.dateLabel = QLabel()
         self.dateLabel.setFont(font)
         self.dateLabel.setObjectName("dateLabel")
-        self.resultLayout.setWidget(4, QFormLayout.LabelRole, self.dateLabel)
+        self.resultLayout.setWidget(9, QFormLayout.LabelRole, self.dateLabel)
+
         self.dateValue = QLabel()
         self.dateValue.setObjectName("dateValue")
-        self.resultLayout.setWidget(4, QFormLayout.FieldRole, self.dateValue)
+        self.resultLayout.setWidget(9, QFormLayout.FieldRole, self.dateValue)
+
+        line4 = QFrame();
+        line4.setFrameShape(QFrame.HLine);
+        line4.setFrameShadow(QFrame.Sunken);
+        self.resultLayout.setWidget(10, QFormLayout.SpanningRole, line4)
+
         self.buttonStart = QPushButton()
         self.buttonStart.setObjectName("buttonStart")
         self.mainLayout.addWidget(self.buttonStart)
