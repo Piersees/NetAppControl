@@ -14,7 +14,6 @@ import time
 
 def orderByChannel(dic):
     res = {}
-    print(dic)
     for key in dic:
         percent = ""
         canal = 0
@@ -24,10 +23,10 @@ def orderByChannel(dic):
             if i.isdigit():
                 canal = i
         if "Channel "+str(canal) in res:
-            res["Channel "+str(canal)] = res["Channel "+str(canal)][key.split(": ")[1]] = [canal,percent]
+            res["Channel "+str(canal)][key] = percent
             pass
         else:
-            res["Channel "+str(canal)] = {key.split(": ")[1]:[canal,percent]}
+            res["Channel "+str(canal)] = {key:percent}
 
     return res
 
@@ -61,10 +60,5 @@ def wifi_info():
     return orderByChannel(ssid_dic)
 
 if __name__ == "__main__":
-    dic = {}
-    while len(dic) <2:
-        dic = wifi_info()
-        print(dic)
-        time.sleep(2)
+    dic = wifi_info()
     print(dic)
-

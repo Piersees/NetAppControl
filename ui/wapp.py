@@ -64,14 +64,17 @@ class WappWidget(appAbstract):
 
             for action in actions:
                 line = action.split(',')
-                dic = {'processName':line[0], 'actionType':line[1], 'durationType':line[2], 'durationTime':line[3]}
+                try:
+                    dic = {'processName':line[0], 'actionType':line[1], 'durationType':line[2], 'durationTime':line[3]}
 
-                if ( not (dic['processName'] == self.processName and dic['actionType'] == 'security' ) ):
-                    insertData.append(action)
+                    if ( not (dic['processName'] == self.processName and dic['actionType'] == 'security' ) ):
+                        insertData.append(action)
 
-                fw = open('data/appsActions.data', 'w')
-                fw.writelines(insertData)
-                fw.close()
+                    fw = open('data/appsActions.data', 'w')
+                    fw.writelines(insertData)
+                    fw.close()
+                except:
+                    pass
 
 
 

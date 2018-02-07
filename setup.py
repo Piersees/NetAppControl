@@ -25,7 +25,7 @@ options = {
 }
 
 setup(
-    name = "AppVpn",
+    name = "Chameleon",
     options = options,
     version = "0.1",
     description = 'VPN Management App',
