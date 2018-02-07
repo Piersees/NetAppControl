@@ -45,6 +45,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     deleteGroupSig = QtCore.pyqtSignal(str)
     displayIpSig = QtCore.pyqtSignal(str)
     packetRatioSig = QtCore.pyqtSignal(WappWidget, float)
+    vpnStatusSig = QtCore.pyqtSignal()
     OpenVpnThread = None
     IP, HOSTNAME, STATUS = range(3)
     nic = None
@@ -395,15 +396,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         ### VPN status
         self.vpnStatus = VPNstatusWidget()
         self.vpnLayout.addWidget(self.vpnStatus)
+        self.vpnStatusSig.connect(self.toggleVPN)
+        self.vpnStatus.setSignal(self.vpnStatusSig)
         self.vpnStatusThread = threading.Thread(target=self.toggleVPNstatusDisplay)
         self.vpnStatusThread.start()
-
-        ### Stop VPN button
-        self.vpnToggleButton1 = QPushButton()
-        self.vpnLayout.addWidget(self.vpnToggleButton1)
-        self.vpnToggleButton1.clicked.connect(self.toggleVPN)
-        self.vpnToggleButton1.setText("Toggle VPN")
-
 
         ### About layout
         self.aboutLayout = QtWidgets.QVBoxLayout()
