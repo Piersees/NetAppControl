@@ -1,0 +1,10 @@
+﻿  dllmain.cpp
+c:\users\quent\source\repos\nethook\nethook\dllmain.cpp(68): warning C4101: 'dwRead' : variable locale non référencée
+c:\users\quent\source\repos\nethook\nethook\dllmain.cpp(168): error C2039: 'Rip' : n'est pas membre de '_CONTEXT'
+  c:\program files (x86)\windows kits\10\include\10.0.16299.0\um\winnt.h(7519): note: voir la déclaration de '_CONTEXT'
+c:\users\quent\source\repos\nethook\nethook\dllmain.cpp(169): error C2039: 'Rip' : n'est pas membre de '_CONTEXT'
+  c:\program files (x86)\windows kits\10\include\10.0.16299.0\um\winnt.h(7519): note: voir la déclaration de '_CONTEXT'
+c:\users\quent\source\repos\nethook\nethook\dllmain.cpp(170): error C2039: 'Rip' : n'est pas membre de '_CONTEXT'
+  c:\program files (x86)\windows kits\10\include\10.0.16299.0\um\winnt.h(7519): note: voir la déclaration de '_CONTEXT'
+c:\users\quent\source\repos\nethook\nethook\dllmain.cpp(171): error C2039: 'Rip' : n'est pas membre de '_CONTEXT'
+  c:\program files (x86)\windows kits\10\include\10.0.16299.0\um\winnt.h(7519): note: voir la déclaration de '_CONTEXT'
