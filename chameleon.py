@@ -333,7 +333,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         for keys, values in self.datapie.items():
             self.labelsla.append(keys)
             self.totnumchannels = self.totnumchannels + values
-            
+
         for keys, values in self.datapie.items():
             #siz = (values/self.totnumchannels)*100
             self.chSizes.append(values)
