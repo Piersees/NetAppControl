@@ -24,15 +24,17 @@ class VPNstatusWidget(QWidget):
         self.label = QLabel("VPN status:")
         self.mainlayout.addWidget(self.label)
 
-        self.imgGreen = QPixmap('./images/vpngreen.png')
-        self.imgRed = QPixmap('./images/vpnred.png')
+        self.imgGreen = QIcon('./images/vpngreen.png')
+        self.imgRed = QIcon('./images/vpnred.png')
 
-        self.image = QLabel()
-        self.image.setPixmap(self.imgRed)
-        self.mainlayout.addWidget(self.image)
+        self.button = QPushButton()
+        self.button.setIcon(self.imgRed)
+        self.button.clicked.connect(self.buttonClicked)
+        self.button.setFlat(True)
+        self.button.setIconSize(QSize(40,60))
+        self.mainlayout.addWidget(self.button)
 
         self.secured = False
-
         self.setActive()
 
     def getStatus(self):
@@ -40,19 +42,25 @@ class VPNstatusWidget(QWidget):
 
     def setActive(self):
         self.secured = True
-        self.image.setPixmap(self.imgGreen)
+        self.button.setIcon(self.imgGreen)
 
     def setInactive(self):
         self.secured = False
-        self.image.setPixmap(self.imgRed)
+        self.button.setIcon(self.imgRed)
 
     def toggleStatus(self):
         if self.secured is True:
             self.secured = False
-            self.image.setPixmap(self.imgRed)
+            self.button.setIcon(self.imgRed)
         else:
             self.secured = True
-            self.image.setPixmap(self.imgGreen)
+            self.button.setIcon(self.imgGreen)
+
+    def setSignal(self, signal):
+        self.signal = signal
+
+    def buttonClicked(self):
+        self.signal.emit()
 
 
 if __name__ == "__main__":
