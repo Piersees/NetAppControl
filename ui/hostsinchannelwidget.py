@@ -63,9 +63,6 @@ class hostsInChannelWidget(QDialog):
 
         for key, value in hostList.items():
 
-            print(key)
-            print(value)
-
             i = i + 1
             host = QLabel()
             host.setText(key)

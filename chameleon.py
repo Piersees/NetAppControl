@@ -353,9 +353,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 label = wedge.get_label()
                 for key, value in self.datapie.items():
                     if label == key:
-                        print("CHECKED KEYS SENT VALUES")
-                        print(key)
-                        print(value)
                         self.showHosts(value,label)
 
 
