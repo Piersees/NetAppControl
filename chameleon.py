@@ -34,6 +34,13 @@ import NetworkScan
 from BandWidth import getBandWidth, getBandWidthDiff
 import openvpn
 from Stats import GetPacketStats, GetAppStats
+import ctypes, sys
+
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     bandWidthSig = QtCore.pyqtSignal(int,int,str)
@@ -656,13 +663,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 
             except(UnboundLocalError):
-                msg = QtWidgets.QMessageBox()
-                msg.setText("Invalid openVPN certificate")
-                msg.exec_()
-            except ValueError as e:
-                msg = QtWidgets.QMessageBox()
-                msg.setText(e)
-                msg.exec_()
+                pass
         except:
             print("no certificate")
 
@@ -1374,7 +1375,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     import sys
-    app = QtWidgets.QApplication(sys.argv)
-    ui = Ui_MainWindow()
-    ui.show()
-    sys.exit(app.exec_())
+    print(sys.executable)
+    if is_admin() or "python.exe" in sys.executable:
+        app = QtWidgets.QApplication(sys.argv)
+        ui = Ui_MainWindow()
+        ui.show()
+        sys.exit(app.exec_())
+    else:
+        # Re-run the program with admin rights
+        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, "", None, 1)
