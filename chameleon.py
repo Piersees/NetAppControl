@@ -298,17 +298,36 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.datapie = wifi_info()
 
-        # for keys, values in self.datapie.items():
-        #     print(keys)
-        #     print(values)
+        self.totnumchannels = 0
+        self.labelsla = []
+        self.chSizes = []
 
-        self.labelsla = 'Channel 1', 'Channel 2', 'Channel 3'
-        self.chSizes = [15, 48, 37]
-        self.chExplode = (0 ,0 ,0.1)
+        for keys, values in self.datapie.items():
+            self.labelsla.append(keys)
+            self.totnumchannels = self.totnumchannels + values
 
-        self.chAxis = self.chFigure.add_subplot(111)
-        self.chAxis.pie(self.chSizes, explode=self.chExplode, labels=self.labelsla, autopct='%1.1f%%')
+        for keys, values in self.datapie.items():
+            #siz = (values/self.totnumchannels)*100
+            self.chSizes.append(values)
 
+        #self.chExplode = (0 ,0 ,0.1)
+
+
+
+        self.chAxis = self.chFigure.add_subplot(111, aspect=1.0)
+
+        #self.chAxis.pie(self.chSizes, explode=self.chExplode, labels=self.labelsla, autopct='%1.1f%%')
+        # self.chAxis.pie(self.chSizes, labels=self.labelsla, autopct='%1.1f%%')
+        # self.chCanvas.draw()
+        def make_autopct(values):
+            def my_autopct(pct):
+                total = sum(values)
+                val = int(round(pct*total/100.0))
+                return '{p:.2f}%  ({v:d})'.format(p=pct,v=val)
+            return my_autopct
+
+        #self.chAxis.pie(self.chSizes, explode=self.chExplode, labels=self.labelsla, autopct='%1.1f%%')
+        self.chAxis.pie(self.chSizes, labels=self.labelsla, autopct=make_autopct(self.chSizes))
         self.chCanvas.draw()
 
 
