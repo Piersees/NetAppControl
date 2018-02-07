@@ -10,6 +10,7 @@ Created on Tue Jan 30 14:04:55 2018
 ##############################################
 
 import subprocess
+import time
 
 def orderByChannel(dic):
     res = {}
@@ -22,9 +23,10 @@ def orderByChannel(dic):
             if i.isdigit():
                 canal = i
         if "Channel "+str(canal) in res:
-            res["Channel "+str(canal)] = res["Channel "+str(canal)] +1
+            res["Channel "+str(canal)][key] = percent
+            pass
         else:
-            res["Channel "+str(canal)] = 1
+            res["Channel "+str(canal)] = {key:percent}
 
     return res
 

@@ -6,15 +6,15 @@ from PyQt5.QtWidgets import *
 class hostsInChannelWidget(QDialog):
     def __init__(self, parent=None):
 
-        super(appsInGroupWidget, self).__init__(parent)
-        self.setFixedSize(200, 400)
+        super(hostsInChannelWidget, self).__init__(parent)
+        self.setFixedSize(300, 400)
         self.setWindowTitle("Hosts in Channel")
 
 
         self.mainLayout = QVBoxLayout()
         self.setLayout(self.mainLayout)
 
-        self.setStyleSheet("QDialog{background-color:white;}QLabel{color:rgba(41, 107, 116, 1);}QPushButton{border-radius: 20px;width:60px; height:60px;border: 1px solid rgb(41, 107, 116); background-color: rgb(41, 107, 116);}QPushButton:hover{border: 1px solid rgba(41, 107, 116, 0.5); background-color: rgba(41, 107, 116,0.5);}")
+        self.setStyleSheet("QDialog{background-color:white;}QLabel{color:rgba(41, 107, 116, 1);}")
 
         ### Title label
         self.labelTitle = QLabel()
@@ -42,9 +42,13 @@ class hostsInChannelWidget(QDialog):
         font.setWeight(75)
 
         self.hostnamelab = QLabel()
+        self.hostnamelab.setFont(font)
+        self.hostnamelab.setText("Host Name")
         self.hostitemsLayout.setWidget(1, QFormLayout.LabelRole, self.hostnamelab)
 
         self.siglab = QLabel()
+        self.siglab.setFont(font)
+        self.siglab.setText("Signal")
         self.hostitemsLayout.setWidget(1, QFormLayout.FieldRole, self.siglab)
 
         line1 = QFrame();
@@ -56,7 +60,12 @@ class hostsInChannelWidget(QDialog):
     def fillList(self, hostList, title):
         i = 2
         self.labelTitle.setText(title)
-        for key, value in hostList:
+
+        for key, value in hostList.items():
+
+            print(key)
+            print(value)
+
             i = i + 1
             host = QLabel()
             host.setText(key)

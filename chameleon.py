@@ -332,45 +332,43 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         for keys, values in self.datapie.items():
             self.labelsla.append(keys)
-            # self.totnumchannels = self.totnumchannels + values
-            # self.chSizes.append(values)
-            self.chSizes.append(len(keys))
-            print(keys)
-            print(values)
+            self.chSizes.append(len(values))
 
-        # self.chAxis = self.chFigure.add_subplot(111, aspect=1.0, title='Hosts By Channel')
-        #
-        # def make_autopct(values):
-        #     def my_autopct(pct):
-        #         total = sum(values)
-        #         val = int(round(pct*total/100.0))
-        #         return '{p:.2f}%  ({v:d})'.format(p=pct,v=val)
-        #     return my_autopct
-        #
-        #
-        # wedges, plt_labels, pvls = self.chAxis.pie(self.chSizes, labels=self.labelsla, autopct=make_autopct(self.chSizes))
-        #
-        #
-        # def make_picker(self, fig, wedges):
-        #
-        #     def onclick(self, event):
-        #         wedge = event.artist
-        #         label = wedge.get_label()
-        #         for key, value in self.datapie.items():
-        #             if label == key:
-        #                 self.showHosts(values,label)
-        #
-        #
-        # # Make wedges selectable
-        #     for wedge in wedges:
-        #         wedge.set_picker(True)
-        #
-        #     fig.canvas.mpl_connect('pick_event', onclick)
-        #
-        #
-        # make_picker(self.chFigure, wedges)
-        #
-        # self.chCanvas.draw()
+        self.chAxis = self.chFigure.add_subplot(111, aspect=1.0, title='Hosts By Channel')
+
+        def make_autopct(values):
+            def my_autopct(pct):
+                total = sum(values)
+                val = int(round(pct*total/100.0))
+                return '{p:.2f}%  ({v:d})'.format(p=pct,v=val)
+            return my_autopct
+
+
+        wedges, plt_labels, wtv = self.chAxis.pie(self.chSizes, labels=self.labelsla, autopct=make_autopct(self.chSizes))
+
+        def make_picker(self, fig, wedges):
+
+            def onclick(event):
+                wedge = event.artist
+                label = wedge.get_label()
+                for key, value in self.datapie.items():
+                    if label == key:
+                        print("CHECKED KEYS SENT VALUES")
+                        print(key)
+                        print(value)
+                        self.showHosts(value,label)
+
+
+        # Make wedges selectable
+            for wedge in wedges:
+                wedge.set_picker(True)
+
+            fig.canvas.mpl_connect('pick_event', onclick)
+
+
+        make_picker(self, self.chFigure, wedges)
+
+        self.chCanvas.draw()
 
 
         ### Setting up tab icons
@@ -832,7 +830,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             dic.append(self.dpacketsData[key])
         return dic
 
-    def showHosts(self, hosts,channel):
+    def showHosts(self, hosts, channel):
         self.hostlistPopUp = hostsInChannelWidget()
         self.hostlistPopUp.fillList(hosts,channel)
         self.hostlistPopUp.show()
