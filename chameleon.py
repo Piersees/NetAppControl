@@ -863,7 +863,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             msg.exec_()
         except ValueError as e:
             msg = QtWidgets.QMessageBox()
-            msg.setText(e)
+            msg.setText(str(e))
             msg.exec_()
 
 
@@ -1353,7 +1353,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def toggleVPN(self):
         if (self.vpnStatus.getStatus() is True and self.OpenVpnThread != None):
             self.stopVPN()
-        if self.vpnStatus.getStatus() is False and (self.OpenVpnThread == None or not self.OpenVpnThread.is_alive()):
+        elif self.vpnStatus.getStatus() is False and (self.OpenVpnThread == None or not self.OpenVpnThread.is_alive()):
             self.autoStartVPN()
 
     ### Opens a browser page to the software's repository
