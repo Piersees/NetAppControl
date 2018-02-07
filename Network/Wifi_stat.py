@@ -37,7 +37,7 @@ def wifi_info():
     except subprocess.CalledProcessError:
         print ("error")
         return "Wifi disabled check" #return an error messag
-    
+
     res = []
     res= available.split("\n")
 
@@ -60,4 +60,3 @@ def wifi_info():
 if __name__ == "__main__":
     dic = wifi_info()
     print(dic)
-

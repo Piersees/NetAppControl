@@ -1,8 +1,6 @@
-
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-import time
 
 ### The dialog window showing the apps in a group, and allowing the user to remove them from the group
 class hostsInChannelWidget(QDialog):

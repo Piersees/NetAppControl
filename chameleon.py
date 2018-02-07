@@ -23,7 +23,7 @@ import sys
 sys.path.append("ui")
 from wapp import WappWidget
 from gapp import GappWidget
-from hostinchannelwidget import hostsInChannelWidget
+from hostsinchannelwidget import hostsInChannelWidget
 from speedtestwidget import SpeedTestWidget
 from VPNstatusWidget import VPNstatusWidget
 from Wifi_stat import wifi_info
@@ -35,6 +35,13 @@ import NetworkScan
 from BandWidth import getBandWidth, getBandWidthDiff
 import openvpn
 from Stats import GetPacketStats, GetAppStats
+import ctypes, sys
+
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     bandWidthSig = QtCore.pyqtSignal(int,int,str)
@@ -320,55 +327,51 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.datapie = wifi_info()
 
-        self.totnumchannels = 0
         self.labelsla = []
         self.chSizes = []
 
         for keys, values in self.datapie.items():
-            # self.labelsla.append(keys)
+            self.labelsla.append(keys)
             # self.totnumchannels = self.totnumchannels + values
             # self.chSizes.append(values)
+            self.chSizes.append(len(keys))
             print(keys)
             print(values)
 
-        #self.chExplode = (0 ,0 ,0.1)
-
-        #self.chAxis = self.chFigure.add_subplot(111, aspect=1.0, title='Hosts By Channel')
-
-        #self.chAxis.pie(self.chSizes, explode=self.chExplode, labels=self.labelsla, autopct='%1.1f%%')
-        # self.chAxis.pie(self.chSizes, labels=self.labelsla, autopct='%1.1f%%')
+        # self.chAxis = self.chFigure.add_subplot(111, aspect=1.0, title='Hosts By Channel')
+        #
+        # def make_autopct(values):
+        #     def my_autopct(pct):
+        #         total = sum(values)
+        #         val = int(round(pct*total/100.0))
+        #         return '{p:.2f}%  ({v:d})'.format(p=pct,v=val)
+        #     return my_autopct
+        #
+        #
+        # wedges, plt_labels, pvls = self.chAxis.pie(self.chSizes, labels=self.labelsla, autopct=make_autopct(self.chSizes))
+        #
+        #
+        # def make_picker(self, fig, wedges):
+        #
+        #     def onclick(self, event):
+        #         wedge = event.artist
+        #         label = wedge.get_label()
+        #         for key, value in self.datapie.items():
+        #             if label == key:
+        #                 self.showHosts(values,label)
+        #
+        #
+        # # Make wedges selectable
+        #     for wedge in wedges:
+        #         wedge.set_picker(True)
+        #
+        #     fig.canvas.mpl_connect('pick_event', onclick)
+        #
+        #
+        # make_picker(self.chFigure, wedges)
+        #
         # self.chCanvas.draw()
-        def make_autopct(values):
-            def my_autopct(pct):
-                total = sum(values)
-                val = int(round(pct*total/100.0))
-                return '{p:.2f}%  ({v:d})'.format(p=pct,v=val)
-            return my_autopct
 
-        #self.chAxis.pie(self.chSizes, explode=self.chExplode, labels=self.labelsla, autopct='%1.1f%%')
-        wedges, plt_labels, pvls = self.chAxis.pie(self.chSizes, labels=self.labelsla, autopct=make_autopct(self.chSizes))
-
-
-        def make_picker(self, fig, wedges):
-
-            def onclick(self, event):
-                wedge = event.artist
-                label = wedge.get_label()
-                for key, value in self.datapie.items():
-                    if label = key:
-                        self.showHosts(values,label)
-
-
-        # Make wedges selectable
-            for wedge in wedges:
-                wedge.set_picker(True)
-
-            fig.canvas.mpl_connect('pick_event', onclick)
-
-
-        make_picker(self.chFigure, wedges)
-
-        self.chCanvas.draw()
 
         ### Setting up tab icons
         self.tabWidget.setTabIcon(0, QtGui.QIcon('./images/tabHome.png'))
@@ -709,13 +712,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 
             except(UnboundLocalError):
-                msg = QtWidgets.QMessageBox()
-                msg.setText("Invalid openVPN certificate")
-                msg.exec_()
-            except ValueError as e:
-                msg = QtWidgets.QMessageBox()
-                msg.setText(e)
-                msg.exec_()
+                pass
         except:
             print("no certificate")
 
@@ -1432,7 +1429,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     import sys
-    app = QtWidgets.QApplication(sys.argv)
-    ui = Ui_MainWindow()
-    ui.show()
-    sys.exit(app.exec_())
+    print(sys.executable)
+    if is_admin() or "python.exe" in sys.executable:
+        app = QtWidgets.QApplication(sys.argv)
+        ui = Ui_MainWindow()
+        ui.show()
+        sys.exit(app.exec_())
+    else:
+        # Re-run the program with admin rights
+        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, "", None, 1)

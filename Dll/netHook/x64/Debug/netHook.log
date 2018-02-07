@@ -1,0 +1,3 @@
+﻿  dllmain.cpp
+c:\users\quent\documents\nethook\nethook\dllmain.cpp(138): warning C4101: 'dwRead' : variable locale non référencée
+  netHook.vcxproj -> C:\Users\quent\Documents\netHook\x64\Debug\netHook.dll
