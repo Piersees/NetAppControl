@@ -289,8 +289,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.incomingConnectionsModel = self.createConnectionModel()
         self.incomingConnectionsList.setModel(self.incomingConnectionsModel)
 
-        #self.threadIncomingConnections = threading.Thread(target=self.manageConnectionsList)
-        #self.threadIncomingConnections.start()
+        self.threadIncomingConnections = threading.Thread(target=self.manageConnectionsList)
+        self.threadIncomingConnections.start()
 
         self.incomingConnectionSig.connect(self.resetConnectionsList)
 
